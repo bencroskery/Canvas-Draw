@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Drawing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="container-fluid">
+	<div class="user">
+
+	</div>
+
+    <div class="game">
+        <div class="left">
+            <canvas id="drawing"></canvas>
+            <div class="options">
+                <div class="swatch" style="background-color: black"></div>
+                <div class="swatch" style="background-color: red"></div>
+                <div class="swatch" style="background-color: green"></div>
+                <div class="swatch" style="background-color: blue"></div>
+                <div class="swatch" style="background-color: yellow"></div>
+                <div class="swatch" style="background-color: orange"></div>
+                <div class="swatch" style="background-color: purple"></div>
+            </div>
+        </div>
+        <div class="right">
+            <ul id="messages"></ul>
+            <form action="">
+                <input id="guess" autocomplete="off" /><button id="guessbtn">Guess!</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="size.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="paper.js"></script>
+    <script type="text/paperscript" src="draw.js" canvas="drawing"></script>
+</body>
+</html>
