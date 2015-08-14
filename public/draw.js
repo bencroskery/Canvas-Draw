@@ -43,7 +43,7 @@ function drawDrag(x, y) {
 
 // Mouse goes up, simplify the path.
 function drawUp() {
-    path.simplify();
+    path.simplify(0);
 }
 
 // Send a point to the server.
@@ -73,7 +73,7 @@ socket.on('point', function (msg) {
 });
 
 $('.swatch').click(function () {
-    color = $(this).css("background-color")
+    color = $(this).css("background-color");
 })
 
 // ----------------------------

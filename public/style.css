@@ -15,9 +15,10 @@ canvas {
     border-width: 1px;
     width: 100%;
     height: 90%;
+    cursor: url(cursor.ico) 1.9 2, crosshair;
 }
 
-.swatch {
+.options .swatch {
     box-sizing: border-box;
     display: inline-block;
     width: 30px;
@@ -27,7 +28,15 @@ canvas {
     background: linear-gradient(150deg, transparent 25%, rgba(100,50,80,.25));
 }
 
-.swatch:hover {
+.options input[type=radio]{
+    display:none
+}
+
+.options input[type=radio]:checked + .swatch {
+    border: 2px solid #3F3F3F;
+}
+
+.options .swatch:hover {
     border: 2px solid #3F3F3F;
 }
 
