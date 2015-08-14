@@ -1,8 +1,14 @@
+// Main Variables.
 var path;
 var $drawing = $('#drawing');
 var radius = 10;
 var color = 'black'
 var socket = io();
+
+// User info.
+var username;
+
+// Startup.
 $('.usernameInput').focus();
 
 // ----------------------------
@@ -22,6 +28,20 @@ function onMouseUp(event) {
     drawUp();
     emitPoint(event.type, event.point.x, event.point.y);
 }
+
+// Undo button clicked.
+$('.undobtn').click(function () {
+    if (path != null) {
+        removeLine();
+        socket.emit('undo line', 0);
+    }
+});
+
+
+$("input[name=rGroup]:radio").change(function () {
+    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
+    socket.emit('set color', color);
+});
 
 // Mouse goes down, make a new path and add a point.
 function drawDown(x, y) {
@@ -45,6 +65,14 @@ function drawDrag(x, y) {
 // Mouse goes up, simplify the path.
 function drawUp() {
     path.simplify(0);
+}
+
+// Remove the last line.
+function removeLine() {
+    path.remove();
+    project.activeLayer.lastChild.remove();
+    path = project.activeLayer.lastChild;
+    view.draw();
 }
 
 // Send a point to the server.
@@ -73,19 +101,14 @@ socket.on('point', function (msg) {
     view.draw();
 });
 
-$("input[name=rGroup]:radio").change(function () {
-    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
-})
+socket.on('undo line', function (d) {
+    removeLine();
+});
 
-$('.undobtn').click(function () {
-    if (path != null) {
-        path.remove();
-        project.activeLayer.lastChild.remove();
-        path = project.activeLayer.lastChild;
-        //$('#r0').prop('checked', true).trigger("change");
-        view.draw();
-    }
-})
+socket.on('set color', function (c) {
+    color = c;
+    //$('#' + c).prop('checked', true).trigger("change");
+});
 
 // ----------------------------
 // Chat Section
@@ -93,17 +116,18 @@ $('.undobtn').click(function () {
 
 // Creating a chat message.
 $('form#gform').submit(function () {
-    if ($('.guessInput').val() != '') {
-        socket.emit('message', $('.guessInput').val());
-        $('#messages').append($('<li>').text($('.guessInput').val()));
-        $('.guessInput').val('');
+    var $guessbox = $('.guessInput');
+    if ($guessbox.val() != '') {
+        $('#messages').append($('<li>').text(username + ': ' + $guessbox.val()));
+        socket.emit('message', $guessbox.val());
+        $guessbox.val('');
     }
     return false;
 });
 
 // Getting a chat message.
-socket.on('message', function (msg) {
-    $('#messages').append($('<li>').text(msg));
+socket.on('message', function (data) {
+    $('#messages').append($('<li>').text(data.username + ': ' + data.message));
 });
 
 $(window).resize(function () {
@@ -111,12 +135,14 @@ $(window).resize(function () {
 });
 
 // ----------------------------
-// Chat Section
+// Login Pane
 // ----------------------------
 
 $('form#lform').submit(function () {
-    if ($('.usernameInput').val() != '') {
-        socket.emit('user', $('#guess').val());
+    var name = $('.usernameInput').val()
+    if (name != '') {
+        username = name;
+        socket.emit('add user', name);
         $('.login').remove();
         $('.game').show();
         setSize();
