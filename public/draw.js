@@ -3,6 +3,7 @@ var $drawing = $('#drawing');
 var radius = 10;
 var color = 'black'
 var socket = io();
+$('.usernameInput').focus();
 
 // ----------------------------
 // Draw Section
@@ -72,8 +73,18 @@ socket.on('point', function (msg) {
     view.draw();
 });
 
-$('.swatch').click(function () {
-    color = $(this).css("background-color");
+$("input[name=rGroup]:radio").change(function () {
+    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
+})
+
+$('.undobtn').click(function () {
+    if (path != null) {
+        path.remove();
+        project.activeLayer.lastChild.remove();
+        path = project.activeLayer.lastChild;
+        //$('#r0').prop('checked', true).trigger("change");
+        view.draw();
+    }
 })
 
 // ----------------------------
@@ -81,11 +92,11 @@ $('.swatch').click(function () {
 // ----------------------------
 
 // Creating a chat message.
-$('form').submit(function () {
-    if ($('#guess').val() != '') {
-        socket.emit('message', $('#guess').val());
-        $('#messages').append($('<li>').text($('#guess').val()));
-        $('#guess').val('');
+$('form#gform').submit(function () {
+    if ($('.guessInput').val() != '') {
+        socket.emit('message', $('.guessInput').val());
+        $('#messages').append($('<li>').text($('.guessInput').val()));
+        $('.guessInput').val('');
     }
     return false;
 });
@@ -96,5 +107,36 @@ socket.on('message', function (msg) {
 });
 
 $(window).resize(function () {
-    view.viewSize = new Size($drawing.width(), $drawing.height());
+    setSize();
 });
+
+// ----------------------------
+// Chat Section
+// ----------------------------
+
+$('form#lform').submit(function () {
+    if ($('.usernameInput').val() != '') {
+        socket.emit('user', $('#guess').val());
+        $('.login').remove();
+        $('.game').show();
+        setSize();
+    }
+    return false;
+});
+
+function setSize() {
+    var ASPECT = 16 / 8;
+    var docwidth = $(window).width() - 50;
+    var docheight = $(window).height() - 50;
+
+    if (docwidth > docheight * ASPECT) {
+        docwidth = docheight * ASPECT;
+    } else {
+        docheight = docwidth / ASPECT;
+    }
+
+    var con = $('.game');
+    con.width(docwidth);
+    con.height(docheight);
+    view.viewSize = new Size($drawing.width(), $drawing.height());
+}

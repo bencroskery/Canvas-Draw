@@ -6,44 +6,49 @@
 </head>
 
 <body class="container-fluid">
-	<div class="user">
-
-	</div>
+    <div class="login">
+        <h3 class="title">What's your nickname?</h3>
+        <form id="lform" action="">
+            <input class="usernameInput" type="text" maxlength="14" />
+        </form>
+    </div>
 
     <div class="game">
-        <div class="left">
-            <canvas id="drawing"></canvas>
+        <div class="left noselect">
+            <canvas id="drawing" oncontextmenu="return false;"></canvas>
             <div class="options">
-                <input type="radio" name="rGroup" value="1" id="r1" checked="checked"/>
+                <input type="radio" name="rGroup" value="1" id="r1" checked="checked" />
                 <label class="swatch" for="r1" style="background-color: black"></label>
-                <input type="radio" name="rGroup" value="2" id="r2"/>
-                <label class="swatch" for="r2" style="background-color: red"></label>
-                <input type="radio" name="rGroup" value="3" id="r3"/>
-                <label class="swatch" for="r3" style="background-color: orange"></label>
-                <input type="radio" name="rGroup" value="4" id="r4"/>
-                <label class="swatch" for="r4" style="background-color: yellow"></label>
+                <input type="radio" name="rGroup" value="2" id="r2" />
+                <label class="swatch" for="r2" style="background-color: gray"></label>
+                <input type="radio" name="rGroup" value="3" id="r3" />
+                <label class="swatch" for="r3" style="background-color: red"></label>
+                <input type="radio" name="rGroup" value="4" id="r4" />
+                <label class="swatch" for="r4" style="background-color: orange"></label>
                 <input type="radio" name="rGroup" value="5" id="r5" />
-                <label class="swatch" for="r5" style="background-color: lime"></label>
-                <input type="radio" name="rGroup" value="6" id="r6"/>
+                <label class="swatch" for="r5" style="background-color: yellow"></label>
+                <input type="radio" name="rGroup" value="6" id="r6" />
                 <label class="swatch" for="r6" style="background-color: green"></label>
-                <input type="radio" name="rGroup" value="7" id="r7"/>
+                <input type="radio" name="rGroup" value="7" id="r7" />
                 <label class="swatch" for="r7" style="background-color: blue"></label>
-                <input type="radio" name="rGroup" value="8" id="r8"/>
+                <input type="radio" name="rGroup" value="8" id="r8" />
                 <label class="swatch" for="r8" style="background-color: purple"></label>
-                <input type="radio" name="rGroup" value="9" id="r9"/>
+                <input type="radio" name="rGroup" value="9" id="r9" />
                 <label class="swatch" for="r9" style="background-color: pink"></label>
+                <input type="radio" name="rGroup" value="0" id="r0" />
+                <label class="swatch" for="r0" style="background-color: white"></label>
+                <div class="undobtn"></div>
             </div>
         </div>
         <div class="right">
             <ul id="messages"></ul>
-            <form action="">
-                <input id="guess" autocomplete="off" /><button id="guessbtn">Guess!</button>
+            <form id="gform" action="">
+                <input class="guessInput" autocomplete="off" placeholder="Type here..." />
             </form>
         </div>
     </div>
 
     <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="size.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="paper.js"></script>
     <script type="text/paperscript" src="draw.js" canvas="drawing"></script>

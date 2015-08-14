@@ -20,5 +20,5 @@ io.on('connection', function (socket) {
 
 // listen on port 3000 (for localhost) or the port defined for heroku
 server.listen(port, function () {
-    console.log('listening on *:3000');
+    console.log('Server listening on port 3000');
 });
