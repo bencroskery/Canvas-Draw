@@ -8,5 +8,21 @@
   "dependencies": {
     "express": "^4.13.3",
     "socket.io": "^1.3.6"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bencroskery/Canvas-Draw.git"
+  },
+  "keywords": [
+    "draw",
+    "game"
+  ],
+  "bugs": {
+    "url": "https://github.com/bencroskery/Canvas-Draw/issues"
+  },
+  "homepage": "https://github.com/bencroskery/Canvas-Draw#readme"
 }

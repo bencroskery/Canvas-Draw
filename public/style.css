@@ -1,5 +1,7 @@
 ﻿* {
     box-sizing: border-box;
+    font-size: inherit;
+    font-family: Arial;
 }
 
 .noselect {
@@ -30,20 +32,21 @@
 
 canvas {
     border: 1px solid #a9a9a9;
-    border-radius: 10px;
+    border-radius: 0.625em;
     width: 100%;
     height: 90%;
+    cursor: crosshair;
     cursor: url(cursor.ico) 1.9 2, crosshair;
 }
 
 .options {
-    margin-top: 7px;
+    margin-top: 0.438em;
 }
 
     .options .swatch {
         display: inline-block;
-        width: 40px;
-        height: 40px;
+        width: 2.5em;
+        height: 2.5em;
         border-radius: 50%;
         cursor: pointer;
         background: linear-gradient(150deg, transparent 25%, rgba(100,50,80,.25));
@@ -65,9 +68,9 @@ canvas {
         float: right;
         width: 0;
         height: 0;
-        border-top: 20px solid transparent;
-        border-right: 40px solid lightgray;
-        border-bottom: 20px solid transparent;
+        border-top: 1.25em solid transparent;
+        border-right: 2.5em solid lightgray;
+        border-bottom: 1.25em solid transparent;
         cursor: pointer;
     }
 
@@ -77,17 +80,17 @@ canvas {
 
     .options .clearbtn {
         float: right;
-        width: 40px;
-        height: 40px;
+        width: 2.5em;
+        height: 2.5em;
         position: relative;
         cursor: pointer;
     }
 
         .options .clearbtn:before, .options .clearbtn:after {
-            width: 46px;
-            height: 8px;
-            top: 16px;
-            left: -3px;
+            width: 2.875em;
+            height: 0.5em;
+            top: 1em;
+            left: -0.188em;
             position: absolute;
             content: "";
             background: lightgray;
@@ -109,14 +112,14 @@ canvas {
 
 .guessInput {
     width: 100%;
-    height: 40px;
-    padding-left: 10px;
-    margin-top: 10px;
+    height: 2.5em;
+    padding-left: 0.625em;
+    margin-top: 0.625em;
 }
 
 #messages {
     border: 1px solid #a9a9a9;
-    border-radius: 10px;
+    border-radius: 0.625em;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -126,7 +129,7 @@ canvas {
 }
 
     #messages li {
-        padding: 5px 10px;
+        padding: 0.313em 0.625em;
     }
 
         #messages li:nth-child(odd) {
@@ -151,9 +154,8 @@ canvas {
 
     .login .usernameInput {
         font-size: 200%;
-        letter-spacing: 3px;
         text-align: center;
-        width: 400px;
+        width: 25%;
     }
 
     .login .title, .login .usernameInput {

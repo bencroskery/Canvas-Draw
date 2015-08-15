@@ -4,6 +4,7 @@ var $drawing = $('#drawing');
 var radius = 10;
 var color = 'black'
 var socket = io();
+var STDWIDTH = 1280;
 
 // User info.
 var username;
@@ -55,10 +56,10 @@ function drawDown(x, y) {
     path = new Path({
         segments: [p],
         strokeColor: color,
-        strokeWidth: radius * 2 * $drawing.width() / 1280,
+        strokeWidth: radius * 2 * $drawing.width() / STDWIDTH,
         strokeCap: 'round'
     });
-    var myCircle = new Path.Circle(p, radius * $drawing.width() / 1280);
+    var myCircle = new Path.Circle(p, radius * $drawing.width() / STDWIDTH);
     myCircle.fillColor = color;
 }
 
@@ -91,18 +92,18 @@ function clearCanvas() {
 function emitPoint(type, x, y) {
     socket.emit('point', {
         type: type,
-        x: x / $drawing.width() * 1280,
-        y: y / $drawing.height() * 1280
+        x: x / $drawing.width() * STDWIDTH,
+        y: y / $drawing.height() * STDWIDTH
     })
 }
 
 // Add a point according to type.
 socket.on('point', function (msg) {
     if (msg.type == 'mousedown') {
-        drawDown(msg.x * $drawing.width() / 1280, msg.y * $drawing.height() / 1280);
+        drawDown(msg.x * $drawing.width() / STDWIDTH, msg.y * $drawing.height() / STDWIDTH);
     }
     else if (msg.type == 'mousedrag') {
-        drawDrag(msg.x * $drawing.width() / 1280, msg.y * $drawing.height() / 1280);
+        drawDrag(msg.x * $drawing.width() / STDWIDTH, msg.y * $drawing.height() / STDWIDTH);
     }
     else {
         drawUp();
@@ -147,6 +148,17 @@ socket.on('message', function (data) {
     $('#messages').append($('<li>').text(data.username + ': ' + data.message));
 });
 
+
+// A user connected.
+socket.on('user joined', function (data) {
+    $('#messages').append($('<li>').text(data.username + ' has joined.'));
+});
+
+// A user disconnected.
+socket.on('user left', function (data) {
+    $('#messages').append($('<li>').text(data.username + ' has left.'));
+});
+
 $(window).resize(function () {
     setSize();
 });
@@ -155,6 +167,7 @@ $(window).resize(function () {
 // Login Pane
 // ----------------------------
 
+// Username submitted.
 $('form#lform').submit(function () {
     var name = $('.usernameInput').val()
     if (name != '') {
@@ -167,8 +180,13 @@ $('form#lform').submit(function () {
     return false;
 });
 
+// ----------------------------
+// Resize
+// ----------------------------
+
 function setSize() {
     var ASPECT = 16 / 8;
+    var FONTSIZE = 16;
     var docwidth = $(window).width() - 50;
     var docheight = $(window).height() - 50;
 
@@ -177,9 +195,13 @@ function setSize() {
     } else {
         docheight = docwidth / ASPECT;
     }
-
-    var con = $('.game');
-    con.width(docwidth);
-    con.height(docheight);
+    
+    // Resize game area.
+    var $game = $('.game');
+    $game.width(docwidth);
+    $game.height(docheight);
     view.viewSize = new Size($drawing.width(), $drawing.height());
+
+    // Resize font.
+    $('body').css('font-size', FONTSIZE * docwidth / STDWIDTH);
 }
