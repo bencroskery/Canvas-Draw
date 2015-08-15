@@ -29,6 +29,12 @@ function onMouseUp(event) {
     emitPoint(event.type, event.point.x, event.point.y);
 }
 
+// Color button clicked.
+$("input[name=rGroup]:radio").change(function () {
+    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
+    socket.emit('set color', color);
+});
+
 // Undo button clicked.
 $('.undobtn').click(function () {
     if (path != null) {
@@ -37,10 +43,10 @@ $('.undobtn').click(function () {
     }
 });
 
-
-$("input[name=rGroup]:radio").change(function () {
-    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
-    socket.emit('set color', color);
+// Clear button clicked.
+$('.clearbtn').click(function () {
+    clearCanvas();
+    socket.emit('clear canvas', 0);
 });
 
 // Mouse goes down, make a new path and add a point.
@@ -75,18 +81,22 @@ function removeLine() {
     view.draw();
 }
 
+// Clears all lines from the canvas.
+function clearCanvas() {
+    project.clear();
+    view.draw();
+}
+
 // Send a point to the server.
 function emitPoint(type, x, y) {
-    var data = {
+    socket.emit('point', {
         type: type,
         x: x / $drawing.width() * 1280,
         y: y / $drawing.height() * 1280
-    }
-
-    socket.emit('point', data)
+    })
 }
 
-// Get a point and apply it accordingly.
+// Add a point according to type.
 socket.on('point', function (msg) {
     if (msg.type == 'mousedown') {
         drawDown(msg.x * $drawing.width() / 1280, msg.y * $drawing.height() / 1280);
@@ -101,13 +111,20 @@ socket.on('point', function (msg) {
     view.draw();
 });
 
+// Set the color
+socket.on('set color', function (c) {
+    color = c;
+    //$('#' + c).prop('checked', true).trigger("change");
+});
+
+// Undo the last drawn line.
 socket.on('undo line', function (d) {
     removeLine();
 });
 
-socket.on('set color', function (c) {
-    color = c;
-    //$('#' + c).prop('checked', true).trigger("change");
+// Clear the canvas of lines.
+socket.on('clear canvas', function (d) {
+    clearCanvas();
 });
 
 // ----------------------------

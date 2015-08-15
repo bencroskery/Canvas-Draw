@@ -40,14 +40,19 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('point', point);
     });
 
+    socket.on('set color', function (c) {
+        console.log('Color is now ' + c);
+        socket.broadcast.emit('set color', c);
+    });
+
     socket.on('undo line', function (d) {
         console.log('UNDO!');
         socket.broadcast.emit('undo line', 0);
     });
 
-    socket.on('set color', function (c) {
-        console.log('Color is now ' + c);
-        socket.broadcast.emit('set color', c);
+    socket.on('clear canvas', function (d) {
+        console.log('CLEAR!');
+        socket.broadcast.emit('clear canvas', 0);
     });
 
     socket.on('message', function (msg) {
