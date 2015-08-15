@@ -187,8 +187,8 @@ $('form#lform').submit(function () {
 function setSize() {
     var ASPECT = 16 / 8;
     var FONTSIZE = 16;
-    var docwidth = $(window).width() - 50;
-    var docheight = $(window).height() - 50;
+    var docwidth = $(window).width() - 40;
+    var docheight = $(window).height() - 40;
 
     if (docwidth > docheight * ASPECT) {
         docwidth = docheight * ASPECT;

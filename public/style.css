@@ -12,6 +12,10 @@
     user-select: none;
 }
 
+body {
+    margin: 20px;
+}
+
 .game {
     margin: auto;
     display: none;
@@ -155,7 +159,7 @@ canvas {
     .login .usernameInput {
         font-size: 200%;
         text-align: center;
-        width: 25%;
+        width: 15em;
     }
 
     .login .title, .login .usernameInput {
