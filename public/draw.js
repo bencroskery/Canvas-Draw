@@ -1,16 +1,75 @@
 // Main Variables.
-var path;
-var $drawing = $('#drawing');
-var radius = 10;
-var color = 'black'
-var socket = io();
-var STDWIDTH = 1280;
+var path
+  , $drawing = $('#drawing')
+  , radius = 10
+  , color = 'black'
+  , socket = io()
+  , STDWIDTH = 1280;
+
+// Game info.
+var started = false
+  , drawing = true
+  , current = 0
+  , time;
 
 // User info.
-var username;
+var username
+  , number
+  , usernames = [];
 
 // Startup.
+setSize();
+$('.login').fadeIn("fast");
 $('.usernameInput').focus();
+
+// ----------------------------
+// Game
+// ----------------------------
+
+function runCommand(arg) {
+    switch (arg[0]) {
+        case '/test':
+            $('#messages').append($('<li>').text('You said: ' + arg[1]));
+            break;
+        case '/start':
+            socket.emit('start game', 0);
+            break;
+        case '/listusers':
+            $('#messages').append($('<li>').text('The users are: ' + usernames));
+            break;
+        case '/listusersserver':
+            socket.emit('list users', 0);
+            break;
+        default:
+            $('#messages').append($('<li>').text('Unrecognized command'));
+    }
+}
+
+socket.on('start game', function (d) {
+    $('#messages').append($('<li>').text('START THE GAME!!!'));
+    drawing = false;
+    started = true;
+    time = 60;
+    timer();
+});
+
+socket.on('turn', function (player) {
+    $('#messages').append($('<li>').text('NEXT TURN!!!'));
+    current = 0;
+});
+
+function timer() {
+    document.querySelector('#timer').textContent = time;
+    --time;
+    setInterval(function () {
+        document.querySelector('#timer').textContent = time;
+        --time;
+    }, 1000);
+}
+
+socket.on('setup', function (data) {
+    usernames = data;
+});
 
 // ----------------------------
 // Draw Section
@@ -18,16 +77,28 @@ $('.usernameInput').focus();
 
 // Functions for mouse events.
 function onMouseDown(event) {
-    drawDown(event.point.x, event.point.y);
-    emitPoint(event.type, event.point.x, event.point.y);
+    if (drawing) {
+        drawDown(event.point.x, event.point.y);
+        if (started) {
+            emitPoint(event.type, event.point.x, event.point.y);
+        }
+    }
 }
 function onMouseDrag(event) {
-    drawDrag(event.point.x, event.point.y);
-    emitPoint(event.type, event.point.x, event.point.y);
+    if (drawing) {
+        drawDrag(event.point.x, event.point.y);
+        if (started) {
+            emitPoint(event.type, event.point.x, event.point.y);
+        }
+    }
 }
 function onMouseUp(event) {
-    drawUp();
-    emitPoint(event.type, event.point.x, event.point.y);
+    if (drawing) {
+        drawUp();
+        if (started) {
+            emitPoint(event.type, event.point.x, event.point.y);
+        }
+    }
 }
 
 // Color button clicked.
@@ -98,12 +169,12 @@ function emitPoint(type, x, y) {
 }
 
 // Add a point according to type.
-socket.on('point', function (msg) {
-    if (msg.type == 'mousedown') {
-        drawDown(msg.x * $drawing.width() / STDWIDTH, msg.y * $drawing.height() / STDWIDTH);
+socket.on('point', function (p) {
+    if (p.type == 'mousedown') {
+        drawDown(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
     }
-    else if (msg.type == 'mousedrag') {
-        drawDrag(msg.x * $drawing.width() / STDWIDTH, msg.y * $drawing.height() / STDWIDTH);
+    else if (p.type == 'mousedrag') {
+        drawDrag(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
     }
     else {
         drawUp();
@@ -135,7 +206,12 @@ socket.on('clear canvas', function (d) {
 // Creating a chat message.
 $('form#gform').submit(function () {
     var $guessbox = $('.guessInput');
-    if ($guessbox.val() != '') {
+    
+    if ($guessbox.val().charAt(0) == '/') {
+        runCommand($guessbox.val().split(' '));
+        $guessbox.val('');
+    }
+    else if ($guessbox.val() != '') {
         $('#messages').append($('<li>').text(username + ': ' + $guessbox.val()));
         socket.emit('message', $guessbox.val());
         $guessbox.val('');
@@ -145,18 +221,20 @@ $('form#gform').submit(function () {
 
 // Getting a chat message.
 socket.on('message', function (data) {
-    $('#messages').append($('<li>').text(data.username + ': ' + data.message));
+    $('#messages').append($('<li>').text(data.name + ': ' + data.message));
 });
 
 
 // A user connected.
-socket.on('user joined', function (data) {
-    $('#messages').append($('<li>').text(data.username + ' has joined.'));
+socket.on('user joined', function (name) {
+    $('#messages').append($('<li>').text(name + ' has joined.'));
+    usernames.push(name);
 });
 
 // A user disconnected.
 socket.on('user left', function (data) {
-    $('#messages').append($('<li>').text(data.username + ' has left.'));
+    $('#messages').append($('<li>').text(data.name + ' has left.'));
+    usernames.splice(data.number, 1);
 });
 
 $(window).resize(function () {
@@ -169,12 +247,12 @@ $(window).resize(function () {
 
 // Username submitted.
 $('form#lform').submit(function () {
-    var name = $('.usernameInput').val()
+    var name = $('.usernameInput').val();
     if (name != '') {
         username = name;
         socket.emit('add user', name);
-        $('.login').remove();
-        $('.game').show();
+        $('.login').fadeOut("fast");
+        $('.game').fadeIn("fast");
         setSize();
     }
     return false;

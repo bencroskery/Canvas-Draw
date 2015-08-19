@@ -14,30 +14,47 @@ server.listen(port, function () {
 });
 
 // usernames which are currently connected to the chat
-var usernames = {};
-var numUsers = 0;
+var userlist = [];
+var usernames = [];
+var current = 0;
 
 io.on('connection', function (socket) {
     var addedUser = false;
 
     socket.on('add user', function (username) {
         // Add the user.
+        userlist.push(socket.id);
+        usernames.push(username);
+        socket.number = userlist.length - 1;
         socket.username = username;
-        usernames[username] = username;
-        ++numUsers;
         addedUser = true;
 
         console.log('User ' + username + ' has joined');
-        // Tell everyone that a user has joined
-        socket.broadcast.emit('user joined', {
-            username: socket.username,
-            numUsers: numUsers
-        });
+        // Tell everyone that this user has joined.
+        socket.emit('setup', usernames);
+        socket.broadcast.emit('user joined', socket.username);
+    });
+    
+    socket.on('list users', function (d) {
+        console.log('Number of users: ' + userlist.length);
+        console.log(userlist);
+        console.log(usernames);
+    });
+
+    socket.on('start game', function (d) {
+        console.log('Game started!');
+        io.sockets.emit('start game', 0);
+        io.sockets.emit('turn', 0);
+    });
+    
+    socket.on('turn', function (player) {
+        console.log('Next turn');
+        io.sockets.emit('turn', player);
     });
 
     socket.on('point', function (point) {
         console.log(point);
-        socket.broadcast.emit('point', point);
+        io.emit('point', point);
     });
 
     socket.on('set color', function (c) {
@@ -59,21 +76,21 @@ io.on('connection', function (socket) {
         console.log(socket.username + ' said ' + msg);
         // Send the message to everyone.
         socket.broadcast.emit('message', {
-            username: socket.username,
+            name: socket.username,
             message: msg
         });
     });
 
     socket.on('disconnect', function () {
-        // remove the username from global usernames list
+        // Remove the username from global usernames list.
         if (addedUser) {
-            delete usernames[socket.username];
-            --numUsers;
+            userlist.splice(socket.number, 1);
+            usernames.splice(socket.number, 1);
 
-            // echo globally that this client has left
+            // Tell everyone that this user has left.
             socket.broadcast.emit('user left', {
-                username: socket.username,
-                numUsers: numUsers
+                name: socket.username,
+                num: socket.number
             });
         }
     });
