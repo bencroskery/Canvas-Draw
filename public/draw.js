@@ -4,18 +4,27 @@ var path
   , radius = 10
   , color = 'black'
   , socket = io()
-  , STDWIDTH = 1280;
+  , STDWIDTH = 1280
+  , TIMEWAIT = 10
+  , TIMEDRAW = 20;
+
 
 // Game info.
-var started = false
-  , drawing = true
-  , current = 0
-  , time;
+var game = {
+    running : false, 
+    word : '', 
+    currentplayer : 0, 
+    mode : 0, 
+    time : 0
+};
 
 // User info.
-var username
-  , number
-  , usernames = [];
+var player = {
+    name : 'Casper',
+    number : -1,
+    mode: 1
+}
+  , playernames = [];
 
 // Startup.
 setSize();
@@ -35,7 +44,10 @@ function runCommand(arg) {
             socket.emit('start game', 0);
             break;
         case '/listusers':
-            $('#messages').append($('<li>').text('The users are: ' + usernames));
+            $('#messages').append($('<li>').text('The users are: ' + playernames));
+            break;
+        case '/myinfo':
+            $('#messages').append($('<li>').text('I am ' + player.name + ' player number ' + player.number));
             break;
         case '/listusersserver':
             socket.emit('list users', 0);
@@ -47,28 +59,62 @@ function runCommand(arg) {
 
 socket.on('start game', function (d) {
     $('#messages').append($('<li>').text('START THE GAME!!!'));
-    drawing = false;
-    started = true;
-    time = 60;
+    player.mode = 0;
+    game.running = true;
+    game.currentplayer = -1;
+    game.mode = 0;
+    game.time = TIMEWAIT;
     timer();
 });
 
-socket.on('turn', function (player) {
+socket.on('turn', function (d) {
     $('#messages').append($('<li>').text('NEXT TURN!!!'));
-    current = 0;
+    game.currentplayer++;
+    if (game.currentplayer == playernames.length) {
+        game.currentplayer = 0;
+    }
+    if (game.currentplayer == player.number) {
+        player.mode = 1;
+    } else {
+        player.mode = 0;
+    }
 });
 
 function timer() {
-    document.querySelector('#timer').textContent = time;
-    --time;
+    document.querySelector('#timer').textContent = game.time;
+    game.time--;
     setInterval(function () {
-        document.querySelector('#timer').textContent = time;
-        --time;
+        document.querySelector('#timer').textContent = game.time;
+        if (game.time != 0) {
+            game.time--;
+        } 
+        else {
+            if (game.mode == 0) {
+                // Waiting to start next turn ended.
+                $('#messages').append($('<li>').text('Next player turn'));
+                game.mode++;
+                game.time = TIMEWAIT;
+            }
+            else if (game.mode == 1) {
+                // Selecting word ended (auto select).
+                game.word = 'TEST';
+                $('#messages').append($('<li>').text('Word was auto selected to be ' + game.word));
+                game.mode++;
+                game.time = TIMEDRAW;
+            }
+            else if (game.mode == 2) {
+                // Guessing out of time.
+                $('#messages').append($('<li>').text('Ran out of time to guess!'));
+                game.mode = 0;
+                game.time = TIMEWAIT;
+            }
+        }
     }, 1000);
 }
 
-socket.on('setup', function (data) {
-    usernames = data;
+socket.on('setup', function (names) {
+    playernames = names;
+    player.number = playernames.length - 1;
 });
 
 // ----------------------------
@@ -77,25 +123,25 @@ socket.on('setup', function (data) {
 
 // Functions for mouse events.
 function onMouseDown(event) {
-    if (drawing) {
+    if (player.mode == 1) {
         drawDown(event.point.x, event.point.y);
-        if (started) {
+        if (game.running) {
             emitPoint(event.type, event.point.x, event.point.y);
         }
     }
 }
 function onMouseDrag(event) {
-    if (drawing) {
+    if (player.mode == 1) {
         drawDrag(event.point.x, event.point.y);
-        if (started) {
+        if (game.running) {
             emitPoint(event.type, event.point.x, event.point.y);
         }
     }
 }
 function onMouseUp(event) {
-    if (drawing) {
+    if (player.mode == 1) {
         drawUp();
-        if (started) {
+        if (game.running) {
             emitPoint(event.type, event.point.x, event.point.y);
         }
     }
@@ -212,7 +258,7 @@ $('form#gform').submit(function () {
         $guessbox.val('');
     }
     else if ($guessbox.val() != '') {
-        $('#messages').append($('<li>').text(username + ': ' + $guessbox.val()));
+        $('#messages').append($('<li>').text(player.name + ': ' + $guessbox.val()));
         socket.emit('message', $guessbox.val());
         $guessbox.val('');
     }
@@ -228,13 +274,16 @@ socket.on('message', function (data) {
 // A user connected.
 socket.on('user joined', function (name) {
     $('#messages').append($('<li>').text(name + ' has joined.'));
-    usernames.push(name);
+    playernames.push(name);
 });
 
 // A user disconnected.
 socket.on('user left', function (data) {
     $('#messages').append($('<li>').text(data.name + ' has left.'));
-    usernames.splice(data.number, 1);
+    playernames.splice(data.number, 1);
+    if (data.num < player.number) {
+        player.number--;
+    }
 });
 
 $(window).resize(function () {
@@ -245,11 +294,11 @@ $(window).resize(function () {
 // Login Pane
 // ----------------------------
 
-// Username submitted.
+// Player's name submitted.
 $('form#lform').submit(function () {
     var name = $('.usernameInput').val();
     if (name != '') {
-        username = name;
+        player.name = name;
         socket.emit('add user', name);
         $('.login').fadeOut("fast");
         $('.game').fadeIn("fast");

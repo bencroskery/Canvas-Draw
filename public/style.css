@@ -135,6 +135,10 @@ canvas {
     text-align: center;
 }
 
+#timer {
+    margin-top: 1em;
+}
+
 #messages {
     border: 1px solid #a9a9a9;
     border-bottom-left-radius: 0.625em;
