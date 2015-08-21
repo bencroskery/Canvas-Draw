@@ -1,9 +1,9 @@
 // Main Variables.
 var path
   , $drawing = $('#drawing')
-  , radius = 10
-  , color = 'black'
   , socket = io()
+  , canvas = document.getElementById('drawing')
+  , ctx = canvas.getContext("2d")
   , STDWIDTH = 1280
   , TIMEWAIT = 10
   , TIMEDRAW = 20;
@@ -43,13 +43,18 @@ function runCommand(arg) {
         case '/start':
             socket.emit('start game', 0);
             break;
-        case '/listusers':
-            $('#messages').append($('<li>').text('The users are: ' + playernames));
+        case '/freedraw':
+            game.running = true;
+            player.mode = 1;
+            game.mode = 2;
             break;
-        case '/myinfo':
+        case '/user':
             $('#messages').append($('<li>').text('I am ' + player.name + ' player number ' + player.number));
             break;
-        case '/listusersserver':
+        case '/userlist':
+            $('#messages').append($('<li>').text('The users are: ' + playernames));
+            break;
+        case '/userlistserver':
             socket.emit('list users', 0);
             break;
         default:
@@ -62,12 +67,11 @@ socket.on('start game', function (d) {
     player.mode = 0;
     game.running = true;
     game.currentplayer = -1;
-    game.mode = 0;
-    game.time = TIMEWAIT;
     timer();
 });
 
-socket.on('turn', function (d) {
+socket.on('turn-wait', function (d) {
+    resetCanvas();
     $('#messages').append($('<li>').text('NEXT TURN!!!'));
     game.currentplayer++;
     if (game.currentplayer == playernames.length) {
@@ -75,9 +79,26 @@ socket.on('turn', function (d) {
     }
     if (game.currentplayer == player.number) {
         player.mode = 1;
+        $('#options').fadeIn('fast');
     } else {
         player.mode = 0;
+        $('#options').fadeOut('fast');
     }
+    game.mode = 0;
+    game.time = TIMEWAIT;
+});
+
+socket.on('turn-choose', function (d) {
+    $('#messages').append($('<li>').text('CHOOSE!!!'));
+    game.mode++;
+    game.time = TIMEWAIT;
+});
+
+socket.on('turn-draw', function (d) {
+    game.word = 'TEST';
+    $('#messages').append($('<li>').text('DRAW!!! Word: ' + game.word));
+    game.mode++;
+    game.time = TIMEDRAW;
 });
 
 function timer() {
@@ -88,25 +109,18 @@ function timer() {
         if (game.time != 0) {
             game.time--;
         } 
-        else {
+        else if (player.mode == 1) {
             if (game.mode == 0) {
-                // Waiting to start next turn ended.
-                $('#messages').append($('<li>').text('Next player turn'));
-                game.mode++;
-                game.time = TIMEWAIT;
+                // Waiting for next turn ended.
+                socket.emit('turn-choose', 0);
             }
             else if (game.mode == 1) {
                 // Selecting word ended (auto select).
-                game.word = 'TEST';
-                $('#messages').append($('<li>').text('Word was auto selected to be ' + game.word));
-                game.mode++;
-                game.time = TIMEDRAW;
+                socket.emit('turn-draw', false);
             }
             else if (game.mode == 2) {
                 // Guessing out of time.
-                $('#messages').append($('<li>').text('Ran out of time to guess!'));
-                game.mode = 0;
-                game.time = TIMEWAIT;
+                socket.emit('turn-wait', 0);
             }
         }
     }, 1000);
@@ -121,42 +135,58 @@ socket.on('setup', function (names) {
 // Draw Section
 // ----------------------------
 
-// Functions for mouse events.
-function onMouseDown(event) {
-    if (player.mode == 1) {
-        drawDown(event.point.x, event.point.y);
+var mousedown;
+// Mouse button was pressed.
+canvas.onmousedown = function (e) {
+    mousedown = true;
+    var mouseX = e.pageX - this.offsetLeft;
+    var mouseY = e.pageY - this.offsetTop;
+    if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (game.running) {
-            emitPoint(event.type, event.point.x, event.point.y);
+            emitPoint('mousedown', mouseX, mouseY);
         }
+        drawDown(mouseX, mouseY);
     }
-}
-function onMouseDrag(event) {
-    if (player.mode == 1) {
-        drawDrag(event.point.x, event.point.y);
+};
+
+// Mouse was dragged.
+canvas.onmousemove = function (e) {
+    if (!mousedown) return;
+    var mouseX = e.pageX - this.offsetLeft;
+    var mouseY = e.pageY - this.offsetTop;
+    if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (game.running) {
-            emitPoint(event.type, event.point.x, event.point.y);
+            emitPoint('mousedrag', mouseX, mouseY);
         }
+        drawDrag(mouseX, mouseY);
     }
-}
-function onMouseUp(event) {
-    if (player.mode == 1) {
-        drawUp();
-        if (game.running) {
-            emitPoint(event.type, event.point.x, event.point.y);
-        }
-    }
-}
+};
+
+// Mouse button was released.
+canvas.onmouseup = function (e) {
+    mousedown = false;
+};
 
 // Color button clicked.
-$("input[name=rGroup]:radio").change(function () {
-    color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
-    socket.emit('set color', color);
+$("input[name=color]:radio").change(function () {
+    draw.color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
+    if (game.running) {
+        socket.emit('set color', draw.color);
+    }
+});
+
+// Size button clicked.
+$("input[name=size]:radio").change(function () {
+    draw.radius = $(this).attr('num');
+    if (game.running) {
+        socket.emit('set size', draw.radius);
+    }
 });
 
 // Undo button clicked.
 $('.undobtn').click(function () {
-    if (path != null) {
-        removeLine();
+    removeLine();
+    if (game.running) {
         socket.emit('undo line', 0);
     }
 });
@@ -164,46 +194,10 @@ $('.undobtn').click(function () {
 // Clear button clicked.
 $('.clearbtn').click(function () {
     clearCanvas();
-    socket.emit('clear canvas', 0);
+    if (game.running) {
+        socket.emit('clear canvas', 0);
+    }
 });
-
-// Mouse goes down, make a new path and add a point.
-function drawDown(x, y) {
-    p = new Point(x, y);
-    path = new Path({
-        segments: [p],
-        strokeColor: color,
-        strokeWidth: radius * 2 * $drawing.width() / STDWIDTH,
-        strokeCap: 'round'
-    });
-    var myCircle = new Path.Circle(p, radius * $drawing.width() / STDWIDTH);
-    myCircle.fillColor = color;
-}
-
-// Mouse is dragging, add points and smooth the line.
-function drawDrag(x, y) {
-    path.add(new Point(x, y));
-    path.smooth();
-}
-
-// Mouse goes up, simplify the path.
-function drawUp() {
-    path.simplify(0);
-}
-
-// Remove the last line.
-function removeLine() {
-    path.remove();
-    project.activeLayer.lastChild.remove();
-    path = project.activeLayer.lastChild;
-    view.draw();
-}
-
-// Clears all lines from the canvas.
-function clearCanvas() {
-    project.clear();
-    view.draw();
-}
 
 // Send a point to the server.
 function emitPoint(type, x, y) {
@@ -219,19 +213,20 @@ socket.on('point', function (p) {
     if (p.type == 'mousedown') {
         drawDown(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
     }
-    else if (p.type == 'mousedrag') {
+    else {
         drawDrag(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
     }
-    else {
-        drawUp();
-    }
-
-    view.draw();
 });
 
 // Set the color
 socket.on('set color', function (c) {
-    color = c;
+    draw.color = c;
+    //$('#' + c).prop('checked', true).trigger("change");
+});
+
+// Set the size
+socket.on('set size', function (c) {
+    draw.radius = c;
     //$('#' + c).prop('checked', true).trigger("change");
 });
 
@@ -316,7 +311,7 @@ function setSize() {
     var FONTSIZE = 16;
     var docwidth = $(window).width() - 40;
     var docheight = $(window).height() - 40;
-
+    
     if (docwidth > docheight * ASPECT) {
         docwidth = docheight * ASPECT;
     } else {
@@ -327,8 +322,100 @@ function setSize() {
     var $game = $('.game');
     $game.width(docwidth);
     $game.height(docheight);
-    view.viewSize = new Size($drawing.width(), $drawing.height());
-
+    ctx.canvas.width = $drawing.width();
+    ctx.canvas.height = $drawing.height();
+    
+    
     // Resize font.
     $('body').css('font-size', FONTSIZE * docwidth / STDWIDTH);
 }
+
+
+
+// ------------------------------------------------------------------------------------------------------
+
+var draw = { line : new Array(), color : 'black', radius : 10, size : 0, current : { x : 0, y : 0 }, last : { x : 0, y : 0 } };
+
+// Mouse goes down.
+function drawDown(x, y) {
+    draw.line.push({ point : new Array(), color : draw.color, width : draw.radius * 2 * $drawing.width() / STDWIDTH });
+    draw.size++;
+    last = null;
+    drawPoint(x, y);
+}
+
+// Mouse is dragging.
+function drawDrag(x, y) {
+    drawPoint(x, y);
+}
+
+// Remove the last line.
+function removeLine() {
+    if (draw.size > 0) {
+        draw.line.pop();
+        draw.size--;
+        reDraw();
+    }
+}
+
+// Clears all lines from the canvas.
+function clearCanvas() {
+    draw = { line : new Array(), size : 0 };
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+}
+
+// Clears all lines from the canvas.
+function resetCanvas() {
+    draw = { line : new Array(), color : 'black', radius : 10, size : 0, current : { x : 0, y : 0 }, last : { x : 0, y : 0 } };
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+}
+
+function drawPoint(px, py) {
+    if (last == null) {
+        last = { x : px + 0.01, y : py };
+    } else {
+        last = current;
+    }
+    current = { x : px, y : py };
+    draw.line[draw.size - 1].point.push(current);
+    
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = draw.line[draw.size - 1].color;
+    ctx.lineWidth = draw.line[draw.size - 1].width;
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(current.x, current.y);
+    ctx.closePath();
+    ctx.stroke();
+}
+
+function reDraw() {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
+    
+    ctx.lineJoin = "round";
+    
+    for (var i = 0; i < draw.size; i++) {
+        ctx.strokeStyle = draw.line[i].color;
+        ctx.lineWidth = draw.line[i].width;
+        
+        if (draw.line[i].point.length < 2) {
+            ctx.beginPath();
+            ctx.moveTo(draw.line[i].point[0].x - 0.1, draw.line[i].point[0].y);
+            ctx.lineTo(draw.line[i].point[0].x, draw.line[i].point[0].y);
+            ctx.closePath();
+            ctx.stroke();
+        } else {
+            for (var n = 1; n < draw.line[i].point.length; n++) {
+                ctx.beginPath();
+                ctx.moveTo(draw.line[i].point[n - 1].x, draw.line[i].point[n - 1].y);
+                ctx.lineTo(draw.line[i].point[n].x, draw.line[i].point[n].y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+
+
+

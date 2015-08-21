@@ -43,32 +43,32 @@ canvas {
     cursor: url(cursor.ico) 1.9 2, crosshair;
 }
 
-.options {
+#options {
     margin-top: 0.438em;
 }
 
-    .options .swatch {
+    #options .swatch {
         display: inline-block;
         width: 2.5em;
         height: 2.5em;
-        border-radius: 50%;
+        border-radius: 100%;
         cursor: pointer;
         background: linear-gradient(150deg, transparent 25%, rgba(100,50,80,.25));
     }
 
-    .options input[type=radio] {
+    #options input[type=radio] {
         display: none;
     }
 
-        .options input[type=radio]:checked + .swatch {
+        #options input[type=radio]:checked + .swatch {
             border: 2px solid #3F3F3F;
         }
 
-    .options .swatch:hover {
+    #options .swatch:hover {
         border: 2px solid #3F3F3F;
     }
 
-    .options .undobtn {
+    #options .undobtn {
         float: right;
         width: 0;
         height: 0;
@@ -78,11 +78,11 @@ canvas {
         cursor: pointer;
     }
 
-        .options .undobtn:hover {
+        #options .undobtn:hover {
             border-right-color: gray;
         }
 
-    .options .clearbtn {
+    #options .clearbtn {
         float: right;
         width: 2.5em;
         height: 2.5em;
@@ -90,7 +90,7 @@ canvas {
         cursor: pointer;
     }
 
-        .options .clearbtn:before, .options .clearbtn:after {
+        #options .clearbtn:before, #options .clearbtn:after {
             width: 2.875em;
             height: 0.5em;
             top: 1em;
@@ -100,16 +100,16 @@ canvas {
             background: lightgray;
         }
 
-        .options .clearbtn:hover:before, .options .clearbtn:hover:after {
+        #options .clearbtn:hover:before, #options .clearbtn:hover:after {
             background: gray;
         }
 
-        .options .clearbtn:before {
+        #options .clearbtn:before {
             -webkit-transform: rotateZ(45deg);
             transform: rotateZ(45deg);
         }
 
-        .options .clearbtn:after {
+        #options .clearbtn:after {
             -webkit-transform: rotateZ(-45deg);
             transform: rotateZ(-45deg);
         }
