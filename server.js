@@ -60,9 +60,9 @@ io.on('connection', function (socket) {
     socket.on('turn-draw', function (word) {
         console.log('Drawing');
         if (word === -1) {
-            io.sockets.emit('turn-draw', wordlist[Math.floor(Math.random() * wordlist.length)]);
+            word = wordlist[Math.floor(Math.random() * wordlist.length)];
         }
-        io.sockets.emit('turn-draw', 0);
+        io.sockets.emit('turn-draw', word);
     });
 
     socket.on('point', function (point) {

@@ -11,20 +11,20 @@ var path
 
 // Game info.
 var game = {
-    running : false, 
-    word : '', 
-    currentplayer : 0, 
-    mode : 0, 
-    time : 0
+    running : false,   // Whether the game has been started.
+    word : '',         // The word being drawn.
+    currentplayer : 0, // The current player ID.
+    mode : 0,          // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    time : 0           // The current game time.
 };
 
 // User info.
 var player = {
-    name : 'Casper',
-    number : -1,
-    mode: 1
+    name : 'Casper',   // The name of the player.
+    number : -1,       // The ID number of the player.
+    mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
 }
-  , playernames = [];
+  , playernames = [];  // Names of all players in the lobby.
 
 // Startup.
 setSize();
@@ -38,7 +38,7 @@ $('.usernameInput').focus();
 function runCommand(arg) {
     switch (arg[0]) {
         case '/test':
-            $('#messages').append($('<li>').text('You said: ' + arg[1]));
+            addMessage('You said: ' + arg[1]);
             break;
         case '/start':
             socket.emit('start game', 0);
@@ -49,21 +49,21 @@ function runCommand(arg) {
             game.mode = 2;
             break;
         case '/user':
-            $('#messages').append($('<li>').text('I am ' + player.name + ' player number ' + player.number));
+            addMessage('I am ' + player.name + ' player number ' + player.number);
             break;
         case '/userlist':
-            $('#messages').append($('<li>').text('The users are: ' + playernames));
+            addMessage('The users are: ' + playernames);
             break;
         case '/userlistserver':
             socket.emit('list users', 0);
             break;
         default:
-            $('#messages').append($('<li>').text('Unrecognized command'));
+            addMessage('Unrecognized command');
     }
 }
 
 socket.on('start game', function (d) {
-    $('#messages').append($('<li>').text('START THE GAME!!!'));
+    addMessage('START THE GAME!!!');
     player.mode = 0;
     game.running = true;
     game.currentplayer = -1;
@@ -72,7 +72,7 @@ socket.on('start game', function (d) {
 
 socket.on('turn-wait', function (d) {
     resetCanvas();
-    $('#messages').append($('<li>').text('NEXT TURN!!!'));
+    addMessage('NEXT TURN!!!');
     game.currentplayer++;
     if (game.currentplayer == playernames.length) {
         game.currentplayer = 0;
@@ -89,15 +89,15 @@ socket.on('turn-wait', function (d) {
 });
 
 socket.on('turn-choose', function (d) {
-    $('#messages').append($('<li>').text('CHOOSE!!!'));
-    game.mode++;
+    addMessage('CHOOSE!!!');
+    game.mode = 1;
     game.time = TIMEWAIT;
 });
 
-socket.on('turn-draw', function (d) {
-    game.word = 'TEST';
-    $('#messages').append($('<li>').text('DRAW!!! Word: ' + game.word));
-    game.mode++;
+socket.on('turn-draw', function (word) {
+    game.word = word;
+    addMessage('DRAW!!! Word: ' + game.word);
+    game.mode = 2;
     game.time = TIMEDRAW;
 });
 
@@ -116,7 +116,7 @@ function timer() {
             }
             else if (game.mode == 1) {
                 // Selecting word ended (auto select).
-                socket.emit('turn-draw', false);
+                socket.emit('turn-draw', -1);
             }
             else if (game.mode == 2) {
                 // Guessing out of time.
@@ -244,6 +244,15 @@ socket.on('clear canvas', function (d) {
 // Chat Section
 // ----------------------------
 
+// Add list message element.
+function addMessage(text) {
+    var node = document.createElement("LI");
+    var textnode = document.createTextNode(text);
+    node.appendChild(textnode);
+    document.getElementById("messages").appendChild(node);
+}
+
+
 // Creating a chat message.
 $('form#gform').submit(function () {
     var $guessbox = $('.guessInput');
@@ -253,7 +262,7 @@ $('form#gform').submit(function () {
         $guessbox.val('');
     }
     else if ($guessbox.val() != '') {
-        $('#messages').append($('<li>').text(player.name + ': ' + $guessbox.val()));
+        addMessage(player.name + ': ' + $guessbox.val());
         socket.emit('message', $guessbox.val());
         $guessbox.val('');
     }
@@ -262,19 +271,19 @@ $('form#gform').submit(function () {
 
 // Getting a chat message.
 socket.on('message', function (data) {
-    $('#messages').append($('<li>').text(data.name + ': ' + data.message));
+    addMessage(data.name + ': ' + data.message);
 });
 
 
 // A user connected.
 socket.on('user joined', function (name) {
-    $('#messages').append($('<li>').text(name + ' has joined.'));
+    addMessage(name + ' has joined.');
     playernames.push(name);
 });
 
 // A user disconnected.
 socket.on('user left', function (data) {
-    $('#messages').append($('<li>').text(data.name + ' has left.'));
+    addMessage(data.name + ' has left.');
     playernames.splice(data.number, 1);
     if (data.num < player.number) {
         player.number--;

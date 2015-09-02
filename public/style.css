@@ -121,7 +121,7 @@ canvas {
     margin-top: 0.625em;
 }
 
-#info {
+#infobox {
     border: 1px solid #a9a9a9;
     border-bottom: 0;
     border-top-left-radius: 0.625em;
@@ -135,20 +135,26 @@ canvas {
     text-align: center;
 }
 
-#timer {
+#timer, #info {
     margin-top: 1em;
 }
 
-#messages {
+#messbox {
     border: 1px solid #a9a9a9;
     border-bottom-left-radius: 0.625em;
     border-bottom-right-radius: 0.625em;
-    list-style-type: none;
+    height: 75%;
+    position: relative;
+}
+
+#messages {
     margin: 0;
     padding: 0;
-    height: 75%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    width: 100%;
+    list-style-type: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 
     #messages li {
