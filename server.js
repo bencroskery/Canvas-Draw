@@ -16,11 +16,15 @@ server.listen(port, function () {
 // Users which are connected to the chat.
 var userlist = [];
 var playernames = [];
+var running = false;
 
 io.on('connection', function (socket) {
     var addedUser = false;
 
     socket.on('add user', function (name) {
+        if (running) {
+            return;
+        }
         // Add the user.
         userlist.push(socket.id);
         playernames.push(name);
@@ -41,15 +45,28 @@ io.on('connection', function (socket) {
     });
 
     socket.on('start game', function (d) {
+        if (running) {
+            return;
+        }
+        running = true;
         console.log('Game started!');
         io.sockets.emit('start game', 0);
         io.sockets.emit('turn-wait', 0);
     });
     
+    socket.on('stop game', function (d) {
+        if (!running) {
+            return;
+        }
+        running = false;
+        console.log('Game stopped!');
+        io.sockets.emit('stop game', 0);
+    });
+    
     socket.on('turn-wait', function (d) {
-        var words = [wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)]];
-        console.log('Next turn');
         io.sockets.emit('turn-wait', 0);
+        console.log('Next turn');
+        var words = [wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)]];
     });
     
     socket.on('turn-choose', function (d) {
@@ -97,6 +114,20 @@ io.on('connection', function (socket) {
             name: socket.name,
             message: msg
         });
+    });
+
+    socket.on('correctguess', function (d) {
+        console.log(socket.name + ' guessed right!');
+        // Send the message to everyone.
+        io.sockets.emit('correctguess', socket.name);
+    });
+    
+    socket.on('reboot server', function (d) {
+        running = false;
+        userlist = [];
+        playernames = [];
+        console.log('Server rebooted.');
+        io.sockets.emit('reboot', 0);
     });
 
     socket.on('disconnect', function () {

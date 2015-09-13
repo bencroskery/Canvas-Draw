@@ -137,6 +137,7 @@ canvas {
 
 #timer, #info {
     margin-top: 1em;
+    white-space: pre;
 }
 
 #messbox {
@@ -145,6 +146,7 @@ canvas {
     border-bottom-right-radius: 0.625em;
     height: 75%;
     position: relative;
+    overflow: hidden;
 }
 
 #messages {
@@ -159,6 +161,7 @@ canvas {
 
     #messages li {
         padding: 0.313em 0.625em;
+        white-space: pre;
     }
 
         #messages li:nth-child(odd) {

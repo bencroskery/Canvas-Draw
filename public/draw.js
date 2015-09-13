@@ -43,6 +43,9 @@ function runCommand(arg) {
         case '/start':
             socket.emit('start game', 0);
             break;
+        case '/stop':
+            socket.emit('stop game', 0);
+            break;
         case '/freedraw':
             game.running = true;
             player.mode = 1;
@@ -57,31 +60,47 @@ function runCommand(arg) {
         case '/userlistserver':
             socket.emit('list users', 0);
             break;
+        case '/reboot':
+            socket.emit('reboot server', 0);
+            break;
         default:
             addMessage('Unrecognized command');
     }
 }
 
 socket.on('start game', function (d) {
-    addMessage('START THE GAME!!!');
+    setInfo('START THE GAME!!!');
     player.mode = 0;
     game.running = true;
     game.currentplayer = -1;
     timer();
 });
 
+socket.on('stop game', function (d) {
+    setInfo('Use /start to start the game');
+    player.mode = 1;
+    game.running = false;
+    game.currentplayer = 0;
+    game.mode = 0;
+    game.time = 0;
+    setTimer('-');
+    resetCanvas();
+    $('#options').fadeIn('fast');
+});
+
 socket.on('turn-wait', function (d) {
     resetCanvas();
-    addMessage('NEXT TURN!!!');
     game.currentplayer++;
     if (game.currentplayer == playernames.length) {
         game.currentplayer = 0;
     }
     if (game.currentplayer == player.number) {
         player.mode = 1;
+        setInfo("It's now your turn!");
         $('#options').fadeIn('fast');
     } else {
         player.mode = 0;
+        setInfo("It's now " + playernames[game.currentplayer] + "'s turn!");
         $('#options').fadeOut('fast');
     }
     game.mode = 0;
@@ -89,23 +108,34 @@ socket.on('turn-wait', function (d) {
 });
 
 socket.on('turn-choose', function (d) {
-    addMessage('CHOOSE!!!');
+    if (player.mode == 1) {
+        setInfo('Choose a word!');
+    } else {
+        setInfo(playernames[game.currentplayer] + ' is choosing!');
+    }
     game.mode = 1;
     game.time = TIMEWAIT;
 });
 
 socket.on('turn-draw', function (word) {
     game.word = word;
-    addMessage('DRAW!!! Word: ' + game.word);
+    if (player.mode == 1) {
+        setInfo('DRAW!!! Word: ' + game.word);
+    } else {
+        setInfo('Guess! ' + game.word.replace(/[^ .]/g, " _").replace(' ', '   '));
+    }
     game.mode = 2;
     game.time = TIMEDRAW;
 });
 
 function timer() {
-    document.querySelector('#timer').textContent = game.time;
+    setTimer(game.time);
     game.time--;
     setInterval(function () {
-        document.querySelector('#timer').textContent = game.time;
+        if (!game.running) {
+            return;
+        }
+        setTimer(game.time);
         if (game.time != 0) {
             game.time--;
         } 
@@ -126,10 +156,36 @@ function timer() {
     }, 1000);
 }
 
+
+socket.on('correctguess', function (name) {
+    if (game.time > 8) {
+        game.time = 8;
+    }
+    addMessage(name + ' guessed the word!')
+});
+
 socket.on('setup', function (names) {
     playernames = names;
     player.number = playernames.length - 1;
 });
+
+socket.on('reboot', function (d) {
+    location.reload();
+});
+
+// ----------------------------
+// Info Section
+// ----------------------------
+
+obj_timer = document.querySelector('#timer');
+function setTimer(text) {
+    obj_timer.textContent = text;
+}
+
+obj_info = document.querySelector('#info');
+function setInfo(text) {
+    obj_info.textContent = text;
+}
 
 // ----------------------------
 // Draw Section
@@ -262,9 +318,14 @@ $('form#gform').submit(function () {
         $guessbox.val('');
     }
     else if ($guessbox.val() != '') {
-        addMessage(player.name + ': ' + $guessbox.val());
-        socket.emit('message', $guessbox.val());
-        $guessbox.val('');
+        if ($guessbox.val().toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
+            socket.emit('correctguess', 0);
+            $guessbox.val('');
+        } else {
+            addMessage(player.name + ': ' + $guessbox.val());
+            socket.emit('message', $guessbox.val());
+            $guessbox.val('');
+        }
     }
     return false;
 });
@@ -273,7 +334,6 @@ $('form#gform').submit(function () {
 socket.on('message', function (data) {
     addMessage(data.name + ': ' + data.message);
 });
-
 
 // A user connected.
 socket.on('user joined', function (name) {
