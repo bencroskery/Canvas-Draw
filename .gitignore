@@ -78,3 +78,4 @@ $RECYCLE.BIN/
 .ntvs_analysis.dat
 bin/
 obj/
+*.sln

@@ -37,19 +37,25 @@ $('.usernameInput').focus();
 
 function runCommand(arg) {
     switch (arg[0]) {
+        case '/help':
+            addMessage('Possible commands are:\nhelp, test, start, stop, freedraw, user, userlist');
+            break;
         case '/test':
             addMessage('You said: ' + arg[1]);
             break;
         case '/start':
             socket.emit('start game', 0);
+            addMessage('You started the game');
             break;
         case '/stop':
             socket.emit('stop game', 0);
+            addMessage('You stopped the game');
             break;
         case '/freedraw':
             game.running = true;
             player.mode = 1;
             game.mode = 2;
+            addMessage('Free drawing activated');
             break;
         case '/user':
             addMessage('I am ' + player.name + ' player number ' + player.number);
@@ -59,12 +65,13 @@ function runCommand(arg) {
             break;
         case '/userlistserver':
             socket.emit('list users', 0);
+            addMessage('A user list should pop up in the server console');
             break;
         case '/reboot':
             socket.emit('reboot server', 0);
             break;
         default:
-            addMessage('Unrecognized command');
+            addMessage('Unrecognized command\nTry /help for info');
     }
 }
 
