@@ -9,8 +9,9 @@ var express = require('express')
 app.use(express.static(__dirname + '/public'));
 
 // Start listening on the port.
-server.listen(process.env.PORT || 3000, function () {
-    console.log('Server listening on port 3000');
+var port = process.env.PORT || 3000;
+server.listen(port, function () {
+    console.log('Server listening on port ' + port);
 });
 
 var userlist     // List of all users with IDs.
