@@ -1,4 +1,8 @@
-﻿* {
+﻿@swatch-size: 2.5em;
+@swatch-select: #3F3F3F;
+@border-color: #a9a9a9;
+
+* {
     box-sizing: border-box;
     font-size: inherit;
     font-family: Arial;
@@ -35,62 +39,60 @@ body {
 }
 
 canvas {
-    border: 1px solid #a9a9a9;
+    border: 1px solid @border-color;
     border-radius: 0.625em;
     width: 100%;
     height: 90%;
     cursor: crosshair;
-    cursor: url(cursor.ico) 1.9 2, crosshair;
+    //cursor: url(cursor.ico) 1.9 2, crosshair;
 }
 
 #options {
     margin-top: 0.438em;
-}
 
-    #options .swatch {
+    .swatch {
         display: inline-block;
-        width: 2.5em;
-        height: 2.5em;
+        width: @swatch-size;
+        height: @swatch-size;
         border-radius: 100%;
         cursor: pointer;
         background: linear-gradient(150deg, transparent 25%, rgba(100,50,80,.25));
     }
 
-    #options input[type=radio] {
+    input[type=radio] {
         display: none;
-    }
 
-        #options input[type=radio]:checked + .swatch {
-            border: 2px solid #3F3F3F;
+        &:checked + .swatch {
+            border: 2px solid @swatch-select;
         }
-
-    #options .swatch:hover {
-        border: 2px solid #3F3F3F;
     }
 
-    #options .undobtn {
+    .swatch:hover {
+        border: 2px solid @swatch-select;
+    }
+
+    .undobtn {
         float: right;
         width: 0;
         height: 0;
-        border-top: 1.25em solid transparent;
-        border-right: 2.5em solid lightgray;
-        border-bottom: 1.25em solid transparent;
+        border-top: @swatch-size/2 solid transparent;
+        border-right: @swatch-size solid lightgray;
+        border-bottom: @swatch-size/2 solid transparent;
         cursor: pointer;
-    }
 
-        #options .undobtn:hover {
+        &:hover {
             border-right-color: gray;
         }
-
-    #options .clearbtn {
-        float: right;
-        width: 2.5em;
-        height: 2.5em;
-        position: relative;
-        cursor: pointer;
     }
 
-        #options .clearbtn:before, #options .clearbtn:after {
+    .clearbtn {
+        float: right;
+        width: @swatch-size;
+        height: @swatch-size;
+        position: relative;
+        cursor: pointer;
+
+        &:before, &:after {
             width: 2.875em;
             height: 0.5em;
             top: 1em;
@@ -100,29 +102,31 @@ canvas {
             background: lightgray;
         }
 
-        #options .clearbtn:hover:before, #options .clearbtn:hover:after {
+        &:hover:before, &:hover:after {
             background: gray;
         }
 
-        #options .clearbtn:before {
+        &:before {
             -webkit-transform: rotateZ(45deg);
             transform: rotateZ(45deg);
         }
 
-        #options .clearbtn:after {
+        &:after {
             -webkit-transform: rotateZ(-45deg);
             transform: rotateZ(-45deg);
         }
+    }
+}
 
 .guessInput {
     width: 100%;
-    height: 2.5em;
+    height: @swatch-size;
     padding-left: 0.625em;
     margin-top: 0.625em;
 }
 
 #infobox {
-    border: 1px solid #a9a9a9;
+    border: 1px solid @border-color;
     border-bottom: 0;
     border-top-left-radius: 0.625em;
     border-top-right-radius: 0.625em;
@@ -141,7 +145,7 @@ canvas {
 }
 
 #messbox {
-    border: 1px solid #a9a9a9;
+    border: 1px solid @border-color;
     border-bottom-left-radius: 0.625em;
     border-bottom-right-radius: 0.625em;
     height: 75%;
@@ -157,16 +161,16 @@ canvas {
     position: absolute;
     bottom: 0;
     left: 0;
-}
 
-    #messages li {
+    li {
         padding: 0.313em 0.625em;
         white-space: pre;
-    }
 
-        #messages li:nth-child(odd) {
+        &:nth-child(odd) {
             background: #eee;
         }
+    }
+}
 
 .login {
     margin-top: -4.762em;
@@ -176,21 +180,92 @@ canvas {
     width: 90%;
     margin-left: 5%;
     display: none;
-}
 
-    .login .usernameInput {
+    .usernameInput {
     }
 
-    .login .title {
+    .title {
         font-size: 200%;
     }
 
-    .login .usernameInput {
+    .usernameInput {
         font-size: 200%;
         text-align: center;
         width: 15em;
     }
 
-    .login .title, .login .usernameInput {
+    .title, .usernameInput {
         font-weight: 100;
     }
+}
+
+
+// dark version
+@color__default: rgba(0,0,0,.2);
+
+
+input[type=range] {
+    font-size: @swatch-size/2;
+    width: 8em;
+    height: 0;
+    margin: 0;
+    position: relative;
+    bottom: 0.9em;
+    cursor: pointer;
+    border-bottom: 2px solid @color__default;
+    background-color: transparent;
+    -webkit-appearance: none;
+
+    //&:focus {
+    //    outline: none;
+    //}
+    // * * * THUMB * * *
+    .range-thumb() {
+        width: 2em;
+        height: 2em;
+        background-color: white;
+        border-radius: 100%;
+        border: 2px solid @color__default;
+        cursor: pointer;
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        .range-thumb();
+    }
+
+    &::-moz-range-thumb {
+        .range-thumb();
+    }
+
+    &::-ms-thumb {
+        .range-thumb();
+    }
+
+    &:hover {
+        &::-webkit-slider-thumb {
+            border-color: @swatch-select;
+        }
+
+        &::-moz-range-thumb {
+            border-color: @swatch-select;
+        }
+
+        &::-ms-thumb {
+            border-color: @swatch-select;
+        }
+    }
+    &:active {
+        &::-webkit-slider-thumb {
+            border-color: @swatch-select;
+        }
+
+        &::-moz-range-thumb {
+            border-color: @swatch-select;
+        }
+
+        &::-ms-thumb {
+            border-color: @swatch-select;
+        }
+    }
+}
