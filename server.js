@@ -99,7 +99,7 @@ io.on('connection', function (socket) {
 
     socket.on('point', function (point) {
         console.log(point);
-        io.emit('point', point);
+        socket.broadcast.emit('point', point);
     });
 
     socket.on('set color', function (c) {

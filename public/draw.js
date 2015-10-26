@@ -20,7 +20,7 @@ var game = {
 
 // User info.
 var player = {
-    name : 'Casper',   // The name of the player.
+    name : '??',       // The name of the player.
     number : -1,       // The ID number of the player.
     mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
 }
@@ -230,19 +230,34 @@ canvas.onmouseup = function (e) {
     mousedown = false;
 };
 
+// Mouse was scrolled to change size.
+var inputSize = document.querySelector('#sizeInput');
+canvas.onwheel = function (e) {
+    if (mousedown) return;
+    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    var val = parseInt(inputSize.value) + delta*2;
+
+    if (val === 0 || val === 42) return;
+    inputSize.value = val;
+    draw.radius = val;
+    if (game.running) {
+        socket.emit('set color', draw.radius);
+    }
+}
+
+// Size button clicked.
+inputSize.addEventListener('input', function () {
+    draw.radius = parseInt(inputSize.value);
+    if (game.running) {
+        socket.emit('set size', draw.radius);
+    }
+});
+
 // Color button clicked.
 $("input[name=color]:radio").change(function () {
     draw.color = $("label[for=" + $(this).attr('id') + "]").css("background-color");
     if (game.running) {
         socket.emit('set color', draw.color);
-    }
-});
-
-// Size button clicked.
-$("input[name=size]:radio").change(function () {
-    draw.radius = $(this).attr('num');
-    if (game.running) {
-        socket.emit('set size', draw.radius);
     }
 });
 
@@ -290,7 +305,6 @@ socket.on('set color', function (c) {
 // Set the size
 socket.on('set size', function (c) {
     draw.radius = c;
-    //$('#' + c).prop('checked', true).trigger("change");
 });
 
 // Undo the last drawn line.
@@ -314,7 +328,6 @@ function addMessage(text) {
     node.appendChild(textnode);
     document.getElementById("messages").appendChild(node);
 }
-
 
 // Creating a chat message.
 $('form#gform').submit(function () {
@@ -416,7 +429,7 @@ var draw = { line : new Array(), color : 'black', radius : 10, size : 0, current
 function drawDown(x, y) {
     draw.line.push({ point : new Array(), color : draw.color, width : draw.radius * 2 * $drawing.width() / STDWIDTH });
     draw.size++;
-    last = null;
+    draw.last = null;
     drawPoint(x, y);
 }
 
@@ -447,20 +460,20 @@ function resetCanvas() {
 }
 
 function drawPoint(px, py) {
-    if (last == null) {
-        last = { x : px + 0.01, y : py };
+    if (draw.last == null) {
+        draw.last = { x : px + 0.01, y : py };
     } else {
-        last = current;
+        draw.last = draw.current;
     }
-    current = { x : px, y : py };
-    draw.line[draw.size - 1].point.push(current);
+    draw.current = { x : px, y : py };
+    draw.line[draw.size - 1].point.push(draw.current);
     
     ctx.lineJoin = "round";
     ctx.strokeStyle = draw.line[draw.size - 1].color;
     ctx.lineWidth = draw.line[draw.size - 1].width;
     ctx.beginPath();
-    ctx.moveTo(last.x, last.y);
-    ctx.lineTo(current.x, current.y);
+    ctx.moveTo(draw.last.x, draw.last.y);
+    ctx.lineTo(draw.current.x, draw.current.y);
     ctx.closePath();
     ctx.stroke();
 }

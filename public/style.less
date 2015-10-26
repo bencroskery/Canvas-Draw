@@ -1,5 +1,6 @@
 ﻿@swatch-size: 2.5em;
 @swatch-select: #3F3F3F;
+@default-color: lightgray;
 @border-color: #a9a9a9;
 
 * {
@@ -76,7 +77,7 @@ canvas {
         width: 0;
         height: 0;
         border-top: @swatch-size/2 solid transparent;
-        border-right: @swatch-size solid lightgray;
+        border-right: @swatch-size solid @default-color;
         border-bottom: @swatch-size/2 solid transparent;
         cursor: pointer;
 
@@ -99,7 +100,7 @@ canvas {
             left: -0.188em;
             position: absolute;
             content: "";
-            background: lightgray;
+            background: @default-color;
         }
 
         &:hover:before, &:hover:after {
@@ -199,33 +200,29 @@ canvas {
     }
 }
 
-
-// dark version
-@color__default: rgba(0,0,0,.2);
-
+#sizeBar {
+    font-size: @swatch-size/2;
+    border-top: 2px solid @default-color;
+    width: 8em;
+    height: 1em;
+    overflow: visible;
+}
 
 input[type=range] {
-    font-size: @swatch-size/2;
-    width: 8em;
-    height: 0;
     margin: 0;
-    position: relative;
-    bottom: 0.9em;
+    width: 8em;
+    height: 2em;
     cursor: pointer;
-    border-bottom: 2px solid @color__default;
+    outline: none;
     background-color: transparent;
     -webkit-appearance: none;
-
-    //&:focus {
-    //    outline: none;
-    //}
     // * * * THUMB * * *
     .range-thumb() {
         width: 2em;
         height: 2em;
         background-color: white;
         border-radius: 100%;
-        border: 2px solid @color__default;
+        border: 2px solid @default-color;
         cursor: pointer;
     }
 
@@ -243,19 +240,6 @@ input[type=range] {
     }
 
     &:hover {
-        &::-webkit-slider-thumb {
-            border-color: @swatch-select;
-        }
-
-        &::-moz-range-thumb {
-            border-color: @swatch-select;
-        }
-
-        &::-ms-thumb {
-            border-color: @swatch-select;
-        }
-    }
-    &:active {
         &::-webkit-slider-thumb {
             border-color: @swatch-select;
         }
