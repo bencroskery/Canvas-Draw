@@ -1,6 +1,7 @@
 ﻿@swatch-size: 2.5em;
 @swatch-select: #3F3F3F;
 @default-color: lightgray;
+@hover-color: gray;
 @border-color: #a9a9a9;
 
 * {
@@ -72,7 +73,60 @@ canvas {
         border: 2px solid @swatch-select;
     }
 
-    .undobtn {
+    #sizeBar {
+        font-size: @swatch-size/2;
+        border-top: 2px solid @default-color;
+        width: 10.8em;
+        height: 1em;
+        overflow: visible;
+
+        #sizeInput {
+            margin: 0;
+            width: 10.8em;
+            height: 2em;
+            cursor: pointer;
+            outline: none;
+            background-color: transparent;
+            -webkit-appearance: none;
+            // * * * THUMB * * *
+            .range-thumb() {
+                width: 2em;
+                height: 2em;
+                background-color: @default-color;
+                border-radius: 100%;
+                cursor: pointer;
+            }
+
+            &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                .range-thumb();
+            }
+
+            &::-moz-range-thumb {
+                .range-thumb();
+            }
+
+            &::-ms-thumb {
+                .range-thumb();
+            }
+
+            &:hover {
+                &::-webkit-slider-thumb {
+                    background-color: @hover-color;
+                }
+
+                &::-moz-range-thumb {
+                    background-color: @hover-color;
+                }
+
+                &::-ms-thumb {
+                    background-color: @hover-color;
+                }
+            }
+        }
+    }
+
+    #undobtn {
         float: right;
         width: 0;
         height: 0;
@@ -82,11 +136,11 @@ canvas {
         cursor: pointer;
 
         &:hover {
-            border-right-color: gray;
+            border-right-color: @hover-color;
         }
     }
 
-    .clearbtn {
+    #clearbtn {
         float: right;
         width: @swatch-size;
         height: @swatch-size;
@@ -104,7 +158,7 @@ canvas {
         }
 
         &:hover:before, &:hover:after {
-            background: gray;
+            background: @hover-color;
         }
 
         &:before {
@@ -197,58 +251,5 @@ canvas {
 
     .title, .usernameInput {
         font-weight: 100;
-    }
-}
-
-#sizeBar {
-    font-size: @swatch-size/2;
-    border-top: 2px solid @default-color;
-    width: 8em;
-    height: 1em;
-    overflow: visible;
-}
-
-input[type=range] {
-    margin: 0;
-    width: 8em;
-    height: 2em;
-    cursor: pointer;
-    outline: none;
-    background-color: transparent;
-    -webkit-appearance: none;
-    // * * * THUMB * * *
-    .range-thumb() {
-        width: 2em;
-        height: 2em;
-        background-color:  @default-color;
-        border-radius: 100%;
-        cursor: pointer;
-    }
-
-    &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        .range-thumb();
-    }
-
-    &::-moz-range-thumb {
-        .range-thumb();
-    }
-
-    &::-ms-thumb {
-        .range-thumb();
-    }
-
-    &:hover {
-        &::-webkit-slider-thumb {
-            border-color: @swatch-select;
-        }
-
-        &::-moz-range-thumb {
-            border-color: @swatch-select;
-        }
-
-        &::-ms-thumb {
-            border-color: @swatch-select;
-        }
     }
 }

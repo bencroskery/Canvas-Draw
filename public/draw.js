@@ -26,6 +26,7 @@ var player = {
 }
   , playernames = [];  // Names of all players in the lobby.
 
+
 // Startup.
 setSize();
 $('.login').fadeIn("fast");
@@ -184,12 +185,12 @@ socket.on('reboot', function (d) {
 // Info Section
 // ----------------------------
 
-obj_timer = document.querySelector('#timer');
+var obj_timer = document.querySelector('#timer');
 function setTimer(text) {
     obj_timer.textContent = text;
 }
 
-obj_info = document.querySelector('#info');
+var obj_info = document.querySelector('#info');
 function setInfo(text) {
     obj_info.textContent = text;
 }
@@ -262,7 +263,7 @@ $("input[name=color]:radio").change(function () {
 });
 
 // Undo button clicked.
-$('.undobtn').click(function () {
+$('#undobtn').click(function () {
     removeLine();
     if (game.running) {
         socket.emit('undo line', 0);
@@ -270,7 +271,7 @@ $('.undobtn').click(function () {
 });
 
 // Clear button clicked.
-$('.clearbtn').click(function () {
+$('#clearbtn').click(function () {
     clearCanvas();
     if (game.running) {
         socket.emit('clear canvas', 0);
@@ -414,26 +415,37 @@ function setSize() {
     ctx.canvas.width = $drawing.width();
     ctx.canvas.height = $drawing.height();
     
-    
     // Resize font.
     $('body').css('font-size', FONTSIZE * docwidth / STDWIDTH);
+
 }
 
 
 
 // ------------------------------------------------------------------------------------------------------
 
-var draw = { line : new Array(), color : 'black', radius : 10, size : 0, current : { x : 0, y : 0 }, last : { x : 0, y : 0 } };
+var draw = {
+    line : new Array(),          // A set of all the lines that have been drawn.
+    size : 0,                    // The number of lines that have been drawn.
+    color : 'black',             // The current color to use on new lines.
+    radius : 10,                 // The current radius to use on new lines.
+    current : { x : 0, y : 0 },  // The most recent point.
+    last : { x : 0, y : 0 }      // The second most recent point.
+};
 
-// Mouse goes down.
+// Start a line when the mouse goes down.
 function drawDown(x, y) {
-    draw.line.push({ point : new Array(), color : draw.color, width : draw.radius * 2 * $drawing.width() / STDWIDTH });
+    draw.line.push({
+        point : new Array(),
+        color : draw.color,
+        width : draw.radius * 2 * $drawing.width() / STDWIDTH
+    });
     draw.size++;
     draw.last = null;
     drawPoint(x, y);
 }
 
-// Mouse is dragging.
+// Continue a line as the mouse is dragging.
 function drawDrag(x, y) {
     drawPoint(x, y);
 }
@@ -447,27 +459,35 @@ function removeLine() {
     }
 }
 
+// Reset and clear canvas.
+function resetCanvas() {
+    draw.color = 'black';
+    draw.radius = 10;
+    draw.current = { x : 0, y : 0 };
+    draw.last = { x : 0, y : 0 };
+    clearCanvas();
+}
+
 // Clears all lines from the canvas.
 function clearCanvas() {
-    draw = { line : new Array(), size : 0 };
+    draw.line = new Array();
+    draw.size = 0;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
 }
 
-// Clears all lines from the canvas.
-function resetCanvas() {
-    draw = { line : new Array(), color : 'black', radius : 10, size : 0, current : { x : 0, y : 0 }, last : { x : 0, y : 0 } };
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
-}
-
+// Adds a point the current line and draws it.
 function drawPoint(px, py) {
-    if (draw.last == null) {
+    // Set last to previous current point.
+    if (draw.last === null) {
         draw.last = { x : px + 0.01, y : py };
     } else {
         draw.last = draw.current;
     }
+    // Set the current point to the point given.
     draw.current = { x : px, y : py };
     draw.line[draw.size - 1].point.push(draw.current);
     
+    // Draw the line between the points.
     ctx.lineJoin = "round";
     ctx.strokeStyle = draw.line[draw.size - 1].color;
     ctx.lineWidth = draw.line[draw.size - 1].width;
@@ -478,10 +498,12 @@ function drawPoint(px, py) {
     ctx.stroke();
 }
 
+// Redraws all the lines.
 function reDraw() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
     
     ctx.lineJoin = "round";
+    ctx.lineCap = "round";
     
     for (var i = 0; i < draw.size; i++) {
         ctx.strokeStyle = draw.line[i].color;
@@ -494,17 +516,13 @@ function reDraw() {
             ctx.closePath();
             ctx.stroke();
         } else {
+            ctx.beginPath();
+            ctx.moveTo(draw.line[i].point[0].x, draw.line[i].point[0].y);
             for (var n = 1; n < draw.line[i].point.length; n++) {
-                ctx.beginPath();
-                ctx.moveTo(draw.line[i].point[n - 1].x, draw.line[i].point[n - 1].y);
                 ctx.lineTo(draw.line[i].point[n].x, draw.line[i].point[n].y);
-                ctx.closePath();
-                ctx.stroke();
             }
+            ctx.stroke();
         }
     }
 }
-
-
-
 
