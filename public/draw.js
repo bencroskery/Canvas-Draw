@@ -1,11 +1,16 @@
-function Draw(canvas) {
-    var ctx = canvas.getContext("2d")
-      , line = new Array()// A set of all the lines that have been drawn.
-      , size = 0// The number of lines that have been drawn.
-      , color = 'rgb(0, 0, 0)'// The current color to use on new lines.
-      , radius = 10// The current radius to use on new lines.
-      , current = { x : 0, y : 0 }// The most recent point.
-      , last = { x : 0, y : 0 }// The second most recent point.
+function Draw(canvasElement) {
+    var canvas = canvasElement
+      , ctx = canvas.getContext("2d")
+      , width = canvas.clientWidth
+      , height = canvas.clientHeight
+      , actions = new Array()       // List of actions.
+      , line = new Array()          // A set of all the lines drawn.
+      , lindex = 0                  // The index of lines after fills.
+      , size = 0                    // The number of lines that have been drawn.
+      , color = 'rgb(0, 0, 0)'      // The current color to use on new lines.
+      , radius = 10                 // The current radius to use on new lines.
+      , current = { x : 0, y : 0 }  // The most recent point.
+      , last = { x : 0, y : 0 }     // The second most recent point.
     
     this.setRadius = function (r) {
         radius = r;
@@ -15,33 +20,66 @@ function Draw(canvas) {
         color = c;
     }
     
-    this.setCanvasSize = function (width, height) {
+    this.getWidth = function () {
+        return width;
+    }
+    
+    this.getHeight = function () {
+        return height;
+    }
+    
+    this.resized = function () {
+        /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
+        for (var i = 0; i < size; i++) {
+            for (var j = 0; j < line[i].length; j++) {
+                line[i].point[j].x = line[i].point[j].x * scaling;
+                line[i].point[j].y = line[i].point[j].y * scaling;
+            }
+        }*/
+
+        width = canvas.clientWidth;
+        height = canvas.clientHeight;
         ctx.canvas.width = width;
         ctx.canvas.height = height;
+        
+        this.reDraw();
     }
     
     // Start a line when the mouse goes down.
     this.down = function (x, y) {
+        actions.push(0);
         line.push({
             point : new Array(),
             rgb : color,
-            width : radius * 2 * $drawing.width() / STDWIDTH
+            width : radius * 2 * width / STDWIDTH
         });
         size++;
         last = null;
-        drawPoint(x, y);
+        this.drawPoint(x, y);
     }
     
     // Continue a line as the mouse is dragging.
     this.drag = function (x, y) {
-        drawPoint(x, y);
+        this.drawPoint(x, y);
     }
     
-    // Remove the last line.
-    this.pop = function () {
-        if (size > 0) {
+    // Undo last action.
+    this.undo = function () {
+        if (size === 0) {
+            return;
+        }
+        var act = actions.pop();
+        if (act === 0 && size > 0) {
             line.pop();
             size--;
+            this.reDraw();
+        } else if (act === 1) {
+            line.splice(lindex - 1, 1);
+            lindex--;
+            size--;
+            this.reDraw();
+        } else {
+            line[act.index].rgb = act.color;
             this.reDraw();
         }
     }
@@ -63,7 +101,7 @@ function Draw(canvas) {
     }
     
     // Adds a point the current line and draws it.
-    var drawPoint = function (px, py) {
+    this.drawPoint = function (px, py) {
         // Set last to previous current point.
         if (last === null) {
             last = { x : px + 0.01, y : py };
@@ -93,7 +131,6 @@ function Draw(canvas) {
         ctx.lineCap = "round";
         
         for (var i = 0; i < size; i++) {
-            console.log(line[i]);
             ctx.strokeStyle = line[i].rgb;
             ctx.lineWidth = Math.abs(line[i].width);
             
@@ -151,15 +188,21 @@ function Draw(canvas) {
     }
     
     this.bucket = function (x, y) {
-        var pixCol = (ctx.getImageData(x, y, 1, 1).data);
-        console.log('rgba(' + pixCol[0] + ', ' + pixCol[1] + ', ' + pixCol[2] + ', ' + pixCol[3] + ')');
+        var imgCol = (ctx.getImageData(x, y, 1, 1).data);
+        var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')'
+        if (color === pixCol) {
+            return;
+        }
+        console.log(pixCol);
         // If the size is zero then just fill the background.
-        if (size === 0 || pixCol[3] === 0) {
+        if (size === 0 || imgCol[3] === 0) {
+            actions.push(1);
             line.unshift({
                 point : [{ x : -5, y : -5 }, { x : ctx.canvas.width, y : -5 }, { x : ctx.canvas.width, y : ctx.canvas.height }, { x : 0, y : ctx.canvas.height }],
                 rgb : color,
                 width : -1
             });
+            lindex++;
             size++;
             this.reDraw();
             return;
@@ -169,13 +212,14 @@ function Draw(canvas) {
         var found = [];
         for (var i = 0; i < size; i++) {
             console.log(line[i].rgb);
-            if (line[i].rgb === 'rgb(' + pixCol[0] + ', ' + pixCol[1] + ', ' + pixCol[2] + ')') {
+            if (line[i].rgb === pixCol) {
                 found.push(i);
             }
         }
         console.log(found.length);
         
         if (found.length === 1) {  // Set the element color if there is 1.
+            actions.push({ index : found[0], color : line[found[0]].rgb });
             line[found[0]].rgb = color;
         }
         else if (found.length > 1) {  // Find the best and set it.
@@ -197,6 +241,7 @@ function Draw(canvas) {
                 }
             }
             console.log(minDist);
+            actions.push({ index : found[best], color : line[found[best]].rgb });
             line[found[best]].rgb = color;
         }
         else {  // Do something else...

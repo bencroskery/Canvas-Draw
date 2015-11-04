@@ -1,12 +1,10 @@
 // Main Variables.
-var $drawing = $('#drawing')
-  , canvas = document.getElementById('drawing')
+var canvas = document.getElementById('drawing')
   , draw = new Draw(canvas)
   , socket = io()
   , STDWIDTH = 1280
   , TIMEWAIT = 10
   , TIMEDRAW = 20;
-
 
 // Game info.
 var game = {
@@ -28,8 +26,8 @@ var player = {
 
 // Startup.
 setSize();
-$('.login').fadeIn("fast");
-$('.usernameInput').focus();
+$('#login').fadeIn("fast");
+$('#nameIn').focus();
 
 // ----------------------------
 // Game
@@ -241,7 +239,7 @@ canvas.onmouseup = function (e) {
 };
 
 // Mouse was scrolled to change size.
-var inputSize = document.querySelector('#sizeInput');
+var inputSize = document.querySelector('#sizeIn');
 canvas.onwheel = function (e) {
     if (mousedown) return;
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -275,7 +273,7 @@ $("input[name=color]:radio").change(function () {
 
 // Undo button clicked.
 $('#undobtn').click(function () {
-    draw.pop();
+    draw.undo();
     if (game.running) {
         socket.emit('undo line', 0);
     }
@@ -294,8 +292,8 @@ function emitMouse(type, x, y) {
     if (game.running) {
         socket.emit('point', {
             type: type,
-            x: x / $drawing.width() * STDWIDTH,
-            y: y / $drawing.height() * STDWIDTH,
+            x: x / draw.getWidth() * STDWIDTH,
+            y: y / draw.getHeight() * STDWIDTH,
         });
     }
 }
@@ -303,13 +301,13 @@ function emitMouse(type, x, y) {
 // Add a point according to type.
 socket.on('point', function (p) {
     if (p.type === 0) {
-        draw.down(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
+        draw.down(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
     } else if (p.type === 1) {
-        draw.drag(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
+        draw.drag(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
     } else if (p.type === 2) {
         draw.fill();
     } else if (p.type === 3) {
-        draw.bucket(p.x * $drawing.width() / STDWIDTH, p.y * $drawing.height() / STDWIDTH);
+        draw.bucket(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
     }
 });
 
@@ -326,7 +324,7 @@ socket.on('set size', function (c) {
 
 // Undo the last drawn line.
 socket.on('undo line', function (d) {
-    draw.pop();
+    draw.undo();
 });
 
 // Clear the canvas of lines.
@@ -348,7 +346,7 @@ function addMessage(text) {
 
 // Creating a chat message.
 $('form#gform').submit(function () {
-    var $guessbox = $('.guessInput');
+    var $guessbox = $('#guessIn');
     
     if ($guessbox.val().charAt(0) == '/') {
         runCommand($guessbox.val().split(' '));
@@ -387,9 +385,9 @@ socket.on('user left', function (data) {
     }
 });
 
-$(window).resize(function () {
+window.onresize = function () {
     setSize();
-});
+}
 
 // ----------------------------
 // Login Pane
@@ -397,12 +395,12 @@ $(window).resize(function () {
 
 // Player's name submitted.
 $('form#lform').submit(function () {
-    var name = $('.usernameInput').val();
+    var name = $('#nameIn').val();
     if (name != '') {
         player.name = name;
         socket.emit('add user', name);
-        $('.login').fadeOut("fast");
-        $('.game').fadeIn("fast");
+        $('#login').fadeOut("fast");
+        $('#game').fadeIn("fast");
         setSize();
     }
     return false;
@@ -415,8 +413,8 @@ $('form#lform').submit(function () {
 function setSize() {
     var ASPECT = 16 / 8;
     var FONTSIZE = 16;
-    var docwidth = $(window).width() - 40;
-    var docheight = $(window).height() - 40;
+    var docwidth = window.innerWidth - 40;
+    var docheight = window.innerHeight - 40;
     
     if (docwidth > docheight * ASPECT) {
         docwidth = docheight * ASPECT;
@@ -425,13 +423,12 @@ function setSize() {
     }
     
     // Resize game area.
-    var $game = $('.game');
-    $game.width(docwidth);
-    $game.height(docheight);
-    draw.setCanvasSize($drawing.width(), $drawing.height());
+    var game = document.getElementById("game");
+    game.style.width = docwidth + "px";
+    game.style.height = docheight + "px";
+    draw.resized();
     
     // Resize font.
-    $('body').css('font-size', FONTSIZE * docwidth / STDWIDTH);
+    document.body.style.fontSize = FONTSIZE * docwidth / STDWIDTH + "px";
 
 }
-

@@ -22,7 +22,7 @@ body {
     margin: 20px 0;
 }
 
-.game {
+#game {
     margin: auto;
     display: none;
 }
@@ -80,7 +80,7 @@ canvas {
         height: 1em;
         overflow: visible;
 
-        #sizeInput {
+        #sizeIn {
             margin: 0;
             width: 10.8em;
             height: 2em;
@@ -173,7 +173,7 @@ canvas {
     }
 }
 
-.guessInput {
+#guessIn {
     width: 100%;
     height: @swatch-size;
     padding-left: 0.625em;
@@ -227,7 +227,7 @@ canvas {
     }
 }
 
-.login {
+#login {
     margin-top: -4.762em;
     position: absolute;
     text-align: center;
@@ -236,20 +236,13 @@ canvas {
     margin-left: 5%;
     display: none;
 
-    .usernameInput {
-    }
-
-    .title {
-        font-size: 200%;
-    }
-
-    .usernameInput {
-        font-size: 200%;
+    #nameIn {
         text-align: center;
         width: 15em;
     }
 
-    .title, .usernameInput {
+    .title, #nameIn {
+        font-size: 200%;
         font-weight: 100;
     }
 }
