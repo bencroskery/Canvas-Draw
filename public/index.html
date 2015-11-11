@@ -16,6 +16,7 @@
     <div id="game">
         <div class="left noselect">
             <canvas id="drawing" oncontextmenu="return false;"></canvas>
+
             <div id="options">
                 <input type="radio" name="color" value="1" id="r1" checked="checked" />
                 <label class="swatch" for="r1" style="background-color: black"></label>
@@ -56,6 +57,15 @@
             </div>
             <form id="gform" action="">
                 <input id="guessIn" autocomplete="off" placeholder="Type here..." />
+            </form>
+        </div>
+        <div id="overlay">
+            <form id="worddiag" action="">
+                Choose a word<br>
+                <input type="submit" id="word1" value="1"><br>
+                <input type="submit" id="word2" value="2"><br>
+                <input type="submit" id="word3" value="3"><br>
+                <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="14">
             </form>
         </div>
     </div>

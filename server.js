@@ -14,21 +14,21 @@ server.listen(port, function () {
     console.log('Server listening on port ' + port);
 });
 
-var userlist     // List of all users with IDs.
-  , playernames  // List of the names of the users.
+var userList     // List of all users with IDs.
+  , playerNames  // List of the names of the users.
   , running      // Whether a game is in progress.
   , words        // Words the drawer is asked to choose from.
-  , wordlist;    // The full list of all words.
+  , wordList;    // The full list of all words.
 
 // Setup all game variables (used for reset).
 function setupGame() {
-    userlist = [];
-    playernames = [];
+    userList = [];
+    playerNames = [];
     running = false;
     words = [];
-    wordlist = fs.readFileSync('wordlist.txt').toString().split("\n");
-    for (i in wordlist) {
-        console.log(wordlist[i]);
+    wordList = fs.readFileSync('words.txt').toString().split("\n");
+    for (i in wordList) {
+        console.log(wordList[i]);
     }
 }
 setupGame();
@@ -41,22 +41,22 @@ io.on('connection', function (socket) {
             return;
         }
         // Add the user.
-        userlist.push(socket.id);
-        playernames.push(name);
-        socket.number = userlist.length - 1;
+        userList.push(socket.id);
+        playerNames.push(name);
+        socket.number = userList.length - 1;
         socket.name = name;
         addedUser = true;
 
         console.log('User ' + name + ' has joined');
         // Tell everyone that this user has joined.
-        socket.emit('setup', playernames);
+        socket.emit('setup', playerNames);
         socket.broadcast.emit('user joined', socket.name);
     });
     
     socket.on('list users', function (d) {
-        console.log('Number of users: ' + userlist.length);
-        console.log(userlist);
-        console.log(playernames);
+        console.log('Number of users: ' + userList.length);
+        console.log(userList);
+        console.log(playerNames);
     });
 
     socket.on('start game', function (d) {
@@ -67,6 +67,7 @@ io.on('connection', function (socket) {
         console.log('Game started!');
         io.sockets.emit('start game', 0);
         io.sockets.emit('turn-wait', 0);
+        words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
     });
     
     socket.on('stop game', function (d) {
@@ -81,7 +82,7 @@ io.on('connection', function (socket) {
     socket.on('turn-wait', function (d) {
         io.sockets.emit('turn-wait', 0);
         console.log('Next turn');
-        var words = [wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)], wordlist[Math.floor(Math.random() * wordlist.length)]];
+        words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
     });
     
     socket.on('turn-choose', function (d) {
@@ -92,7 +93,7 @@ io.on('connection', function (socket) {
     socket.on('turn-draw', function (word) {
         console.log('Drawing');
         if (word === -1) {
-            word = wordlist[Math.floor(Math.random() * wordlist.length)];
+            word = wordList[Math.floor(Math.random() * wordList.length)];
         }
         io.sockets.emit('turn-draw', word);
     });
@@ -144,10 +145,10 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
-        // Remove the name from global userlist and playernames list.
+        // Remove the name from global userList and playerNames list.
         if (addedUser) {
-            userlist.splice(socket.number, 1);
-            playernames.splice(socket.number, 1);
+            userList.splice(socket.number, 1);
+            playerNames.splice(socket.number, 1);
             
             console.log('User ' + socket.name + ' has left');
             // Tell everyone that this user has left.

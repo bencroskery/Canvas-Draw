@@ -112,9 +112,10 @@ socket.on('turn-wait', function (d) {
     game.time = TIMEWAIT;
 });
 
-socket.on('turn-choose', function (d) {
+socket.on('turn-choose', function (words) {
     if (player.mode == 1) {
         setInfo('Choose a word!');
+        setChoose(words);
     } else {
         setInfo(playernames[game.currentplayer] + ' is choosing!');
     }
@@ -125,6 +126,7 @@ socket.on('turn-choose', function (d) {
 socket.on('turn-draw', function (word) {
     game.word = word;
     if (player.mode == 1) {
+        document.getElementById('worddiag').style.display = 'none';
         setInfo('DRAW!!! Word: ' + game.word);
     } else {
         setInfo('Guess! ' + game.word.replace(/[^ '-.]/g, " _").replace(' ', '   '));
@@ -182,14 +184,19 @@ socket.on('reboot', function (d) {
 // Info Section
 // ----------------------------
 
-var obj_timer = document.querySelector('#timer');
 function setTimer(text) {
-    obj_timer.textContent = text;
+    document.getElementById('timer').textContent = text;
 }
 
-var obj_info = document.querySelector('#info');
 function setInfo(text) {
-    obj_info.textContent = text;
+    document.getElementById('info').textContent = text;
+}
+
+function setChoose(words) {
+    document.getElementById('word1').value = words[0];
+    document.getElementById('word2').value = words[1];
+    document.getElementById('word3').value = words[2];
+    document.getElementById('worddiag').style.display = 'block';
 }
 
 // ----------------------------
@@ -239,7 +246,7 @@ canvas.onmouseup = function (e) {
 };
 
 // Mouse was scrolled to change size.
-var inputSize = document.querySelector('#sizeIn');
+var inputSize = document.getElementById('sizeIn');
 canvas.onwheel = function (e) {
     if (mousedown) return;
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -385,8 +392,23 @@ socket.on('user left', function (data) {
     }
 });
 
+// Resize the game when the window is resized.
 window.onresize = function () {
     setSize();
+}
+
+// ----------------------------
+// Choose Pane
+// ----------------------------
+
+// A word was chosen.
+document.getElementById('worddiag').onsubmit = function () {
+    var val = document.activeElement.value.trim();
+    if (val.length) {
+        socket.emit('turn-draw', val);
+        document.getElementById('worddiag').style.display = 'none';
+    }
+    return false;
 }
 
 // ----------------------------
@@ -394,8 +416,8 @@ window.onresize = function () {
 // ----------------------------
 
 // Player's name submitted.
-$('form#lform').submit(function () {
-    var name = $('#nameIn').val();
+document.getElementById('lform').onsubmit = function () {
+    var name = document.getElementById('nameIn').value;
     if (name != '') {
         player.name = name;
         socket.emit('add user', name);
@@ -404,7 +426,7 @@ $('form#lform').submit(function () {
         setSize();
     }
     return false;
-});
+}
 
 // ----------------------------
 // Resize
