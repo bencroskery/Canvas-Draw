@@ -4,7 +4,7 @@ var canvas = document.getElementById('drawing')
   , socket = io()
   , STDWIDTH = 1280
   , TIMEWAIT = 10
-  , TIMEDRAW = 20;
+  , TIMEDRAW = 70;
 
 // Game info.
 var game = {
