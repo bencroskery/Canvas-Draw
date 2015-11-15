@@ -1,3 +1,5 @@
+"use strict";
+
 // Main Variables.
 var canvas = document.getElementById('drawing')
   , draw = new Draw(canvas)
@@ -8,20 +10,20 @@ var canvas = document.getElementById('drawing')
 
 // Game info.
 var game = {
-    running : false,   // Whether the game has been started.
-    word : '',         // The word being drawn.
-    currentplayer : 0, // The current player ID.
-    mode : 0,          // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
-    time : 0           // The current game time.
+    running: false,    // Whether the game has been started.
+    word: '',          // The word being drawn.
+    currentPlayer: 0,  // The current player ID.
+    mode: 0,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    time: 0            // The current game time.
 };
 
 // User info.
 var player = {
-    name : '??',       // The name of the player.
-    number : -1,       // The ID number of the player.
+    name: '??',        // The name of the player.
+    number: -1,        // The ID number of the player.
     mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
 }
-  , playernames = [];  // Names of all players in the lobby.
+  , playerNames = [];  // Names of all players in the lobby.
 
 
 // Startup.
@@ -59,7 +61,7 @@ function runCommand(arg) {
             addMessage('I am ' + player.name + ' player number ' + player.number);
             break;
         case '/userlist':
-            addMessage('The users are: ' + playernames);
+            addMessage('The users are: ' + playerNames);
             break;
         case '/userlistserver':
             socket.emit('list users', 0);
@@ -73,19 +75,19 @@ function runCommand(arg) {
     }
 }
 
-socket.on('start game', function (d) {
+socket.on('start game', function () {
     setInfo('START THE GAME!!!');
     player.mode = 0;
     game.running = true;
-    game.currentplayer = -1;
+    game.currentPlayer = -1;
     timer();
 });
 
-socket.on('stop game', function (d) {
+socket.on('stop game', function () {
     setInfo('Use /start to start the game');
     player.mode = 1;
     game.running = false;
-    game.currentplayer = 0;
+    game.currentPlayer = 0;
     game.mode = 0;
     game.time = 0;
     setTimer('-');
@@ -93,19 +95,19 @@ socket.on('stop game', function (d) {
     $('#options').fadeIn('fast');
 });
 
-socket.on('turn-wait', function (d) {
+socket.on('turn-wait', function () {
     draw.reset();
-    game.currentplayer++;
-    if (game.currentplayer == playernames.length) {
-        game.currentplayer = 0;
+    game.currentPlayer++;
+    if (game.currentPlayer == playerNames.length) {
+        game.currentPlayer = 0;
     }
-    if (game.currentplayer == player.number) {
+    if (game.currentPlayer == player.number) {
         player.mode = 1;
         setInfo("It's now your turn!");
         $('#options').fadeIn('fast');
     } else {
         player.mode = 0;
-        setInfo("It's now " + playernames[game.currentplayer] + "'s turn!");
+        setInfo("It's now " + playerNames[game.currentPlayer] + "'s turn!");
         $('#options').fadeOut('fast');
     }
     game.mode = 0;
@@ -117,7 +119,7 @@ socket.on('turn-choose', function (words) {
         setInfo('Choose a word!');
         setChoose(words);
     } else {
-        setInfo(playernames[game.currentplayer] + ' is choosing!');
+        setInfo(playerNames[game.currentPlayer] + ' is choosing!');
     }
     game.mode = 1;
     game.time = TIMEWAIT;
@@ -136,8 +138,7 @@ socket.on('turn-draw', function (word) {
 });
 
 function timer() {
-    setTimer(game.time);
-    game.time--;
+    setTimer(game.time--);
     setInterval(function () {
         if (!game.running) {
             return;
@@ -145,7 +146,7 @@ function timer() {
         setTimer(game.time);
         if (game.time != 0) {
             game.time--;
-        } 
+        }
         else if (player.mode == 1) {
             if (game.mode == 0) {
                 // Waiting for next turn ended.
@@ -172,11 +173,11 @@ socket.on('correctguess', function (name) {
 });
 
 socket.on('setup', function (names) {
-    playernames = names;
-    player.number = playernames.length - 1;
+    playerNames = names;
+    player.number = playerNames.length - 1;
 });
 
-socket.on('reboot', function (d) {
+socket.on('reboot', function () {
     location.reload();
 });
 
@@ -223,7 +224,7 @@ canvas.onmousedown = function (e) {
             draw.down(mouseX, mouseY);
             emitMouse(0, mouseX, mouseY);
         }
-        
+
     }
 };
 
@@ -233,9 +234,7 @@ canvas.onmousemove = function (e) {
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
-        if (game.running) {
-            emitMouse(1, mouseX, mouseY);
-        }
+        emitMouse(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY);
     }
 };
@@ -245,12 +244,32 @@ canvas.onmouseup = function (e) {
     mousedown = false;
 };
 
+document.onkeypress = function (e) {
+    if (player.mode == 1 && game.mode == 2 || !game.running) {
+        if (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode === 45) {
+            var val = 0;
+        }
+            console.log(e.keyCode);
+    }
+};
+
+// Color button clicked.
+var inputColor = document.querySelectorAll("input[type=radio]");
+for (var x = 0; x < inputColor.length; x++)
+    inputColor[x].onchange = function () {
+        var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
+        draw.setColor(val);
+        if (game.running) {
+            socket.emit('set color', val);
+        }
+    };
+
 // Mouse was scrolled to change size.
 var inputSize = document.getElementById('sizeIn');
 canvas.onwheel = function (e) {
     if (mousedown) return;
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    var val = parseInt(inputSize.value) + delta*2;
+    var val = parseInt(inputSize.value) + delta * 2;
 
     if (val === 0 || val === 42) return;
     inputSize.value = val;
@@ -258,9 +277,9 @@ canvas.onwheel = function (e) {
     if (game.running) {
         socket.emit('set size', val);
     }
-}
+};
 
-// Size button clicked.
+// Size bar changed.
 inputSize.addEventListener('input', function () {
     var val = parseInt(inputSize.value);
     draw.setRadius(val);
@@ -269,17 +288,8 @@ inputSize.addEventListener('input', function () {
     }
 });
 
-// Color button clicked.
-$("input[name=color]:radio").change(function () {
-    var val = $("label[for=" + $(this).attr('id') + "]").css("background-color");
-    draw.setColor(val);
-    if (game.running) {
-        socket.emit('set color', val);
-    }
-});
-
 // Undo button clicked.
-$('#undobtn').click(function () {
+document.getElementById('undobtn').addEventListener('click', function () {
     draw.undo();
     if (game.running) {
         socket.emit('undo line', 0);
@@ -287,7 +297,7 @@ $('#undobtn').click(function () {
 });
 
 // Clear button clicked.
-$('#clearbtn').click(function () {
+document.getElementById('clearbtn').addEventListener('click', function () {
     draw.clear();
     if (game.running) {
         socket.emit('clear canvas', 0);
@@ -300,7 +310,7 @@ function emitMouse(type, x, y) {
         socket.emit('point', {
             type: type,
             x: x / draw.getWidth() * STDWIDTH,
-            y: y / draw.getHeight() * STDWIDTH,
+            y: y / draw.getHeight() * STDWIDTH
         });
     }
 }
@@ -330,12 +340,12 @@ socket.on('set size', function (c) {
 });
 
 // Undo the last drawn line.
-socket.on('undo line', function (d) {
+socket.on('undo line', function () {
     draw.undo();
 });
 
 // Clear the canvas of lines.
-socket.on('clear canvas', function (d) {
+socket.on('clear canvas', function () {
     draw.clear();
 });
 
@@ -354,7 +364,7 @@ function addMessage(text) {
 // Creating a chat message.
 $('form#gform').submit(function () {
     var $guessbox = $('#guessIn');
-    
+
     if ($guessbox.val().charAt(0) == '/') {
         runCommand($guessbox.val().split(' '));
         $guessbox.val('');
@@ -380,13 +390,13 @@ socket.on('message', function (data) {
 // A user connected.
 socket.on('user joined', function (name) {
     addMessage(name + ' has joined.');
-    playernames.push(name);
+    playerNames.push(name);
 });
 
 // A user disconnected.
 socket.on('user left', function (data) {
     addMessage(data.name + ' has left.');
-    playernames.splice(data.number, 1);
+    playerNames.splice(data.number, 1);
     if (data.num < player.number) {
         player.number--;
     }
@@ -395,7 +405,7 @@ socket.on('user left', function (data) {
 // Resize the game when the window is resized.
 window.onresize = function () {
     setSize();
-}
+};
 
 // ----------------------------
 // Choose Pane
@@ -409,7 +419,7 @@ document.getElementById('worddiag').onsubmit = function () {
         document.getElementById('worddiag').style.display = 'none';
     }
     return false;
-}
+};
 
 // ----------------------------
 // Login Pane
@@ -426,7 +436,7 @@ document.getElementById('lform').onsubmit = function () {
         setSize();
     }
     return false;
-}
+};
 
 // ----------------------------
 // Resize
@@ -437,19 +447,19 @@ function setSize() {
     var FONTSIZE = 16;
     var docwidth = window.innerWidth - 40;
     var docheight = window.innerHeight - 40;
-    
+
     if (docwidth > docheight * ASPECT) {
         docwidth = docheight * ASPECT;
     } else {
         docheight = docwidth / ASPECT;
     }
-    
+
     // Resize game area.
     var game = document.getElementById("game");
     game.style.width = docwidth + "px";
     game.style.height = docheight + "px";
     draw.resized();
-    
+
     // Resize font.
     document.body.style.fontSize = FONTSIZE * docwidth / STDWIDTH + "px";
 

@@ -1,9 +1,9 @@
 // Setup express server.
 var express = require('express')
-  , app     = express()
-  , server  = require('http').Server(app)
-  , io      = require('socket.io')(server)
-  , fs      = require('fs');
+  , app = express()
+  , server = require('http').Server(app)
+  , io = require('socket.io')(server)
+  , fs = require('fs');
 
 // Folder holding all client pages.
 app.use(express.static(__dirname + '/public'));
@@ -27,7 +27,7 @@ function setupGame() {
     running = false;
     words = [];
     wordList = fs.readFileSync('words.txt').toString().split("\n");
-    for (i in wordList) {
+    for (var i in wordList) {
         console.log(wordList[i]);
     }
 }
@@ -52,14 +52,14 @@ io.on('connection', function (socket) {
         socket.emit('setup', playerNames);
         socket.broadcast.emit('user joined', socket.name);
     });
-    
-    socket.on('list users', function (d) {
+
+    socket.on('list users', function () {
         console.log('Number of users: ' + userList.length);
         console.log(userList);
         console.log(playerNames);
     });
 
-    socket.on('start game', function (d) {
+    socket.on('start game', function () {
         if (running) {
             return;
         }
@@ -69,8 +69,8 @@ io.on('connection', function (socket) {
         io.sockets.emit('turn-wait', 0);
         words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
     });
-    
-    socket.on('stop game', function (d) {
+
+    socket.on('stop game', function () {
         if (!running) {
             return;
         }
@@ -78,18 +78,18 @@ io.on('connection', function (socket) {
         console.log('Game stopped!');
         io.sockets.emit('stop game', 0);
     });
-    
-    socket.on('turn-wait', function (d) {
+
+    socket.on('turn-wait', function () {
         io.sockets.emit('turn-wait', 0);
         console.log('Next turn');
         words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
     });
-    
-    socket.on('turn-choose', function (d) {
+
+    socket.on('turn-choose', function () {
         console.log('Choosing word');
         io.sockets.emit('turn-choose', words);
     });
-    
+
     socket.on('turn-draw', function (word) {
         console.log('Drawing');
         if (word === -1) {
@@ -107,18 +107,18 @@ io.on('connection', function (socket) {
         console.log('Color is now ' + c);
         socket.broadcast.emit('set color', c);
     });
-    
+
     socket.on('set size', function (c) {
         console.log('Size is now ' + c);
         socket.broadcast.emit('set size', c);
     });
 
-    socket.on('undo line', function (d) {
+    socket.on('undo line', function () {
         console.log('UNDO!');
         socket.broadcast.emit('undo line', 0);
     });
 
-    socket.on('clear canvas', function (d) {
+    socket.on('clear canvas', function () {
         console.log('CLEAR!');
         socket.broadcast.emit('clear canvas', 0);
     });
@@ -132,13 +132,13 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('correctguess', function (d) {
+    socket.on('correctguess', function () {
         console.log(socket.name + ' guessed right!');
         // Send the message to everyone.
         io.sockets.emit('correctguess', socket.name);
     });
-    
-    socket.on('reboot server', function (d) {
+
+    socket.on('reboot server', function () {
         setupGame();
         console.log('Server rebooted.');
         io.sockets.emit('reboot', 0);
@@ -149,7 +149,7 @@ io.on('connection', function (socket) {
         if (addedUser) {
             userList.splice(socket.number, 1);
             playerNames.splice(socket.number, 1);
-            
+
             console.log('User ' + socket.name + ' has left');
             // Tell everyone that this user has left.
             socket.broadcast.emit('user left', {
