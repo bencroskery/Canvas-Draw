@@ -53,7 +53,6 @@ canvas {
     height: 90%;
     cursor: crosshair;
     position: relative;
-    //cursor: url(cursor.ico) 1.9 2, crosshair;
 }
 
 #worddiag {
@@ -80,7 +79,7 @@ canvas {
         height: @swatch-size;
         border-radius: 100%;
         cursor: pointer;
-        background: linear-gradient(150deg, transparent 25%, rgba(100,50,80,.25));
+        background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
     }
 
     input[type=radio] {
@@ -250,12 +249,13 @@ canvas {
 }
 
 #login {
-    margin-top: -4.762em;
     position: absolute;
     text-align: center;
-    top: 50%;
+    top: 40%;
     width: 90%;
     margin-left: 5%;
+    font-size: 200%;
+    font-weight: 100;
     display: none;
 
     #nameIn {
@@ -263,8 +263,8 @@ canvas {
         width: 15em;
     }
 
-    .title, #nameIn {
-        font-size: 200%;
-        font-weight: 100;
+    .title {
+        display: block;
+        margin: 1em;
     }
 }

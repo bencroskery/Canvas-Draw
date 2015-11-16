@@ -9,7 +9,7 @@ function Draw(canvasElement) {
       , line = []                   // A set of all the lines drawn.
       , lindex = 0                  // The index of lines after fills.
       , size = 0                    // The number of lines that have been drawn.
-      , color = 'rgb(0, 0, 0)'      // The current color to use on new lines.
+      , color = 'rgb(0, 0, 0)'        // The current color to use on new lines.
       , radius = 10                 // The current radius to use on new lines.
       , current = {x: 0, y: 0}      // The most recent point.
       , last = {x: 0, y: 0};        // The second most recent point.
@@ -192,10 +192,10 @@ function Draw(canvasElement) {
     this.bucket = function (x, y) {
         var imgCol = (ctx.getImageData(x, y, 1, 1).data);
         var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
-        if (color === pixCol) {
+        console.log(pixCol);
+        if (color === pixCol && imgCol[3] !== 0) {
             return;
         }
-        console.log(pixCol);
         // If the size is zero then just fill the background.
         if (size === 0 || imgCol[3] === 0) {
             actions.push(1);

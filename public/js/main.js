@@ -247,9 +247,12 @@ canvas.onmouseup = function (e) {
 document.onkeypress = function (e) {
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode === 45) {
-            var val = 0;
+            var val = document.querySelector("label[for=r" + String.fromCharCode(e.keyCode) + "]").style.backgroundColor;
+            draw.setColor(val);
+            if (game.running) {
+                socket.emit('set color', val);
+            }
         }
-            console.log(e.keyCode);
     }
 };
 
@@ -259,6 +262,7 @@ for (var x = 0; x < inputColor.length; x++)
     inputColor[x].onchange = function () {
         var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
         draw.setColor(val);
+        console.log(val);
         if (game.running) {
             socket.emit('set color', val);
         }
