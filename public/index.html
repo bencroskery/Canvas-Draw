@@ -24,6 +24,8 @@
 </head>
 
 <body class="container-fluid">
+<div id="loading"></div>
+
 <div id="login">
     <form id="lform" action="">
         <label class="title" for="nameIn">What's your nickname?</label><input id="nameIn" type="text" maxlength="14"/>
@@ -32,7 +34,7 @@
 
 <div id="game">
     <div class="left noselect">
-        <canvas id="drawing" oncontextmenu="return false;"></canvas>
+        <canvas id="drawing" oncontextmenu="return false"></canvas>
 
         <div id="options">
             <input type="radio" name="color" value="1" id="r1" checked="checked"/>
@@ -87,9 +89,10 @@
     </div>
 </div>
 
+<script src="js/draw.js"></script>
+<script src="js/start.min.js"></script>
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="js/draw.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

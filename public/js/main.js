@@ -1,10 +1,7 @@
 "use strict";
 
 // Main Variables.
-var canvas = document.getElementById('drawing')
-  , draw = new Draw(canvas)
-  , socket = io()
-  , STDWIDTH = 1280
+var socket = io()
   , TIMEWAIT = 10
   , TIMEDRAW = 70;
 
@@ -28,7 +25,8 @@ var player = {
 
 // Startup.
 setSize();
-$('#login').fadeIn("fast");
+$('#loading').fadeOut("slow");
+$('#login').fadeIn("slow");
 $('#nameIn').focus();
 
 // ----------------------------
@@ -226,6 +224,7 @@ canvas.onmousedown = function (e) {
         }
 
     }
+    return false;
 };
 
 // Mouse was dragged.
@@ -441,30 +440,3 @@ document.getElementById('lform').onsubmit = function () {
     }
     return false;
 };
-
-// ----------------------------
-// Resize
-// ----------------------------
-
-function setSize() {
-    var ASPECT = 16 / 8;
-    var FONTSIZE = 16;
-    var docwidth = window.innerWidth - 40;
-    var docheight = window.innerHeight - 40;
-
-    if (docwidth > docheight * ASPECT) {
-        docwidth = docheight * ASPECT;
-    } else {
-        docheight = docwidth / ASPECT;
-    }
-
-    // Resize game area.
-    var game = document.getElementById("game");
-    game.style.width = docwidth + "px";
-    game.style.height = docheight + "px";
-    draw.resized();
-
-    // Resize font.
-    document.body.style.fontSize = FONTSIZE * docwidth / STDWIDTH + "px";
-
-}

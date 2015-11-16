@@ -17,15 +17,12 @@ function Draw(canvasElement) {
     this.setRadius = function (r) {
         radius = r;
     };
-
     this.setColor = function (c) {
         color = c;
     };
-
     this.getWidth = function () {
         return width;
     };
-
     this.getHeight = function () {
         return height;
     };
