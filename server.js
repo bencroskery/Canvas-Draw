@@ -1,3 +1,5 @@
+"use strict";
+
 // Setup express server.
 var express = require('express')
   , app = express()
@@ -79,8 +81,8 @@ io.on('connection', function (socket) {
         io.sockets.emit('stop game', 0);
     });
 
-    socket.on('turn-wait', function () {
-        io.sockets.emit('turn-wait', 0);
+    socket.on('turn-wait', function (next) {
+        io.sockets.emit('turn-wait', next);
         console.log('Next turn');
         words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
     });
@@ -132,10 +134,10 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('correctguess', function () {
+    socket.on('correct guess', function () {
         console.log(socket.name + ' guessed right!');
         // Send the message to everyone.
-        io.sockets.emit('correctguess', socket.name);
+        io.sockets.emit('correct guess', socket.name);
     });
 
     socket.on('reboot server', function () {
@@ -147,15 +149,20 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         // Remove the name from global userList and playerNames list.
         if (addedUser) {
-            userList.splice(socket.number, 1);
-            playerNames.splice(socket.number, 1);
+            if (userList.length === 1) {
+                console.log('Nobody left.');
+                setupGame();
+            } else {
+                userList.splice(socket.number, 1);
+                playerNames.splice(socket.number, 1);
 
-            console.log('User ' + socket.name + ' has left');
-            // Tell everyone that this user has left.
-            socket.broadcast.emit('user left', {
-                name: socket.name,
-                number: socket.number
-            });
+                console.log('User ' + socket.name + ' has left');
+                // Tell everyone that this user has left.
+                socket.broadcast.emit('user left', {
+                    name: socket.name,
+                    number: socket.number
+                });
+            }
         }
     });
 });

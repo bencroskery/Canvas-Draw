@@ -2,8 +2,8 @@
 
 // Main Variables.
 var socket = io()
-  , TIMEWAIT = 10
-  , TIMEDRAW = 70;
+  , TIME_WAIT = 10
+  , TIME_DRAW = 70;
 
 // Game info.
 var game = {
@@ -63,7 +63,7 @@ function runCommand(arg) {
             break;
         case '/userlistserver':
             socket.emit('list users', 0);
-            addMessage('A user list should pop up in the server console');
+            addMessage('See server console');
             break;
         case '/reboot':
             socket.emit('reboot server', 0);
@@ -77,7 +77,7 @@ socket.on('start game', function () {
     setInfo('START THE GAME!!!');
     player.mode = 0;
     game.running = true;
-    game.currentPlayer = -1;
+    game.currentPlayer = 0;
     timer();
 });
 
@@ -93,13 +93,13 @@ socket.on('stop game', function () {
     $('#options').fadeIn('fast');
 });
 
-socket.on('turn-wait', function () {
+socket.on('turn-wait', function (next) {
     draw.reset();
-    game.currentPlayer++;
-    if (game.currentPlayer == playerNames.length) {
-        game.currentPlayer = 0;
+    game.currentPlayer += next;
+    if (game.currentPlayer > playerNames.length) {
+        game.currentPlayer -= playerNames.length;
     }
-    if (game.currentPlayer == player.number) {
+    if (game.currentPlayer === player.number) {
         player.mode = 1;
         setInfo("It's now your turn!");
         $('#options').fadeIn('fast');
@@ -109,7 +109,7 @@ socket.on('turn-wait', function () {
         $('#options').fadeOut('fast');
     }
     game.mode = 0;
-    game.time = TIMEWAIT;
+    game.time = TIME_WAIT;
 });
 
 socket.on('turn-choose', function (words) {
@@ -120,7 +120,7 @@ socket.on('turn-choose', function (words) {
         setInfo(playerNames[game.currentPlayer] + ' is choosing!');
     }
     game.mode = 1;
-    game.time = TIMEWAIT;
+    game.time = TIME_WAIT;
 });
 
 socket.on('turn-draw', function (word) {
@@ -132,7 +132,7 @@ socket.on('turn-draw', function (word) {
         setInfo('Guess! ' + game.word.replace(/[^ '-.]/g, " _").replace(' ', '   '));
     }
     game.mode = 2;
-    game.time = TIMEDRAW;
+    game.time = TIME_DRAW;
 });
 
 function timer() {
@@ -142,11 +142,11 @@ function timer() {
             return;
         }
         setTimer(game.time);
-        if (game.time != 0) {
+        if (game.time !== 0) {
             game.time--;
         }
-        else if (player.mode == 1) {
-            if (game.mode == 0) {
+        else if (player.mode === 1) {
+            if (game.mode === 0) {
                 // Waiting for next turn ended.
                 socket.emit('turn-choose', 0);
             }
@@ -156,18 +156,18 @@ function timer() {
             }
             else if (game.mode == 2) {
                 // Guessing out of time.
-                socket.emit('turn-wait', 0);
+                socket.emit('turn-wait', 1);
             }
         }
     }, 1000);
 }
 
 
-socket.on('correctguess', function (name) {
+socket.on('correct guess', function (name) {
     if (game.time > 8) {
         game.time = 8;
     }
-    addMessage(name + ' guessed the word!')
+    addMessage(name + ' guessed the word!');
 });
 
 socket.on('setup', function (names) {
@@ -202,15 +202,15 @@ function setChoose(words) {
 // Draw Section
 // ----------------------------
 
-var mousedown;
+var mouseDown;
 // Mouse button was pressed.
 canvas.onmousedown = function (e) {
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (e.button === 2) {
-            if (mousedown) {
-                mousedown = false;
+            if (mouseDown) {
+                mouseDown = false;
                 draw.fill();
                 emitMouse(2, mouseX, mouseY);
             } else {
@@ -218,7 +218,7 @@ canvas.onmousedown = function (e) {
                 emitMouse(3, mouseX, mouseY);
             }
         } else {
-            mousedown = true;
+            mouseDown = true;
             draw.down(mouseX, mouseY);
             emitMouse(0, mouseX, mouseY);
         }
@@ -229,7 +229,9 @@ canvas.onmousedown = function (e) {
 
 // Mouse was dragged.
 canvas.onmousemove = function (e) {
-    if (!mousedown) return;
+    if (!mouseDown) {
+        return;
+    }
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
@@ -239,14 +241,17 @@ canvas.onmousemove = function (e) {
 };
 
 // Mouse button was released.
-canvas.onmouseup = function (e) {
-    mousedown = false;
+canvas.onmouseup = function () {
+    mouseDown = false;
 };
 
+// Get key presses.
 document.onkeypress = function (e) {
     if (player.mode == 1 && game.mode == 2 || !game.running) {
+        // Check keys for colors.
         if (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode === 45) {
             var val = document.querySelector("label[for=r" + String.fromCharCode(e.keyCode) + "]").style.backgroundColor;
+            document.getElementById("r" + String.fromCharCode(e.keyCode)).checked = true;
             draw.setColor(val);
             if (game.running) {
                 socket.emit('set color', val);
@@ -256,27 +261,28 @@ document.onkeypress = function (e) {
 };
 
 // Color button clicked.
-var inputColor = document.querySelectorAll("input[type=radio]");
-for (var x = 0; x < inputColor.length; x++)
-    inputColor[x].onchange = function () {
-        var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
-        draw.setColor(val);
-        console.log(val);
-        if (game.running) {
-            socket.emit('set color', val);
-        }
-    };
+var setDrawColor = function () {
+    var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
+    draw.setColor(val);
+    if (game.running) {
+        socket.emit('set color', val);
+    }
+};
+var inputColor = document.querySelectorAll("input[name=color]");
+for (var x = 0; x < inputColor.length; x++) {
+    inputColor[x].onchange = setDrawColor;
+}
 
 // Mouse was scrolled to change size.
 var inputSize = document.getElementById('sizeIn');
 canvas.onwheel = function (e) {
-    if (mousedown) return;
+    if (mouseDown) return;
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     var val = parseInt(inputSize.value) + delta * 2;
 
     if (val === 0 || val === 42) return;
     inputSize.value = val;
-    draw.setRadius(val);
+    draw.setRadius(val * window.innerWidth / WIDTH);
     if (game.running) {
         socket.emit('set size', val);
     }
@@ -312,8 +318,8 @@ function emitMouse(type, x, y) {
     if (game.running) {
         socket.emit('point', {
             type: type,
-            x: x / draw.getWidth() * STDWIDTH,
-            y: y / draw.getHeight() * STDWIDTH
+            x: x / draw.getWidth() * WIDTH,
+            y: y / draw.getHeight() * WIDTH
         });
     }
 }
@@ -321,13 +327,13 @@ function emitMouse(type, x, y) {
 // Add a point according to type.
 socket.on('point', function (p) {
     if (p.type === 0) {
-        draw.down(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
+        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
     } else if (p.type === 1) {
-        draw.drag(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
+        draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
     } else if (p.type === 2) {
         draw.fill();
     } else if (p.type === 3) {
-        draw.bucket(p.x * draw.getWidth() / STDWIDTH, p.y * draw.getHeight() / STDWIDTH);
+        draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
     }
 });
 
@@ -359,27 +365,26 @@ socket.on('clear canvas', function () {
 // Add list message element.
 function addMessage(text) {
     var node = document.createElement("LI");
-    var textnode = document.createTextNode(text);
-    node.appendChild(textnode);
+    node.appendChild(document.createTextNode(text));
     document.getElementById("messages").appendChild(node);
 }
 
 // Creating a chat message.
 $('form#gform').submit(function () {
-    var $guessbox = $('#guessIn');
+    var $guessBox = $('#guessIn');
 
-    if ($guessbox.val().charAt(0) == '/') {
-        runCommand($guessbox.val().split(' '));
-        $guessbox.val('');
+    if ($guessBox.val().charAt(0) == '/') {
+        runCommand($guessBox.val().split(' '));
+        $guessBox.val('');
     }
-    else if ($guessbox.val() != '') {
-        if ($guessbox.val().toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
-            socket.emit('correctguess', 0);
-            $guessbox.val('');
+    else if ($guessBox.val() !== '') {
+        if ($guessBox.val().toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
+            socket.emit('correct guess', 0);
+            $guessBox.val('');
         } else {
-            addMessage(player.name + ': ' + $guessbox.val());
-            socket.emit('message', $guessbox.val());
-            $guessbox.val('');
+            addMessage(player.name + ': ' + $guessBox.val());
+            socket.emit('message', $guessBox.val());
+            $guessBox.val('');
         }
     }
     return false;
@@ -400,8 +405,11 @@ socket.on('user joined', function (name) {
 socket.on('user left', function (data) {
     addMessage(data.name + ' has left.');
     playerNames.splice(data.number, 1);
-    if (data.num < player.number) {
+    if (data.number < player.number) {
         player.number--;
+        if (game.currentPlayer === player.number) {
+            socket.emit('turn-wait', 0);
+        }
     }
 });
 
@@ -431,7 +439,7 @@ document.getElementById('worddiag').onsubmit = function () {
 // Player's name submitted.
 document.getElementById('lform').onsubmit = function () {
     var name = document.getElementById('nameIn').value;
-    if (name != '') {
+    if (name !== '') {
         player.name = name;
         socket.emit('add user', name);
         $('#login').fadeOut("fast");

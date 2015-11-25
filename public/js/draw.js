@@ -50,7 +50,7 @@ function Draw(canvasElement) {
         line.push({
             point: [],
             rgb: color,
-            width: radius * 2 * width / STDWIDTH
+            width: radius * 2
         });
         size++;
         last = null;
@@ -251,5 +251,5 @@ function Draw(canvasElement) {
         }
         console.log('done');
         this.reDraw();
-    }
+    };
 }
