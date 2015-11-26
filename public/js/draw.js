@@ -9,7 +9,7 @@ function Draw(canvasElement) {
       , line = []                   // A set of all the lines drawn.
       , lindex = 0                  // The index of lines after fills.
       , size = 0                    // The number of lines that have been drawn.
-      , color = 'rgb(0, 0, 0)'        // The current color to use on new lines.
+      , color = 'rgb(0, 0, 0)'      // The current color to use on new lines.
       , radius = 10                 // The current radius to use on new lines.
       , current = {x: 0, y: 0}      // The most recent point.
       , last = {x: 0, y: 0};        // The second most recent point.
@@ -35,11 +35,8 @@ function Draw(canvasElement) {
                 line[i].point[j].y = line[i].point[j].y * scaling;
             }
         }*/
-
-        width = canvas.clientWidth;
-        height = canvas.clientHeight;
-        ctx.canvas.width = width;
-        ctx.canvas.height = height;
+        ctx.canvas.width = width = canvas.clientWidth;
+        ctx.canvas.height = height = canvas.clientHeight;
 
         this.reDraw();
     };
@@ -50,7 +47,7 @@ function Draw(canvasElement) {
         line.push({
             point: [],
             rgb: color,
-            width: radius * 2
+            width: radius * 2 * width / WIDTH
         });
         size++;
         last = null;

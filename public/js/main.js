@@ -204,9 +204,9 @@ function setChoose(words) {
 
 var mouseDown;
 // Mouse button was pressed.
-canvas.onmousedown = function (e) {
-    var mouseX = e.pageX - this.offsetLeft;
-    var mouseY = e.pageY - this.offsetTop;
+canvas.onmousedown = canvas.ontouchstart = function (e) {
+    var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+    var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (e.button === 2) {
             if (mouseDown) {
@@ -228,12 +228,12 @@ canvas.onmousedown = function (e) {
 };
 
 // Mouse was dragged.
-canvas.onmousemove = function (e) {
+canvas.onmousemove = canvas.ontouchmove = function (e) {
     if (!mouseDown) {
         return;
     }
-    var mouseX = e.pageX - this.offsetLeft;
-    var mouseY = e.pageY - this.offsetTop;
+    var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+    var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         emitMouse(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY);
@@ -241,7 +241,7 @@ canvas.onmousemove = function (e) {
 };
 
 // Mouse button was released.
-canvas.onmouseup = function () {
+canvas.onmouseup = canvas.touchend = function () {
     mouseDown = false;
 };
 
@@ -260,7 +260,7 @@ document.onkeypress = function (e) {
     }
 };
 
-// Color button clicked.
+// Color changed.
 var setDrawColor = function () {
     var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
     draw.setColor(val);
@@ -268,11 +268,19 @@ var setDrawColor = function () {
         socket.emit('set color', val);
     }
 };
+// Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
 for (var x = 0; x < inputColor.length; x++) {
     inputColor[x].onchange = setDrawColor;
 }
 
+// Size changed.
+var setDrawSize = function(val) {
+    draw.setRadius(val);
+    if (game.running) {
+        socket.emit('set size', val);
+    }
+};
 // Mouse was scrolled to change size.
 var inputSize = document.getElementById('sizeIn');
 canvas.onwheel = function (e) {
@@ -282,19 +290,11 @@ canvas.onwheel = function (e) {
 
     if (val === 0 || val === 42) return;
     inputSize.value = val;
-    draw.setRadius(val * window.innerWidth / WIDTH);
-    if (game.running) {
-        socket.emit('set size', val);
-    }
+    setDrawSize(val);
 };
-
 // Size bar changed.
 inputSize.addEventListener('input', function () {
-    var val = parseInt(inputSize.value);
-    draw.setRadius(val);
-    if (game.running) {
-        socket.emit('set size', val);
-    }
+    setDrawSize(parseInt(inputSize.value));
 });
 
 // Undo button clicked.
@@ -344,8 +344,8 @@ socket.on('set color', function (c) {
 });
 
 // Set the size
-socket.on('set size', function (c) {
-    draw.setRadius(c);
+socket.on('set size', function (r) {
+    draw.setRadius(r);
 });
 
 // Undo the last drawn line.
