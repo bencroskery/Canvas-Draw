@@ -98,6 +98,10 @@ canvas {
             outline: none;
             background-color: transparent;
             -webkit-appearance: none;
+            // * * * TRACK * * *
+            &::-moz-range-track {
+                background: transparent;
+            }
             // * * * THUMB * * *
             .range-thumb() {
                 width: 2em;
@@ -113,6 +117,7 @@ canvas {
             }
 
             &::-moz-range-thumb {
+                border: 0;
                 .range-thumb();
             }
 

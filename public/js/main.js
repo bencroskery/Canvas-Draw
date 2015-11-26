@@ -282,20 +282,16 @@ var setDrawSize = function(val) {
     }
 };
 // Mouse was scrolled to change size.
-var inputSize = document.getElementById('sizeIn');
-canvas.onwheel = function (e) {
+canvas.addEventListener((/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel", function (e) {
     if (mouseDown) return;
+    var inputSize = document.getElementById('sizeIn');
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     var val = parseInt(inputSize.value) + delta * 2;
 
     if (val === 0 || val === 42) return;
     inputSize.value = val;
     setDrawSize(val);
-};
-// Size bar changed.
-inputSize.addEventListener('input', function () {
-    setDrawSize(parseInt(inputSize.value));
-});
+}, false);
 
 // Undo button clicked.
 document.getElementById('undobtn').addEventListener('click', function () {

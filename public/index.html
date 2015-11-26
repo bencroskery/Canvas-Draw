@@ -28,7 +28,7 @@
 
 <div id="login">
     <form id="lform" action="">
-        <label class="title" for="nameIn">What's your nickname?</label><input id="nameIn" type="text" maxlength="14"/>
+        <label class="title" for="nameIn">What's your nickname?</label><input id="nameIn" type="text" maxlength="20"/>
     </form>
 </div>
 
@@ -60,7 +60,7 @@
             <input type="radio" name="color" value="-" id="r-"/>
             <label class="swatch" for="r-" style="background-color: rgb(255, 255, 255); margin-right: 4em"></label>
 
-            <span id="sizeBar"><input id="sizeIn" type="range" value="10" min="2" max="40" step="2"/></span>
+            <span id="sizeBar"><input id="sizeIn" type="range" value="10" min="2" max="40" step="2" onchange="setDrawSize(parseInt(this.value))"/></span>
 
             <div id="undobtn"></div>
             <div id="clearbtn"></div>
@@ -91,7 +91,7 @@
 
 <script src="js/draw.js"></script>
 <script src="js/start.min.js"></script>
-<link rel="stylesheet" href="css/style.min.css">
+<link rel="stylesheet" property="stylesheet" href="css/style.min.css">
 <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="js/main.js"></script>
