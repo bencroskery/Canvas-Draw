@@ -1,12 +1,12 @@
-var canvas = document.getElementById('draw')
-  , draw = new Draw(canvas)
-  , WIDTH = 1280;
+var canvas = document.getElementById('draw'),
+    draw = new Draw(canvas),
+    WIDTH = 1280;
 
 function resize() {
-    var A = 16 / 8
-      , P = "px"
-      , dw = window.innerWidth - 40
-      , dh = window.innerHeight - 40;
+    var A = 16 / 8,
+        P = "px",
+        dw = window.innerWidth - 40,
+        dh = window.innerHeight - 40;
 
     // Scale by largest edge.
     if (dw > dh * A) dw = dh * A;
@@ -20,4 +20,5 @@ function resize() {
 
     // Set the font size based off size (for scaling elements).
     document.body.style.fontSize = 16 * dw / WIDTH + P;
-} resize();
+}
+resize();

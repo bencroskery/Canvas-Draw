@@ -1,7 +1,7 @@
 "use strict";
 
-function Draw(canvasElement) {
-    this.canvas = canvasElement;
+function Draw(canvas) {
+    this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.width = canvas.clientWidth;
     this.height = canvas.clientHeight;
@@ -42,12 +42,12 @@ Draw.prototype.resized = function () {
 };
 
 // Start a line when the mouse goes down.
-Draw.prototype.down = function (x, y) {
+Draw.prototype.down = function (x, y, scale) {
     this.actions.push(0);
     this.line.push({
         point: [],
         rgb: this.color,
-        width: this.radius * 2 * this.width / WIDTH
+        width: this.radius * 2 * this.width / scale
     });
     this.size++;
     this.current = null;

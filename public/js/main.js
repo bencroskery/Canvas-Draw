@@ -1,7 +1,9 @@
 "use strict";
 
 // Main Variables.
-var socket = io(), TIME_WAIT = 10, TIME_DRAW = 70;
+var socket = io(),
+    TIME_WAIT = 10,
+    TIME_DRAW = 70;
 
 // Game info.
 var game = {
@@ -14,11 +16,11 @@ var game = {
 
 // User info.
 var player = {
-    name: '??',        // The name of the player.
-    number: -1,        // The ID number of the player.
-    mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
-}
-    , playerNames = [];  // Names of all players in the lobby.
+        name: '??',        // The name of the player.
+        number: -1,        // The ID number of the player.
+        mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
+    },
+    playerNames = [];  // Names of all players in the lobby.
 
 
 // Startup.
@@ -215,7 +217,7 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
             }
         } else {
             mouseDown = true;
-            draw.down(mouseX, mouseY);
+            draw.down(mouseX, mouseY, WIDTH);
             emitMouse(0, mouseX, mouseY);
         }
 
@@ -322,7 +324,7 @@ function emitMouse(type, x, y) {
 // Add a point according to type.
 socket.on('point', function (p) {
     if (p.type === 0) {
-        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
+        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH);
     } else if (p.type === 1) {
         draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
     } else if (p.type === 2) {
