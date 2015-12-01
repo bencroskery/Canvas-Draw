@@ -12,20 +12,20 @@ function Draw(canvasElement) {
     this.color = 'rgb(0, 0, 0)';      // The current color to use on new lines.
     this.radius = 10;                 // The current radius to use on new lines.
     this.current = {x: 0, y: 0};      // The most recent point.
-
-    this.setRadius = function (r) {
-        this.radius = r;
-    };
-    this.setColor = function (c) {
-        this.color = c;
-    };
-    this.getWidth = function () {
-        return this.width;
-    };
-    this.getHeight = function () {
-        return this.height;
-    };
 }
+
+Draw.prototype.setRadius = function (r) {
+    this.radius = r;
+};
+Draw.prototype.setColor = function (c) {
+    this.color = c;
+};
+Draw.prototype.getWidth = function () {
+    return this.width;
+};
+Draw.prototype.getHeight = function () {
+    return this.height;
+};
 
 Draw.prototype.resized = function () {
     /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.

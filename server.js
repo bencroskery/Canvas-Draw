@@ -1,11 +1,10 @@
 "use strict";
 
 // Setup express server.
-var express = require('express')
-  , app = express()
-  , server = require('http').Server(app)
-  , io = require('socket.io')(server)
-  , fs = require('fs');
+var express = require('express'), app = express()
+    , server = require('http').Server(app)
+    , io = require('socket.io')(server)
+    , fs = require('fs');
 
 // Folder holding all client pages.
 app.use(express.static(__dirname + '/public'));
@@ -16,11 +15,11 @@ server.listen(port, function () {
     console.log('Server listening on port ' + port);
 });
 
-var userList     // List of all users with IDs.
-  , playerNames  // List of the names of the users.
-  , running      // Whether a game is in progress.
-  , words        // Words the drawer is asked to choose from.
-  , wordList;    // The full list of all words.
+var userList       // List of all users with IDs.
+    , playerNames  // List of the names of the users.
+    , running      // Whether a game is in progress.
+    , words        // Words the drawer is asked to choose from.
+    , wordList;    // The full list of all words.
 
 // Setup all game variables (used for reset).
 function setupGame() {

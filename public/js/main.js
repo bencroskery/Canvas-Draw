@@ -1,9 +1,7 @@
 "use strict";
 
 // Main Variables.
-var socket = io()
-  , TIME_WAIT = 10
-  , TIME_DRAW = 70;
+var socket = io(), TIME_WAIT = 10, TIME_DRAW = 70;
 
 // Game info.
 var game = {
@@ -20,7 +18,7 @@ var player = {
     number: -1,        // The ID number of the player.
     mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
 }
-  , playerNames = [];  // Names of all players in the lobby.
+    , playerNames = [];  // Names of all players in the lobby.
 
 
 // Startup.
@@ -161,7 +159,6 @@ function timer() {
     }, 1000);
 }
 
-
 socket.on('correct guess', function (name) {
     if (game.time > 8) {
         game.time = 8;
@@ -263,13 +260,13 @@ document.onkeypress = function (e) {
 };
 
 // Color changed.
-var setDrawColor = function () {
+function setDrawColor() {
     var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
     draw.setColor(val);
     if (game.running) {
         socket.emit('set color', val);
     }
-};
+}
 // Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
 for (var x = 0; x < inputColor.length; x++) {
@@ -277,14 +274,14 @@ for (var x = 0; x < inputColor.length; x++) {
 }
 
 // Size changed.
-var setDrawSize = function(val) {
+function setDrawSize(val) {
     draw.setRadius(val);
     if (game.running) {
         socket.emit('set size', val);
     }
-};
+}
 // Mouse was scrolled to change size.
-canvas.addEventListener((/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel", function (e) {
+canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel", function (e) {
     if (mouseDown) return;
     var inputSize = document.getElementById('sizeIn');
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
