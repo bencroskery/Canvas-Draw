@@ -28,9 +28,6 @@ function setupGame() {
     running = false;
     words = [];
     wordList = fs.readFileSync('words.txt').toString().split("\n");
-    for (var i in wordList) {
-        console.log(wordList[i]);
-    }
 }
 setupGame();
 

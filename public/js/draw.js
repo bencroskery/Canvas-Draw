@@ -219,7 +219,7 @@ Draw.prototype.bucket = function (x, y) {
             minDist[i] = -1;
             for (var j = 0; j < this.line[found[i]].point.length; j++) {
                 var nextDist = Math.pow((this.line[found[i]].point[j].x - x), 2) + Math.pow((this.line[found[i]].point[j].y - y), 2);
-                console.log(i + ': ' + nextDist);
+                console.log(i + "-" + j + ': ' + nextDist);
                 if (nextDist < minDist[i] || minDist[i] === -1) {
                     minDist[i] = nextDist;
                 }

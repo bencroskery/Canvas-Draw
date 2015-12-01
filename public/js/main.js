@@ -242,7 +242,7 @@ canvas.onmouseup = canvas.touchend = function () {
 };
 
 // Get key presses.
-document.onkeypress = function (e) {
+document.onkeypress = function () {
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         var key = event.charCode || event.keyCode;
         // Check keys for colors.
