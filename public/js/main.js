@@ -24,7 +24,6 @@ var player = {
 
 
 // Startup.
-setSize();
 $('#loading').fadeOut("slow");
 $('#login').fadeIn("slow");
 $('#nameIn').focus();
@@ -248,14 +247,17 @@ canvas.onmouseup = canvas.touchend = function () {
 // Get key presses.
 document.onkeypress = function (e) {
     if (player.mode == 1 && game.mode == 2 || !game.running) {
+        var key = event.charCode || event.keyCode;
         // Check keys for colors.
-        if (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode === 45) {
-            var val = document.querySelector("label[for=r" + String.fromCharCode(e.keyCode) + "]").style.backgroundColor;
-            document.getElementById("r" + String.fromCharCode(e.keyCode)).checked = true;
+        if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn") {
+            var val = document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor;
+            document.getElementById("r" + String.fromCharCode(key)).checked = true;
             draw.setColor(val);
             if (game.running) {
                 socket.emit('set color', val);
             }
+        } else {
+            document.getElementById("guessIn").focus();
         }
     }
 };
@@ -411,7 +413,7 @@ socket.on('user left', function (data) {
 
 // Resize the game when the window is resized.
 window.onresize = function () {
-    setSize();
+    resize();
 };
 
 // ----------------------------
@@ -440,7 +442,7 @@ document.getElementById('lform').onsubmit = function () {
         socket.emit('add user', name);
         $('#login').fadeOut("fast");
         $('#game').fadeIn("fast");
-        setSize();
+        resize();
     }
     return false;
 };

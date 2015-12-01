@@ -1,252 +1,243 @@
 "use strict";
 
 function Draw(canvasElement) {
-    var canvas = canvasElement
-      , ctx = canvas.getContext("2d")
-      , width = canvas.clientWidth
-      , height = canvas.clientHeight
-      , actions = []                // List of actions.
-      , line = []                   // A set of all the lines drawn.
-      , lindex = 0                  // The index of lines after fills.
-      , size = 0                    // The number of lines that have been drawn.
-      , color = 'rgb(0, 0, 0)'      // The current color to use on new lines.
-      , radius = 10                 // The current radius to use on new lines.
-      , current = {x: 0, y: 0}      // The most recent point.
-      , last = {x: 0, y: 0};        // The second most recent point.
+    this.canvas = canvasElement;
+    this.ctx = canvas.getContext("2d");
+    this.width = canvas.clientWidth;
+    this.height = canvas.clientHeight;
+    this.actions = [];                // List of actions.
+    this.line = [];                   // A set of all the lines drawn.
+    this.lindex = 0;                  // The index of lines after fills.
+    this.size = 0;                    // The number of lines that have been drawn.
+    this.color = 'rgb(0, 0, 0)';      // The current color to use on new lines.
+    this.radius = 10;                 // The current radius to use on new lines.
+    this.current = {x: 0, y: 0};      // The most recent point.
 
     this.setRadius = function (r) {
-        radius = r;
+        this.radius = r;
     };
     this.setColor = function (c) {
-        color = c;
+        this.color = c;
     };
     this.getWidth = function () {
-        return width;
+        return this.width;
     };
     this.getHeight = function () {
-        return height;
-    };
-
-    this.resized = function () {
-        /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
-        for (var i = 0; i < size; i++) {
-            for (var j = 0; j < line[i].length; j++) {
-                line[i].point[j].x = line[i].point[j].x * scaling;
-                line[i].point[j].y = line[i].point[j].y * scaling;
-            }
-        }*/
-        ctx.canvas.width = width = canvas.clientWidth;
-        ctx.canvas.height = height = canvas.clientHeight;
-
-        this.reDraw();
-    };
-
-    // Start a line when the mouse goes down.
-    this.down = function (x, y) {
-        actions.push(0);
-        line.push({
-            point: [],
-            rgb: color,
-            width: radius * 2 * width / WIDTH
-        });
-        size++;
-        last = null;
-        this.drawPoint(x, y);
-    };
-
-    // Continue a line as the mouse is dragging.
-    this.drag = function (x, y) {
-        this.drawPoint(x, y);
-    };
-
-    // Undo last action.
-    this.undo = function () {
-        if (size === 0) {
-            return;
-        }
-        var act = actions.pop();
-        if (act === 0 && size > 0) {
-            line.pop();
-            size--;
-            this.reDraw();
-        } else if (act === 1) {
-            line.splice(lindex - 1, 1);
-            lindex--;
-            size--;
-            this.reDraw();
-        } else {
-            line[act.index].rgb = act.color;
-            this.reDraw();
-        }
-    };
-
-    // Reset and clear canvas.
-    this.reset = function () {
-        color = 'rgb(0, 0, 0)';
-        radius = 10;
-        current = {x: 0, y: 0};
-        last = {x: 0, y: 0};
-        this.clear();
-    };
-
-    // Clears all lines from the canvas.
-    this.clear = function () {
-        line = [];
-        size = 0;
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
-    };
-
-    // Adds a point the current line and draws it.
-    this.drawPoint = function (px, py) {
-        // Set last to previous current point.
-        if (last === null) {
-            last = {x: px + 0.01, y: py};
-        } else {
-            last = current;
-        }
-        // Set the current point to the point given.
-        current = {x: px, y: py};
-        line[size - 1].point.push(current);
-
-        // Draw the line between the points.
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = line[size - 1].rgb;
-        ctx.lineWidth = line[size - 1].width;
-        ctx.beginPath();
-        ctx.moveTo(last.x, last.y);
-        ctx.lineTo(current.x, current.y);
-        ctx.closePath();
-        ctx.stroke();
-    };
-
-    // Redraws all the lines.
-    this.reDraw = function () {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clears the canvas
-
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-
-        for (var i = 0; i < size; i++) {
-            ctx.strokeStyle = line[i].rgb;
-            ctx.lineWidth = Math.abs(line[i].width);
-
-            if (line[i].width === 0) {
-                ctx.fillStyle = line[i].rgb;
-                ctx.beginPath();
-                ctx.moveTo(line[i].point[0].x, line[i].point[0].y);
-                for (var n = 1; n < line[i].point.length; n++) {
-                    ctx.lineTo(line[i].point[n].x, line[i].point[n].y);
-                }
-                ctx.closePath();
-                ctx.fill();
-            } else if (line[i].point.length < 2) {
-                ctx.beginPath();
-                ctx.moveTo(line[i].point[0].x - 0.1, line[i].point[0].y);
-                ctx.lineTo(line[i].point[0].x, line[i].point[0].y);
-                ctx.stroke();
-            } else {
-                ctx.beginPath();
-                ctx.moveTo(line[i].point[0].x, line[i].point[0].y);
-                for (var n = 1; n < line[i].point.length; n++) {
-                    ctx.lineTo(line[i].point[n].x, line[i].point[n].y);
-                }
-                if (line[i].width < 0) {
-                    ctx.closePath();
-                    ctx.fillStyle = line[i].rgb;
-                    ctx.fill();
-                }
-                ctx.stroke();
-            }
-        }
-    };
-
-    this.fill = function () {
-        // Draw the line between the points.
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = line[size - 1].rgb;
-        ctx.lineWidth = line[size - 1].width;
-        ctx.beginPath();
-        ctx.moveTo(current.x, current.y);
-        ctx.lineTo(line[size - 1].point[0].x, line[size - 1].point[0].y);
-        ctx.closePath();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(line[size - 1].point[0].x, line[size - 1].point[0].y);
-        for (var n = 1; n < line[size - 1].point.length; n++) {
-            ctx.lineTo(line[size - 1].point[n].x, line[size - 1].point[n].y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = line[size - 1].rgb;
-        ctx.fill();
-
-        line[size - 1].width = -line[size - 1].width;
-    };
-
-    this.bucket = function (x, y) {
-        var imgCol = (ctx.getImageData(x, y, 1, 1).data);
-        var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
-        console.log(pixCol);
-        if (color === pixCol && imgCol[3] !== 0) {
-            return;
-        }
-        // If the size is zero then just fill the background.
-        if (size === 0 || imgCol[3] === 0) {
-            actions.push(1);
-            line.unshift({
-                point: [{x: -5, y: -5}, {x: ctx.canvas.width, y: -5}, {
-                    x: ctx.canvas.width,
-                    y: ctx.canvas.height
-                }, {x: 0, y: ctx.canvas.height}],
-                rgb: color,
-                width: -1
-            });
-            lindex++;
-            size++;
-            this.reDraw();
-            return;
-        }
-
-        // Check elements for color replace.
-        var found = [];
-        for (var i = 0; i < size; i++) {
-            console.log(line[i].rgb);
-            if (line[i].rgb === pixCol) {
-                found.push(i);
-            }
-        }
-        console.log(found.length);
-
-        if (found.length === 1) {  // Set the element color if there is 1.
-            actions.push({index: found[0], color: line[found[0]].rgb});
-            line[found[0]].rgb = color;
-        }
-        else if (found.length > 1) {  // Find the best and set it.
-            var minDist = new Array(found.length);
-            for (var i = 0; i < found.length; i++) {
-                minDist[i] = -1;
-                for (var j = 0; j < line[found[i]].point.length; j++) {
-                    var nextDist = Math.pow((line[found[i]].point[j].x - x), 2) + Math.pow((line[found[i]].point[j].y - y), 2);
-                    console.log(i + ': ' + nextDist);
-                    if (nextDist < minDist[i] || minDist[i] === -1) {
-                        minDist[i] = nextDist;
-                    }
-                }
-            }
-            var best = 0;
-            for (var k = 1; k < minDist.length; k++) {
-                if (minDist[k] < minDist[best]) {
-                    best = k;
-                }
-            }
-            console.log(minDist);
-            actions.push({index: found[best], color: line[found[best]].rgb});
-            line[found[best]].rgb = color;
-        }
-        else {  // Do something else...
-
-        }
-        console.log('done');
-        this.reDraw();
+        return this.height;
     };
 }
+
+Draw.prototype.resized = function () {
+    /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
+     for (var i = 0; i < size; i++) {
+     for (var j = 0; j < line[i].length; j++) {
+     line[i].point[j].x = line[i].point[j].x * scaling;
+     line[i].point[j].y = line[i].point[j].y * scaling;
+     }
+     }*/
+    this.canvas.width = this.width = this.canvas.clientWidth;
+    this.canvas.height = this.height = this.canvas.clientHeight;
+
+    this.reDraw();
+};
+
+// Start a line when the mouse goes down.
+Draw.prototype.down = function (x, y) {
+    this.actions.push(0);
+    this.line.push({
+        point: [],
+        rgb: this.color,
+        width: this.radius * 2 * this.width / WIDTH
+    });
+    this.size++;
+    this.current = null;
+    this.drawPoint(x, y);
+};
+
+// Continue a line as the mouse is dragging.
+Draw.prototype.drag = function (x, y) {
+    this.drawPoint(x, y);
+};
+
+// Undo last action.
+Draw.prototype.undo = function () {
+    if (this.size === 0) {
+        return;
+    }
+    var act = this.actions.pop();
+    if (act === 0 && this.size > 0) {
+        this.line.pop();
+        this.size--;
+        this.reDraw();
+    } else if (act === 1) {
+        this.line.splice(this.lindex - 1, 1);
+        this.lindex--;
+        this.size--;
+        this.reDraw();
+    } else {
+        this.line[act.index].rgb = act.color;
+        this.reDraw();
+    }
+};
+
+// Reset and clear canvas.
+Draw.prototype.reset = function () {
+    this.color = 'rgb(0, 0, 0)';
+    this.radius = 10;
+    this.clear();
+};
+
+// Clears all lines from the canvas.
+Draw.prototype.clear = function () {
+    this.line = [];
+    this.size = 0;
+    this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
+};
+
+// Adds a point the current line and draws it.
+Draw.prototype.drawPoint = function (px, py) {
+    var last = this.current || {x: px + 0.01, y: py};
+    // Set the current point to the point given.
+    this.current = {x: px, y: py};
+    this.line[this.size - 1].point.push(this.current);
+
+    // Draw the line between the points.
+    this.ctx.lineJoin = "round";
+    this.ctx.strokeStyle = this.line[this.size - 1].rgb;
+    this.ctx.lineWidth = this.line[this.size - 1].width;
+    this.ctx.beginPath();
+    this.ctx.moveTo(last.x, last.y);
+    this.ctx.lineTo(this.current.x, this.current.y);
+    this.ctx.closePath();
+    this.ctx.stroke();
+};
+
+// Redraws all the lines.
+Draw.prototype.reDraw = function () {
+    this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
+
+    this.ctx.lineJoin = this.ctx.lineCap = "round";
+
+    for (var i = 0; i < this.size; i++) {
+        this.ctx.strokeStyle = this.line[i].rgb;
+        this.ctx.lineWidth = Math.abs(this.line[i].width);
+
+        if (this.line[i].width === 0) {
+            this.ctx.fillStyle = this.line[i].rgb;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.line[i].point[0].x, this.line[i].point[0].y);
+            for (var n = 1; n < this.line[i].point.length; n++) {
+                this.ctx.lineTo(this.line[i].point[n].x, this.line[i].point[n].y);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+        } else if (this.line[i].point.length < 2) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.line[i].point[0].x - 0.1, this.line[i].point[0].y);
+            this.ctx.lineTo(this.line[i].point[0].x, this.line[i].point[0].y);
+            this.ctx.stroke();
+        } else {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.line[i].point[0].x, this.line[i].point[0].y);
+            for (var n = 1; n < this.line[i].point.length; n++) {
+                this.ctx.lineTo(this.line[i].point[n].x, this.line[i].point[n].y);
+            }
+            if (this.line[i].width < 0) {
+                this.ctx.closePath();
+                this.ctx.fillStyle = this.line[i].rgb;
+                this.ctx.fill();
+            }
+            this.ctx.stroke();
+        }
+    }
+};
+
+Draw.prototype.fill = function () {
+    // Draw the line between the points.
+    this.ctx.lineJoin = "round";
+    this.ctx.strokeStyle = this.line[this.size - 1].rgb;
+    this.ctx.lineWidth = this.line[this.size - 1].width;
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.current.x, this.current.y);
+    this.ctx.lineTo(this.line[this.size - 1].point[0].x, this.line[this.size - 1].point[0].y);
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.line[this.size - 1].point[0].x, this.line[this.size - 1].point[0].y);
+    for (var n = 1; n < this.line[this.size - 1].point.length; n++) {
+        this.ctx.lineTo(this.line[this.size - 1].point[n].x, this.line[this.size - 1].point[n].y);
+    }
+    this.ctx.closePath();
+    this.ctx.fillStyle = this.line[this.size - 1].rgb;
+    this.ctx.fill();
+
+    this.line[this.size - 1].width = -this.line[this.size - 1].width;
+};
+
+Draw.prototype.bucket = function (x, y) {
+    var imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
+    var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
+    console.log(pixCol);
+    if (this.color === pixCol && imgCol[3] !== 0) {
+        return;
+    }
+    // If the size is zero then just fill the background.
+    if (this.size === 0 || imgCol[3] === 0) {
+        this.actions.push(1);
+        this.line.unshift({
+            point: [{x: -5, y: -5}, {x: this.width, y: -5}, {
+                x: this.width,
+                y: this.height
+            }, {x: 0, y: this.height}],
+            rgb: this.color,
+            width: -1
+        });
+        this.lindex++;
+        this.size++;
+        this.reDraw();
+        return;
+    }
+
+    // Check elements for color replace.
+    var found = [];
+    for (var i = 0; i < this.size; i++) {
+        console.log(this.line[i].rgb);
+        if (this.line[i].rgb === pixCol) {
+            found.push(i);
+        }
+    }
+    console.log(found.length);
+
+    if (found.length === 1) {  // Set the element color if there is 1.
+        this.actions.push({index: found[0], color: this.line[found[0]].rgb});
+        this.line[found[0]].rgb = this.color;
+    }
+    else if (found.length > 1) {  // Find the best and set it.
+        var minDist = new Array(found.length);
+        for (var i = 0; i < found.length; i++) {
+            minDist[i] = -1;
+            for (var j = 0; j < this.line[found[i]].point.length; j++) {
+                var nextDist = Math.pow((this.line[found[i]].point[j].x - x), 2) + Math.pow((this.line[found[i]].point[j].y - y), 2);
+                console.log(i + ': ' + nextDist);
+                if (nextDist < minDist[i] || minDist[i] === -1) {
+                    minDist[i] = nextDist;
+                }
+            }
+        }
+        var best = 0;
+        for (var k = 1; k < minDist.length; k++) {
+            if (minDist[k] < minDist[best]) {
+                best = k;
+            }
+        }
+        console.log(minDist);
+        this.actions.push({index: found[best], color: this.line[found[best]].rgb});
+        this.line[found[best]].rgb = this.color;
+    }
+    else {  // Do something else...
+
+    }
+    console.log('done');
+    this.reDraw();
+};
