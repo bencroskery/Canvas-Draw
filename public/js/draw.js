@@ -10,26 +10,46 @@ function Draw(canvas) {
     this.ctx = canvas.getContext("2d");
     this.width = canvas.clientWidth;
     this.height = canvas.clientHeight;
-    this.actions = [];                // List of actions.
-    this.line = [];                   // A set of all the lines drawn.
-    this.lindex = 0;                  // The index of lines after fills.
-    this.size = 0;                    // The number of lines that have been drawn.
-    this.color = 'rgb(0, 0, 0)';      // The current color to use on new lines.
-    this.radius = 10;                 // The current radius to use on new lines.
-    this.current = {x: 0, y: 0};      // The most recent point.
+
+    this.actions = [];          // List of actions.
+    this.line = [];             // A set of all the lines drawn.
+    this.lindex = 0;            // The index of lines after fills.
+    this.size = 0;              // The number of lines that have been drawn.
+
+    this.layer = [{             // A list of all layers.
+        line: {},               // The current line drawn.
+        color: 'rgb(0, 0, 0)',  // The current color to use on new lines.
+        radius: 10,             // The current radius to use on new lines.
+        current: {x: 0, y: 0}   // The most recent point.
+    }];
 }
 
-Draw.prototype.setRadius = function (r) {
-    this.radius = r;
+Draw.prototype.setRadius = function (r, l) {
+    this.checkLayer(l || 0);
+    this.layer[l || 0].radius = r;
 };
-Draw.prototype.setColor = function (c) {
-    this.color = c;
+Draw.prototype.setColor = function (c, l) {
+    this.checkLayer(l || 0);
+    this.layer[l || 0].color = c;
 };
 Draw.prototype.getWidth = function () {
     return this.width;
 };
 Draw.prototype.getHeight = function () {
     return this.height;
+};
+
+Draw.prototype.checkLayer = function (l) {
+    if (this.layer[l] === undefined) {
+        this.layer[l] = {
+            color: 'rgb(0, 0, 0)',
+            radius: 10
+        }
+    }
+};
+
+Draw.prototype.spliceLayer = function (l) {
+    this.layer.splice(l, 1);
 };
 
 /**
@@ -54,26 +74,65 @@ Draw.prototype.resized = function () {
  * @param x
  * @param y
  * @param scale
+ * @param l
  */
-Draw.prototype.down = function (x, y, scale) {
-    this.actions.push(0);
-    this.line.push({
+Draw.prototype.down = function (x, y, scale, l) {
+    l = l || 0;
+    this.checkLayer(l);
+    this.layer[l].line = {
         point: [],
-        rgb: this.color,
-        width: this.radius * 2 * this.width / scale
-    });
-    this.size++;
-    this.current = null;
-    this.drawPoint(x, y);
+        rgb: this.layer[l].color,
+        width: this.layer[l].radius * 2 * this.width / scale
+    };
+    this.layer[l].current = null;
+    this.drawPoint(x, y, l);
 };
 
 /**
  * Continue dragging out the line with a point.
  * @param x
  * @param y
+ * @param l
  */
-Draw.prototype.drag = function (x, y) {
-    this.drawPoint(x, y);
+Draw.prototype.drag = function (x, y, l) {
+    this.drawPoint(x, y, l || 0);
+};
+
+/**
+ * Finished with current line.
+ * @param l
+ */
+Draw.prototype.up = function (l) {
+    this.pushLine(l || 0);
+};
+
+/**
+ * Adds a point the current line and draws it.
+ * @param px
+ * @param py
+ */
+Draw.prototype.drawPoint = function (px, py, l) {
+    var last = this.layer[l].current || {x: px + 0.01, y: py};
+    // Set the current point to the point given.
+    this.layer[l].current = {x: px, y: py};
+    this.layer[l].line.point.push(this.layer[l].current);
+
+    // Draw the line between the points.
+    this.ctx.lineJoin = "round";
+    this.ctx.strokeStyle = this.layer[l].line.rgb;
+    this.ctx.lineWidth = this.layer[l].line.width;
+    this.ctx.beginPath();
+    this.ctx.moveTo(last.x, last.y);
+    this.ctx.lineTo(this.layer[l].current.x, this.layer[l].current.y);
+    this.ctx.closePath();
+    this.ctx.stroke();
+};
+
+Draw.prototype.pushLine = function (l) {
+    this.actions.push(0);
+    this.line.push(this.layer[l].line);
+    this.size++;
+    this.layer[l].line = null;
 };
 
 /**
@@ -100,43 +159,12 @@ Draw.prototype.undo = function () {
 };
 
 /**
- * Reset and clear canvas.
- */
-Draw.prototype.reset = function () {
-    this.color = 'rgb(0, 0, 0)';
-    this.radius = 10;
-    this.clear();
-};
-
-/**
  * Clears all lines from the canvas.
  */
 Draw.prototype.clear = function () {
     this.line = [];
     this.size = 0;
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
-};
-
-/**
- * Adds a point the current line and draws it.
- * @param px
- * @param py
- */
-Draw.prototype.drawPoint = function (px, py) {
-    var last = this.current || {x: px + 0.01, y: py};
-    // Set the current point to the point given.
-    this.current = {x: px, y: py};
-    this.line[this.size - 1].point.push(this.current);
-
-    // Draw the line between the points.
-    this.ctx.lineJoin = "round";
-    this.ctx.strokeStyle = this.line[this.size - 1].rgb;
-    this.ctx.lineWidth = this.line[this.size - 1].width;
-    this.ctx.beginPath();
-    this.ctx.moveTo(last.x, last.y);
-    this.ctx.lineTo(this.current.x, this.current.y);
-    this.ctx.closePath();
-    this.ctx.stroke();
 };
 
 /**
@@ -184,28 +212,30 @@ Draw.prototype.reDraw = function () {
 /**
  * Fill the current line.
  */
-Draw.prototype.fill = function () {
+Draw.prototype.fill = function (l) {
+    l = l || 0;
     // Complete the loop of the current line.
     this.ctx.lineJoin = "round";
-    this.ctx.strokeStyle = this.line[this.size - 1].rgb;
-    this.ctx.lineWidth = this.line[this.size - 1].width;
+    this.ctx.strokeStyle = this.layer[l].line.rgb;
+    this.ctx.lineWidth = this.layer[l].line.width;
     this.ctx.beginPath();
-    this.ctx.moveTo(this.current.x, this.current.y);
-    this.ctx.lineTo(this.line[this.size - 1].point[0].x, this.line[this.size - 1].point[0].y);
+    this.ctx.moveTo(this.layer[l].current.x, this.layer[l].current.y);
+    this.ctx.lineTo(this.layer[l].line.point[0].x, this.layer[l].line.point[0].y);
     this.ctx.closePath();
     this.ctx.stroke();
 
     // Fill the area from the path of the line.
     this.ctx.beginPath();
-    this.ctx.moveTo(this.line[this.size - 1].point[0].x, this.line[this.size - 1].point[0].y);
-    for (var n = 1; n < this.line[this.size - 1].point.length; n++) {
-        this.ctx.lineTo(this.line[this.size - 1].point[n].x, this.line[this.size - 1].point[n].y);
+    this.ctx.moveTo(this.layer[l].line.point[0].x, this.layer[l].line.point[0].y);
+    for (var n = 1; n < this.layer[l].line.point.length; n++) {
+        this.ctx.lineTo(this.layer[l].line.point[n].x, this.layer[l].line.point[n].y);
     }
     this.ctx.closePath();
-    this.ctx.fillStyle = this.line[this.size - 1].rgb;
+    this.ctx.fillStyle = this.layer[l].line.rgb;
     this.ctx.fill();
 
-    this.line[this.size - 1].width *= -1;
+    this.layer[l].line.width *= -1;
+    
 };
 
 /**
@@ -213,11 +243,11 @@ Draw.prototype.fill = function () {
  * @param x
  * @param y
  */
-Draw.prototype.bucket = function (x, y) {
+Draw.prototype.bucket = function (x, y, l) {
     var imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
     var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
     console.log(pixCol);
-    if (this.color === pixCol && imgCol[3] !== 0) {
+    if (this.layer[l].color === pixCol && imgCol[3] !== 0) {
         return;
     }
     // If the size is zero then just fill the background.
@@ -228,7 +258,7 @@ Draw.prototype.bucket = function (x, y) {
                 x: this.width,
                 y: this.height
             }, {x: 0, y: this.height}],
-            rgb: this.color,
+            rgb: this.layer[l].color,
             width: -1
         });
         this.lindex++;
@@ -249,7 +279,7 @@ Draw.prototype.bucket = function (x, y) {
 
     if (found.length === 1) {  // Set the element color if there is 1.
         this.actions.push({index: found[0], color: this.line[found[0]].rgb});
-        this.line[found[0]].rgb = this.color;
+        this.line[found[0]].rgb = this.layer[l].color;
     }
     else if (found.length > 1) {  // Find the best and set it.
         var minDist = new Array(found.length);
@@ -271,7 +301,7 @@ Draw.prototype.bucket = function (x, y) {
         }
         console.log(minDist);
         this.actions.push({index: found[best], color: this.line[found[best]].rgb});
-        this.line[found[best]].rgb = this.color;
+        this.line[found[best]].rgb = this.layer[l].color;
     }
     else {  // Do something else...
 

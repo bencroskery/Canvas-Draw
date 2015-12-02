@@ -7,10 +7,10 @@ var socket = io(),
 
 // Game info.
 var game = {
-    running: false,    // Whether the game has been started.
+    running: true,     // Whether the game has been started.
     word: '',          // The word being drawn.
     currentPlayer: 0,  // The current player ID.
-    mode: 0,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    mode: 2,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
     time: 0            // The current game time.
 };
 
@@ -87,12 +87,12 @@ socket.on('stop game', function () {
     game.mode = 0;
     game.time = 0;
     setTimer('-');
-    draw.reset();
+    draw.clear();
     $('#options').fadeIn('fast');
 });
 
 socket.on('turn-wait', function (next) {
-    draw.reset();
+    draw.clear();
     game.currentPlayer += next;
     if (game.currentPlayer >= playerNames.length) {
         game.currentPlayer = 0;
@@ -208,15 +208,15 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
         if (e.button === 2) {
             if (mouseDown) {
                 mouseDown = false;
-                draw.fill();
-                emitMouse(2, mouseX, mouseY);
-            } else {
-                draw.bucket(mouseX, mouseY);
+                draw.fill(player.number);
                 emitMouse(3, mouseX, mouseY);
+            } else {
+                draw.bucket(mouseX, mouseY, player.number);
+                emitMouse(4, mouseX, mouseY);
             }
         } else {
             mouseDown = true;
-            draw.down(mouseX, mouseY, WIDTH);
+            draw.down(mouseX, mouseY, WIDTH, player.number);
             emitMouse(0, mouseX, mouseY);
         }
 
@@ -233,13 +233,19 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         emitMouse(1, mouseX, mouseY);
-        draw.drag(mouseX, mouseY);
+        draw.drag(mouseX, mouseY, player.number);
     }
 };
 
 // Mouse button was released.
-canvas.onmouseup = canvas.touchend = function () {
+canvas.onmouseup = canvas.touchend = function (e) {
     mouseDown = false;
+    if (player.mode == 1 && game.mode == 2 || !game.running) {
+        if (e.button !== 2) {
+            emitMouse(2, 0, 0, player.number);
+            draw.up(player.number);
+        }
+    }
 };
 
 // Get key presses.
@@ -248,12 +254,8 @@ document.onkeypress = function () {
         var key = event.charCode || event.keyCode;
         // Check keys for colors.
         if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn") {
-            var val = document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor;
             document.getElementById("r" + String.fromCharCode(key)).checked = true;
-            draw.setColor(val);
-            if (game.running) {
-                socket.emit('set color', val);
-            }
+            setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
         } else {
             document.getElementById("guessIn").focus();
         }
@@ -261,24 +263,25 @@ document.onkeypress = function () {
 };
 
 // Color changed.
-function setDrawColor() {
-    var val = document.querySelector("label[for=" + this.id + "]").style.backgroundColor;
-    draw.setColor(val);
+function setDrawColor(val) {
+    draw.setColor(val, player.number);
     if (game.running) {
-        socket.emit('set color', val);
+        socket.emit('set color', {c: val, l: player.number});
     }
 }
 // Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
 for (var x = 0; x < inputColor.length; x++) {
-    inputColor[x].onchange = setDrawColor;
+    inputColor[x].onchange = function () {
+        setDrawColor(document.querySelector("label[for=" + this.id + "]").style.backgroundColor);
+    }
 }
 
 // Size changed.
 function setDrawSize(val) {
-    draw.setRadius(val);
+    draw.setRadius(val, player.number);
     if (game.running) {
-        socket.emit('set size', val);
+        socket.emit('set size', {r: val, l: player.number});
     }
 }
 // Mouse was scrolled to change size.
@@ -315,7 +318,8 @@ function emitMouse(type, x, y) {
         socket.emit('point', {
             type: type,
             x: x / draw.getWidth() * WIDTH,
-            y: y / draw.getHeight() * WIDTH
+            y: y / draw.getHeight() * WIDTH,
+            l: player.number
         });
     }
 }
@@ -323,24 +327,26 @@ function emitMouse(type, x, y) {
 // Add a point according to type.
 socket.on('point', function (p) {
     if (p.type === 0) {
-        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH);
+        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH, p.l);
     } else if (p.type === 1) {
-        draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
+        draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
     } else if (p.type === 2) {
-        draw.fill();
+        draw.up(p.l);
     } else if (p.type === 3) {
-        draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH);
+        draw.fill(p.l);
+    } else if (p.type === 4) {
+        draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
     }
 });
 
 // Set the color
-socket.on('set color', function (c) {
-    draw.setColor(c);
+socket.on('set color', function (d) {
+    draw.setColor(d.c, d.l);
 });
 
 // Set the size
-socket.on('set size', function (r) {
-    draw.setRadius(r);
+socket.on('set size', function (d) {
+    draw.setRadius(d.r, d.l);
 });
 
 // Undo the last drawn line.
@@ -400,6 +406,7 @@ socket.on('user joined', function (name) {
 socket.on('user left', function (data) {
     addMessage(data.name + ' has left.');
     playerNames.splice(data.number, 1);
+    draw.spliceLayer(data.number);
     if (data.number < player.number) {
         player.number--;
         if (game.currentPlayer >= playerNames.length) {

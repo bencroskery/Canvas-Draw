@@ -102,14 +102,14 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('point', point);
     });
 
-    socket.on('set color', function (c) {
-        console.log('Color is now ' + c);
-        socket.broadcast.emit('set color', c);
+    socket.on('set color', function (d) {
+        console.log('Color of layer ' + d.l + ' is now ' + d.c);
+        socket.broadcast.emit('set color', d);
     });
 
-    socket.on('set size', function (c) {
-        console.log('Size is now ' + c);
-        socket.broadcast.emit('set size', c);
+    socket.on('set size', function (d) {
+        console.log('Size of layer ' + d.l + ' is now ' + d.r);
+        socket.broadcast.emit('set size', d);
     });
 
     socket.on('undo line', function () {
