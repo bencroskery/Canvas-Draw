@@ -2,8 +2,8 @@
 
 // Main Variables.
 var socket = io(),
-    TIME_WAIT = 10,
-    TIME_DRAW = 70;
+    TIME_WAIT = 6,
+    TIME_DRAW = 60;
 
 // Game info.
 var game = {
@@ -16,12 +16,11 @@ var game = {
 
 // User info.
 var player = {
-        name: '??',        // The name of the player.
-        number: -1,        // The ID number of the player.
-        mode: 1            // The mode of the player: 0 = guessing, 1 = drawing.
+        name: '??',     // The name of the player.
+        number: -1,     // The ID number of the player.
+        mode: 1         // The mode of the player: 0 = guessing, 1 = drawing.
     },
-    playerNames = [];  // Names of all players in the lobby.
-
+    playerNames = [];   // Names of all players in the lobby.
 
 // Startup.
 $('#loading').fadeOut("slow");
@@ -95,8 +94,8 @@ socket.on('stop game', function () {
 socket.on('turn-wait', function (next) {
     draw.reset();
     game.currentPlayer += next;
-    if (game.currentPlayer > playerNames.length) {
-        game.currentPlayer -= playerNames.length;
+    if (game.currentPlayer >= playerNames.length) {
+        game.currentPlayer = 0;
     }
     if (game.currentPlayer === player.number) {
         player.mode = 1;
@@ -337,7 +336,6 @@ socket.on('point', function (p) {
 // Set the color
 socket.on('set color', function (c) {
     draw.setColor(c);
-    //$('#' + c).prop('checked', true).trigger("change");
 });
 
 // Set the size
@@ -404,6 +402,9 @@ socket.on('user left', function (data) {
     playerNames.splice(data.number, 1);
     if (data.number < player.number) {
         player.number--;
+        if (game.currentPlayer >= playerNames.length) {
+            game.currentPlayer = 0;
+        }
         if (game.currentPlayer === player.number) {
             socket.emit('turn-wait', 0);
         }

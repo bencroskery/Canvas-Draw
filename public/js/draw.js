@@ -1,5 +1,10 @@
 "use strict";
 
+/**
+ *
+ * @param canvas
+ * @constructor
+ */
 function Draw(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -27,6 +32,9 @@ Draw.prototype.getHeight = function () {
     return this.height;
 };
 
+/**
+ * Resize the canvas width and height to the actual width and height.
+ */
 Draw.prototype.resized = function () {
     /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
      for (var i = 0; i < size; i++) {
@@ -41,7 +49,12 @@ Draw.prototype.resized = function () {
     this.reDraw();
 };
 
-// Start a line when the mouse goes down.
+/**
+ * Start a new line with a point.
+ * @param x
+ * @param y
+ * @param scale
+ */
 Draw.prototype.down = function (x, y, scale) {
     this.actions.push(0);
     this.line.push({
@@ -54,12 +67,18 @@ Draw.prototype.down = function (x, y, scale) {
     this.drawPoint(x, y);
 };
 
-// Continue a line as the mouse is dragging.
+/**
+ * Continue dragging out the line with a point.
+ * @param x
+ * @param y
+ */
 Draw.prototype.drag = function (x, y) {
     this.drawPoint(x, y);
 };
 
-// Undo last action.
+/**
+ * Undo last action.
+ */
 Draw.prototype.undo = function () {
     if (this.size === 0) {
         return;
@@ -80,21 +99,29 @@ Draw.prototype.undo = function () {
     }
 };
 
-// Reset and clear canvas.
+/**
+ * Reset and clear canvas.
+ */
 Draw.prototype.reset = function () {
     this.color = 'rgb(0, 0, 0)';
     this.radius = 10;
     this.clear();
 };
 
-// Clears all lines from the canvas.
+/**
+ * Clears all lines from the canvas.
+ */
 Draw.prototype.clear = function () {
     this.line = [];
     this.size = 0;
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
 };
 
-// Adds a point the current line and draws it.
+/**
+ * Adds a point the current line and draws it.
+ * @param px
+ * @param py
+ */
 Draw.prototype.drawPoint = function (px, py) {
     var last = this.current || {x: px + 0.01, y: py};
     // Set the current point to the point given.
@@ -112,7 +139,9 @@ Draw.prototype.drawPoint = function (px, py) {
     this.ctx.stroke();
 };
 
-// Redraws all the lines.
+/**
+ * Redraw all the lines.
+ */
 Draw.prototype.reDraw = function () {
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
 
@@ -152,8 +181,11 @@ Draw.prototype.reDraw = function () {
     }
 };
 
+/**
+ * Fill the current line.
+ */
 Draw.prototype.fill = function () {
-    // Draw the line between the points.
+    // Complete the loop of the current line.
     this.ctx.lineJoin = "round";
     this.ctx.strokeStyle = this.line[this.size - 1].rgb;
     this.ctx.lineWidth = this.line[this.size - 1].width;
@@ -163,6 +195,7 @@ Draw.prototype.fill = function () {
     this.ctx.closePath();
     this.ctx.stroke();
 
+    // Fill the area from the path of the line.
     this.ctx.beginPath();
     this.ctx.moveTo(this.line[this.size - 1].point[0].x, this.line[this.size - 1].point[0].y);
     for (var n = 1; n < this.line[this.size - 1].point.length; n++) {
@@ -172,9 +205,14 @@ Draw.prototype.fill = function () {
     this.ctx.fillStyle = this.line[this.size - 1].rgb;
     this.ctx.fill();
 
-    this.line[this.size - 1].width = -this.line[this.size - 1].width;
+    this.line[this.size - 1].width *= -1;
 };
 
+/**
+ * Bucket fill based on a point.
+ * @param x
+ * @param y
+ */
 Draw.prototype.bucket = function (x, y) {
     var imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
     var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
