@@ -216,8 +216,8 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
             }
         } else {
             mouseDown = true;
-            draw.down(mouseX, mouseY, WIDTH, player.number);
             emitMouse(0, mouseX, mouseY);
+            draw.down(mouseX, mouseY, WIDTH, player.number);
         }
 
     }
@@ -238,11 +238,11 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
 };
 
 // Mouse button was released.
-canvas.onmouseup = canvas.touchend = function (e) {
+canvas.onmouseup = canvas.ontouchend = function (e) {
     mouseDown = false;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         if (e.button !== 2) {
-            emitMouse(2, 0, 0, player.number);
+            emitMouse(2, 0, 0);
             draw.up(player.number);
         }
     }

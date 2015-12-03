@@ -14,14 +14,8 @@ function Draw(canvas) {
     this.actions = [];          // List of actions.
     this.line = [];             // A set of all the lines drawn.
     this.lindex = 0;            // The index of lines after fills.
-    this.size = 0;              // The number of lines that have been drawn.
 
-    this.layer = [{             // A list of all layers.
-        line: {},               // The current line drawn.
-        color: 'rgb(0, 0, 0)',  // The current color to use on new lines.
-        radius: 10,             // The current radius to use on new lines.
-        current: {x: 0, y: 0}   // The most recent point.
-    }];
+    this.layer = [];
 }
 
 Draw.prototype.setRadius = function (r, l) {
@@ -45,6 +39,8 @@ Draw.prototype.checkLayer = function (l) {
             color: 'rgb(0, 0, 0)',
             radius: 10
         }
+    } else if (this.layer[l].line !== null) {
+        this.pushLine(l);
     }
 };
 
@@ -110,6 +106,7 @@ Draw.prototype.up = function (l) {
  * Adds a point the current line and draws it.
  * @param px
  * @param py
+ * @param l
  */
 Draw.prototype.drawPoint = function (px, py, l) {
     var last = this.layer[l].current || {x: px + 0.01, y: py};
@@ -128,29 +125,32 @@ Draw.prototype.drawPoint = function (px, py, l) {
     this.ctx.stroke();
 };
 
+/**
+ * Push a layer onto the line stack.
+ * @param l
+ */
 Draw.prototype.pushLine = function (l) {
-    this.actions.push(0);
-    this.line.push(this.layer[l].line);
-    this.size++;
-    this.layer[l].line = null;
+    if (this.layer[l].line !== null) {
+        this.actions.push(0);
+        this.line.push(this.layer[l].line);
+        this.layer[l].line = null;
+    }
 };
 
 /**
  * Undo last action.
  */
 Draw.prototype.undo = function () {
-    if (this.size === 0) {
+    if (this.line.length === 0) {
         return;
     }
     var act = this.actions.pop();
-    if (act === 0 && this.size > 0) {
+    if (act === 0 && this.line.length > 0) {
         this.line.pop();
-        this.size--;
         this.reDraw();
     } else if (act === 1) {
         this.line.splice(this.lindex - 1, 1);
         this.lindex--;
-        this.size--;
         this.reDraw();
     } else {
         this.line[act.index].rgb = act.color;
@@ -163,7 +163,6 @@ Draw.prototype.undo = function () {
  */
 Draw.prototype.clear = function () {
     this.line = [];
-    this.size = 0;
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
 };
 
@@ -175,36 +174,47 @@ Draw.prototype.reDraw = function () {
 
     this.ctx.lineJoin = this.ctx.lineCap = "round";
 
-    for (var i = 0; i < this.size; i++) {
-        this.ctx.strokeStyle = this.line[i].rgb;
-        this.ctx.lineWidth = Math.abs(this.line[i].width);
+    var i, n;
+    for (i = 0; i < this.line.length; i++) {
+        reLine(this.line[i], this.ctx);
+    }
 
-        if (this.line[i].width === 0) {
-            this.ctx.fillStyle = this.line[i].rgb;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.line[i].point[0].x, this.line[i].point[0].y);
-            for (var n = 1; n < this.line[i].point.length; n++) {
-                this.ctx.lineTo(this.line[i].point[n].x, this.line[i].point[n].y);
+    for (i = 0; i < this.layer.length; i++) {
+        if (this.layer[i] !== undefined && this.layer[i].line !== null) {
+            reLine(this.layer[i].line, this.ctx);
+        }
+    }
+
+    function reLine(line, ctx) {
+        ctx.strokeStyle = line.rgb;
+        ctx.lineWidth = Math.abs(line.width);
+
+        if (line.width === 0) {
+            ctx.fillStyle = line.rgb;
+            ctx.beginPath();
+            ctx.moveTo(line.point[0].x, line.point[0].y);
+            for (n = 1; n < line.point.length; n++) {
+                ctx.lineTo(line.point[n].x, line.point[n].y);
             }
-            this.ctx.closePath();
-            this.ctx.fill();
-        } else if (this.line[i].point.length < 2) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.line[i].point[0].x - 0.1, this.line[i].point[0].y);
-            this.ctx.lineTo(this.line[i].point[0].x, this.line[i].point[0].y);
-            this.ctx.stroke();
+            ctx.closePath();
+            ctx.fill();
+        } else if (line.point.length < 2) {
+            ctx.beginPath();
+            ctx.moveTo(line.point[0].x - 0.1, line.point[0].y);
+            ctx.lineTo(line.point[0].x, line.point[0].y);
+            ctx.stroke();
         } else {
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.line[i].point[0].x, this.line[i].point[0].y);
-            for (var n = 1; n < this.line[i].point.length; n++) {
-                this.ctx.lineTo(this.line[i].point[n].x, this.line[i].point[n].y);
+            ctx.beginPath();
+            ctx.moveTo(line.point[0].x, line.point[0].y);
+            for (n = 1; n < line.point.length; n++) {
+                ctx.lineTo(line.point[n].x, line.point[n].y);
             }
-            if (this.line[i].width < 0) {
-                this.ctx.closePath();
-                this.ctx.fillStyle = this.line[i].rgb;
-                this.ctx.fill();
+            if (line.width < 0) {
+                ctx.closePath();
+                ctx.fillStyle = line.rgb;
+                ctx.fill();
             }
-            this.ctx.stroke();
+            ctx.stroke();
         }
     }
 };
@@ -235,13 +245,14 @@ Draw.prototype.fill = function (l) {
     this.ctx.fill();
 
     this.layer[l].line.width *= -1;
-    
+
 };
 
 /**
  * Bucket fill based on a point.
  * @param x
  * @param y
+ * @param l
  */
 Draw.prototype.bucket = function (x, y, l) {
     var imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
@@ -251,7 +262,7 @@ Draw.prototype.bucket = function (x, y, l) {
         return;
     }
     // If the size is zero then just fill the background.
-    if (this.size === 0 || imgCol[3] === 0) {
+    if (this.line.length === 0 || imgCol[3] === 0) {
         this.actions.push(1);
         this.line.unshift({
             point: [{x: -5, y: -5}, {x: this.width, y: -5}, {
@@ -262,17 +273,16 @@ Draw.prototype.bucket = function (x, y, l) {
             width: -1
         });
         this.lindex++;
-        this.size++;
         this.reDraw();
         return;
     }
 
     // Check elements for color replace.
     var found = [];
-    for (var i = 0; i < this.size; i++) {
-        console.log(this.line[i].rgb);
-        if (this.line[i].rgb === pixCol) {
-            found.push(i);
+    for (var n = 0; n < this.line.length; n++) {
+        console.log(this.line[n].rgb);
+        if (this.line[n].rgb === pixCol) {
+            found.push(n);
         }
     }
     console.log(found.length);
