@@ -7,10 +7,10 @@ var socket = io(),
 
 // Game info.
 var game = {
-    running: true,     // Whether the game has been started.
+    running: false,     // Whether the game has been started.
     word: '',          // The word being drawn.
     currentPlayer: 0,  // The current player ID.
-    mode: 2,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    mode: 0,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
     time: 0            // The current game time.
 };
 
@@ -18,7 +18,7 @@ var game = {
 var player = {
         name: '??',     // The name of the player.
         number: -1,     // The ID number of the player.
-        mode: 1         // The mode of the player: 0 = guessing, 1 = drawing.
+        mode: -1         // The mode of the player: 0 = guessing, 1 = drawing.
     },
     playerNames = [];   // Names of all players in the lobby.
 
@@ -265,9 +265,7 @@ document.onkeypress = function () {
 // Color changed.
 function setDrawColor(val) {
     draw.setColor(val, player.number);
-    if (game.running) {
-        socket.emit('set color', {c: val, l: player.number});
-    }
+    socket.emit('set color', {c: val, l: player.number});
 }
 // Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
@@ -280,9 +278,7 @@ for (var x = 0; x < inputColor.length; x++) {
 // Size changed.
 function setDrawSize(val) {
     draw.setRadius(val, player.number);
-    if (game.running) {
-        socket.emit('set size', {r: val, l: player.number});
-    }
+    socket.emit('set size', {r: val, l: player.number});
 }
 // Mouse was scrolled to change size.
 canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel", function (e) {
@@ -299,29 +295,23 @@ canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll
 // Undo button clicked.
 document.getElementById('undobtn').addEventListener('click', function () {
     draw.undo();
-    if (game.running) {
-        socket.emit('undo line', 0);
-    }
+    socket.emit('undo line', 0);
 });
 
 // Clear button clicked.
 document.getElementById('clearbtn').addEventListener('click', function () {
     draw.clear();
-    if (game.running) {
-        socket.emit('clear canvas', 0);
-    }
+    socket.emit('clear canvas', 0);
 });
 
 // Send a point to the server.
 function emitMouse(type, x, y) {
-    if (game.running) {
-        socket.emit('point', {
-            type: type,
-            x: x / draw.getWidth() * WIDTH,
-            y: y / draw.getHeight() * WIDTH,
-            l: player.number
-        });
-    }
+    socket.emit('point', {
+        type: type,
+        x: x / draw.getWidth() * WIDTH,
+        y: y / draw.getHeight() * WIDTH,
+        l: player.number
+    });
 }
 
 // Add a point according to type.
