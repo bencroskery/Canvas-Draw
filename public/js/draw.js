@@ -10,12 +10,10 @@ function Draw(canvas) {
     this.ctx = canvas.getContext("2d");
     this.width = canvas.clientWidth;
     this.height = canvas.clientHeight;
-
     this.actions = [];          // List of actions.
-    this.line = [];             // A set of all the lines drawn.
+    this.layer = [];            // List of layers.
+    this.line = [];             // List of all the lines drawn.
     this.lindex = 0;            // The index of lines after fills.
-
-    this.layer = [];
 }
 
 Draw.prototype.setRadius = function (r, l) {
@@ -37,7 +35,8 @@ Draw.prototype.checkLayer = function (l) {
     if (this.layer[l] === undefined) {
         this.layer[l] = {
             color: 'rgb(0, 0, 0)',
-            radius: 10
+            radius: 10,
+            line: null
         }
     } else if (this.layer[l].line !== null) {
         this.pushLine(l);
@@ -130,7 +129,7 @@ Draw.prototype.drawPoint = function (px, py, l) {
  * @param l
  */
 Draw.prototype.pushLine = function (l) {
-    if (this.layer[l].line !== null) {
+    if (this.layer[l] !== undefined && this.layer[l].line !== null) {
         this.actions.push(0);
         this.line.push(this.layer[l].line);
         this.layer[l].line = null;
@@ -175,10 +174,11 @@ Draw.prototype.reDraw = function () {
     this.ctx.lineJoin = this.ctx.lineCap = "round";
 
     var i, n;
+    // Redraw saved lines.
     for (i = 0; i < this.line.length; i++) {
         reLine(this.line[i], this.ctx);
     }
-
+    // Redraw layer lines.
     for (i = 0; i < this.layer.length; i++) {
         if (this.layer[i] !== undefined && this.layer[i].line !== null) {
             reLine(this.layer[i].line, this.ctx);

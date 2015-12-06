@@ -28,12 +28,15 @@
 
 <div id="login">
     <form id="lform" action="">
-        <label class="title" for="nameIn">What's your nickname?</label><input id="nameIn" type="text" maxlength="20"/>
+        <label class="title" for="nameIn">What's your nickname?</label><input id="nameIn" type="text" maxlength="25"/>
     </form>
 </div>
 
 <div id="game">
-    <div class="left noselect">
+    <div class="left">
+        <ul id="users"></ul>
+    </div>
+    <div class="center noselect">
         <canvas id="draw" oncontextmenu="return false"></canvas>
 
         <div id="options">
@@ -84,7 +87,7 @@
             <input type="submit" id="word1" value="1"><br>
             <input type="submit" id="word2" value="2"><br>
             <input type="submit" id="word3" value="3"><br>
-            <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="14">
+            <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="25">
         </form>
     </div>
 </div>

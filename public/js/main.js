@@ -170,6 +170,10 @@ socket.on('correct guess', function (name) {
 socket.on('setup', function (names) {
     playerNames = names;
     player.number = playerNames.length - 1;
+    document.getElementById("users").innerHTML = '';
+    for (var i = 0; i < playerNames.length; i++) {
+        addUser(playerNames[i]);
+    }
 });
 
 socket.on('reboot', function () {
@@ -353,9 +357,33 @@ socket.on('clear canvas', function () {
 // Chat Section
 // ----------------------------
 
-// Add list message element.
+/**
+ * Add list user element.
+ * @param text
+ */
+function addUser(text) {
+    var node = document.createElement("li");
+    node.appendChild(document.createTextNode(text));
+    document.getElementById("users").appendChild(node);
+}
+
+/**
+ * Remove list user element.
+ * @param num
+ */
+function removeUser(num) {
+    var nodes = document.querySelectorAll("#users li");
+    console.log(nodes);
+    console.log(num + " " + nodes.length);
+    document.getElementById("users").removeChild(nodes[num]);
+}
+
+/**
+ * Add list message element.
+ * @param text
+ */
 function addMessage(text) {
-    var node = document.createElement("LI");
+    var node = document.createElement("li");
     node.appendChild(document.createTextNode(text));
     document.getElementById("messages").appendChild(node);
 }
@@ -388,12 +416,14 @@ socket.on('message', function (data) {
 
 // A user connected.
 socket.on('user joined', function (name) {
+    addUser(name);
     addMessage(name + ' has joined.');
     playerNames.push(name);
 });
 
 // A user disconnected.
 socket.on('user left', function (data) {
+    removeUser(data.number);
     addMessage(data.name + ' has left.');
     playerNames.splice(data.number, 1);
     draw.spliceLayer(data.number);
