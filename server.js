@@ -152,8 +152,13 @@ io.on('connection', function (socket) {
             } else {
                 userList.splice(socket.number, 1);
                 playerNames.splice(socket.number, 1);
+                for (var i = 0; i < io.sockets.sockets.length; i++) {
+                    if (io.sockets.sockets[i].number > socket.number) {
+                        io.sockets.sockets[i].number--;
+                    }
+                }
 
-                console.log('User ' + socket.name + ' has left');
+                console.log('User ' + socket.name + ' (#' + socket.number + ') has left');
                 // Tell everyone that this user has left.
                 socket.broadcast.emit('user left', {
                     name: socket.name,
