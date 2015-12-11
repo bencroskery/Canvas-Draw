@@ -203,8 +203,11 @@ function setChoose(words) {
 // Draw Section
 // ----------------------------
 
-var mouseDown;
-// Mouse button was pressed.
+var mouseDown; // Remember if down and already drawing.
+/**
+ * Mouse button was pressed.
+ * @type event
+ */
 canvas.onmousedown = canvas.ontouchstart = function (e) {
     var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
@@ -228,7 +231,10 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
     return false;
 };
 
-// Mouse was dragged.
+/**
+ * Mouse was dragged.
+ * @type event
+ */
 canvas.onmousemove = canvas.ontouchmove = function (e) {
     if (!mouseDown) {
         return;
@@ -241,7 +247,10 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
     }
 };
 
-// Mouse button was released.
+/**
+ * Mouse button was released.
+ * @type event
+ */
 canvas.onmouseup = canvas.ontouchend = function (e) {
     mouseDown = false;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
@@ -252,7 +261,9 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
     }
 };
 
-// Get key presses.
+/**
+ * Capture all key presses.
+ */
 document.onkeypress = function () {
     if (player.mode == 1 && game.mode == 2 || !game.running) {
         var key = event.charCode || event.keyCode;
@@ -266,7 +277,10 @@ document.onkeypress = function () {
     }
 };
 
-// Color changed.
+/**
+ * Color changed.
+ * @param val : color to set
+ */
 function setDrawColor(val) {
     draw.setColor(val, player.number);
     socket.emit('set color', {c: val, l: player.number});
@@ -279,12 +293,17 @@ for (var x = 0; x < inputColor.length; x++) {
     }
 }
 
-// Size changed.
+/**
+ * Size changed.
+ * @param val : size to set
+ */
 function setDrawSize(val) {
     draw.setRadius(val, player.number);
     socket.emit('set size', {r: val, l: player.number});
 }
-// Mouse was scrolled to change size.
+/**
+ * Mouse was scrolled to change size.
+ */
 canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel", function (e) {
     if (mouseDown) return;
     var inputSize = document.getElementById('sizeIn');
@@ -296,59 +315,84 @@ canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll
     setDrawSize(val);
 }, false);
 
-// Undo button clicked.
+/**
+ * Undo button clicked.
+ */
 document.getElementById('undobtn').addEventListener('click', function () {
     draw.undo();
     socket.emit('undo line', 0);
 });
 
-// Clear button clicked.
+/**
+ * Clear button clicked.
+ */
 document.getElementById('clearbtn').addEventListener('click', function () {
     draw.clear();
     socket.emit('clear canvas', 0);
 });
 
-// Send a point to the server.
+/**
+ * Send a point to the server.
+ * @param type
+ * @param x
+ * @param y
+ */
 function emitMouse(type, x, y) {
     socket.emit('point', {
-        type: type,
+        t: type,
         x: x / draw.getWidth() * WIDTH,
         y: y / draw.getHeight() * WIDTH,
         l: player.number
     });
 }
 
-// Add a point according to type.
+/**
+ * Add a point according to type.
+ */
 socket.on('point', function (p) {
-    if (p.type === 0) {
-        draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH, p.l);
-    } else if (p.type === 1) {
-        draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
-    } else if (p.type === 2) {
-        draw.up(p.l);
-    } else if (p.type === 3) {
-        draw.fill(p.l);
-    } else if (p.type === 4) {
-        draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
+    switch (p.t) {
+        case 0:
+            draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH, p.l);
+            break;
+        case 1:
+            draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
+            break;
+        case 2:
+            draw.up(p.l);
+            break;
+        case 3:
+            draw.fill(p.l);
+            break;
+        case 4:
+            draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
+            break;
     }
 });
 
-// Set the color
+/**
+ * Set the drawing color.
+ */
 socket.on('set color', function (d) {
     draw.setColor(d.c, d.l);
 });
 
-// Set the size
+/**
+ * Set the drawing size.
+ */
 socket.on('set size', function (d) {
     draw.setRadius(d.r, d.l);
 });
 
-// Undo the last drawn line.
+/**
+ * Undo the last drawn line.
+ */
 socket.on('undo line', function () {
     draw.undo();
 });
 
-// Clear the canvas of lines.
+/**
+ * Clear the canvas of lines.
+ */
 socket.on('clear canvas', function () {
     draw.clear();
 });
