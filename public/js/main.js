@@ -23,9 +23,9 @@ var player = {
     playerNames = [];   // Names of all players in the lobby.
 
 // Startup.
-$('#loading').fadeOut("slow");
-$('#login').fadeIn("slow");
-$('#nameIn').focus();
+fadeOut('loading');
+fadeIn('login');
+document.getElementById('nameIn').focus();
 
 // ----------------------------
 // Game
@@ -88,7 +88,7 @@ socket.on('stop game', function () {
     game.time = 0;
     setTimer('-');
     draw.clear();
-    $('#options').fadeIn('fast');
+    fadeIn('options');
 });
 
 socket.on('turn-wait', function (next) {
@@ -100,11 +100,11 @@ socket.on('turn-wait', function (next) {
     if (game.currentPlayer === player.number) {
         player.mode = 1;
         setInfo("It's now your turn!");
-        $('#options').fadeIn('fast');
+        fadeIn('options');
     } else {
         player.mode = 0;
         setInfo("It's now " + playerNames[game.currentPlayer] + "'s turn!");
-        $('#options').fadeOut('fast');
+        fadeOut('options');
     }
     game.mode = 0;
     game.time = TIME_WAIT;
@@ -124,7 +124,7 @@ socket.on('turn-choose', function (words) {
 socket.on('turn-draw', function (word) {
     game.word = word;
     if (player.mode == 1) {
-        document.getElementById('worddiag').style.display = 'none';
+        fadeOut('worddiag');
         setInfo('DRAW!!! Word: ' + game.word);
     } else {
         setInfo('Guess! ' + game.word.replace(/[^ '-.]/g, " _").replace(' ', '   '));
@@ -196,7 +196,7 @@ function setChoose(words) {
     document.getElementById('word1').value = words[0];
     document.getElementById('word2').value = words[1];
     document.getElementById('word3').value = words[2];
-    document.getElementById('worddiag').style.display = 'block';
+    fadeIn('worddiag');
 }
 
 // ----------------------------
@@ -388,40 +388,47 @@ function addMessage(text) {
     document.getElementById("messages").appendChild(node);
 }
 
-// Creating a chat message.
-$('form#gform').submit(function () {
-    var $guessBox = $('#guessIn');
+/**
+ * Output a chat message.
+ * @returns {boolean} stop form submit
+ */
+document.getElementById("gform").onsubmit = function () {
+    var guessBox = document.getElementById("guessIn");
 
-    if ($guessBox.val().charAt(0) == '/') {
-        runCommand($guessBox.val().split(' '));
-        $guessBox.val('');
-    }
-    else if ($guessBox.val() !== '') {
-        if ($guessBox.val().toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
+    if (guessBox.value.charAt(0) == '/') {
+        runCommand(guessBox.value.split(' '));
+    } else if (guessBox.value !== '') {
+        if (guessBox.value.toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
             socket.emit('correct guess', 0);
-            $guessBox.val('');
         } else {
-            addMessage(player.name + ': ' + $guessBox.val());
-            socket.emit('message', $guessBox.val());
-            $guessBox.val('');
+            addMessage(player.name + ': ' + guessBox.value);
+            socket.emit('message', guessBox.value);
         }
     }
-    return false;
-});
 
-// Getting a chat message.
+    guessBox.value = '';
+    return false;
+};
+
+/**
+ * Getting a chat message.
+ */
 socket.on('message', function (data) {
     addMessage(data.name + ': ' + data.message);
 });
 
-// A user connected.
+/**
+ * A user connected.
+ */
 socket.on('user joined', function (name) {
     addUser(name);
     addMessage(name + ' has joined.');
     playerNames.push(name);
 });
 
-// A user disconnected.
+/**
+ * A user disconnected.
+ */
 socket.on('user left', function (data) {
     removeUser(data.number);
     addMessage(data.name + ' has left.');
@@ -438,21 +445,24 @@ socket.on('user left', function (data) {
     }
 });
 
-// Resize the game when the window is resized.
-window.onresize = function () {
-    resize();
-};
+/**
+ * Resize the game when the window is resized.
+ */
+window.onresize = resize;
 
 // ----------------------------
 // Choose Pane
 // ----------------------------
 
-// A word was chosen.
+/**
+ * A word was chosen.
+ * @returns {boolean} stop form submit
+ */
 document.getElementById('worddiag').onsubmit = function () {
     var val = document.activeElement.value.trim();
     if (val.length) {
         socket.emit('turn-draw', val);
-        document.getElementById('worddiag').style.display = 'none';
+        fadeOut('worddiag');
     }
     return false;
 };
@@ -461,15 +471,45 @@ document.getElementById('worddiag').onsubmit = function () {
 // Login Pane
 // ----------------------------
 
-// Player's name submitted.
+/**
+ * Player's name submitted.
+ * @returns {boolean} stop form submit
+ */
 document.getElementById('lform').onsubmit = function () {
     var name = document.getElementById('nameIn').value;
     if (name !== '') {
         player.name = name;
         socket.emit('add user', name);
-        $('#login').fadeOut("fast");
-        $('#game').fadeIn("fast");
+        fadeOut("login");
+        fadeIn("game");
         resize();
     }
     return false;
 };
+
+/**
+ * Fade an element out.
+ * @param id
+ */
+function fadeOut(id) {
+    var s = document.getElementById(id).style;
+    var val = s.opacity = 1;
+    (function fade() {
+        s.opacity = (val -=.1);
+        val <= 0 ? s.display = "none" : setTimeout(fade, 40);
+    })();
+}
+
+/**
+ * Fade an element in.
+ * @param id
+ */
+function fadeIn(id) {
+    var s = document.getElementById(id).style;
+    var val = s.opacity = 0;
+    s.display = "inherit";
+    (function fade() {
+        s.opacity = (val +=.1);
+        val < 1 ? setTimeout(fade, 40) : 0;
+    })();
+}
