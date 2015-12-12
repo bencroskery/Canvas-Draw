@@ -88,7 +88,7 @@ socket.on('stop game', function () {
     game.time = 0;
     setTimer('-');
     draw.clear();
-    fadeIn('options');
+    fadeIn('tools');
 });
 
 socket.on('turn-wait', function (next) {
@@ -100,11 +100,11 @@ socket.on('turn-wait', function (next) {
     if (game.currentPlayer === player.number) {
         player.mode = 1;
         setInfo("It's now your turn!");
-        fadeIn('options');
+        fadeIn('tools');
     } else {
         player.mode = 0;
         setInfo("It's now " + playerNames[game.currentPlayer] + "'s turn!");
-        fadeOut('options');
+        fadeOut('tools');
     }
     game.mode = 0;
     game.time = TIME_WAIT;
@@ -539,8 +539,8 @@ function fadeOut(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 1;
     (function fade() {
-        s.opacity = (val -=.1);
-        val <= 0 ? s.display = "none" : setTimeout(fade, 40);
+        s.opacity = (val -= .1).toFixed(1);
+        val <= 0.1 ? s.display = "none" : setTimeout(fade, 40);
     })();
 }
 
@@ -553,7 +553,18 @@ function fadeIn(id) {
     var val = s.opacity = 0;
     s.display = "inherit";
     (function fade() {
-        s.opacity = (val +=.1);
-        val < 1 ? setTimeout(fade, 40) : 0;
+        s.opacity = (val += .1);
+        val < 0.9 ? setTimeout(fade, 40) : 0;
     })();
+}
+
+function openMenu(el) {
+    var cName = el.className;
+    if (cName.substring(cName.length - 4, cName.length) === "open") {
+        el.className = cName.substring(0, cName.length - 5);
+        fadeOut('options');
+    } else {
+        el.className += " open";
+        fadeIn('options');
+    }
 }

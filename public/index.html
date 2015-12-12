@@ -39,11 +39,11 @@
     <div class="center noselect">
         <canvas id="draw" oncontextmenu="return false"></canvas>
 
-        <div id="options">
+        <div id="tools">
             <input type="radio" name="color" value="1" id="r1" checked="checked"/>
             <label class="swatch" for="r1" style="background-color: rgb(0, 0, 0)"></label>
             <input type="radio" name="color" value="2" id="r2"/>
-            <label class="swatch" for="r2" style="background-color: rgb(128, 128, 128)"></label>
+            <label class="swatch" for="r2" style="background-color: rgb(132, 132, 132)"></label>
             <input type="radio" name="color" value="3" id="r3"/>
             <label class="swatch" for="r3" style="background-color: rgb(140, 70, 20)"></label>
             <input type="radio" name="color" value="4" id="r4"/>
@@ -89,6 +89,14 @@
             <input type="submit" id="word3" value="3"><br>
             <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="25">
         </form>
+        <div id="options">
+            Here's the options page.
+        </div>
+        <div class="menu" onclick="openMenu(this)">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
     </div>
 </div>
 
