@@ -1,8 +1,7 @@
 ﻿@swatch-size: 2.5em;
 @swatch-select: #3F3F3F;
-@default-color: lightgray;
+@default-color: #B3B3B3;
 @hover-color: gray;
-@border-color: #a9a9a9;
 
 .noselect {
     -webkit-touch-callout: none;
@@ -10,6 +9,11 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.white {
+    border-radius: 0.625em;
+    background: white;
 }
 
 #game {
@@ -43,8 +47,6 @@
 }
 
 canvas {
-    border: 1px solid @border-color;
-    border-radius: 0.625em;
     width: 100%;
     height: 90%;
     cursor: crosshair;
@@ -196,7 +198,7 @@ canvas {
 }
 
 #guessIn {
-    border: 1px solid @border-color;
+    border: 0;
     width: 100%;
     height: @swatch-size;
     padding-left: 0.625em;
@@ -204,10 +206,6 @@ canvas {
 }
 
 #infobox {
-    border: 1px solid @border-color;
-    border-bottom: 0;
-    border-top-left-radius: 0.625em;
-    border-top-right-radius: 0.625em;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -223,10 +221,8 @@ canvas {
 }
 
 #messbox {
-    border: 1px solid @border-color;
-    border-bottom-left-radius: 0.625em;
-    border-bottom-right-radius: 0.625em;
-    height: 75%;
+    margin-top: 4%;
+    height: 73%;
     position: relative;
     overflow: hidden;
 }
@@ -249,10 +245,6 @@ canvas {
 
     li {
         padding: 0.313em 0.625em;
-
-        &:nth-child(odd) {
-            background: #eee;
-        }
     }
 }
 
@@ -266,6 +258,7 @@ canvas {
     font-weight: 100;
 
     #nameIn {
+        border: 0;
         text-align: center;
         width: 15em;
     }
@@ -280,13 +273,10 @@ canvas {
     display: none;
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 93%;
     height: 40em;
     padding: 2em;
-    background-color: white;
-    border: 1px solid @border-color;
-    border-radius: 0.625em;
 }
 
 .menu {
@@ -300,7 +290,7 @@ canvas {
     cursor: pointer;
 
     div {
-        background-color: @border-color;
+        background-color: @default-color;
         height: 20%;
         width: 100%;
         position: absolute;

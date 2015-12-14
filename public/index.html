@@ -37,7 +37,7 @@
         <ul id="users"></ul>
     </div>
     <div class="center noselect">
-        <canvas id="draw" oncontextmenu="return false"></canvas>
+        <canvas id="draw" class="white" oncontextmenu="return false"></canvas>
 
         <div id="tools">
             <input type="radio" name="color" value="1" id="r1" checked="checked"/>
@@ -70,11 +70,11 @@
         </div>
     </div>
     <div class="right">
-        <div id="infobox">
+        <div id="infobox" class="white">
             <div id="timer">-</div>
             <div id="info">Use /start to start the game</div>
         </div>
-        <div id="messbox">
+        <div id="messbox" class="white">
             <ul id="messages"></ul>
         </div>
         <form id="gform" action="">
@@ -89,7 +89,7 @@
             <input type="submit" id="word3" value="3"><br>
             <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="25">
         </form>
-        <div id="options">
+        <div id="options" class="white">
             Here's the options page.
         </div>
         <div class="menu" onclick="openMenu(this)">

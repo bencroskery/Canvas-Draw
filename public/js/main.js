@@ -252,9 +252,9 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
  * @type event
  */
 canvas.onmouseup = canvas.ontouchend = function (e) {
-    mouseDown = false;
     if (player.mode == 1 && game.mode == 2 || !game.running) {
-        if (e.button !== 2) {
+        if (e.button !== 2 && mouseDown) {
+            mouseDown = false;
             emitMouse(2, 0, 0);
             draw.up(player.number);
         }
