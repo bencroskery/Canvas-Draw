@@ -84,23 +84,24 @@ canvas {
         display: none;
 
         &:checked + .swatch {
-            border: 2px solid @swatch-select;
+            border: 0.1em solid @swatch-select;
         }
     }
 
     .swatch:hover {
-        border: 2px solid @swatch-select;
+        border: 0.1em solid @swatch-select;
     }
 
     #sizeBar {
         font-size: @swatch-size/2;
-        border-top: 2px solid @default-color;
+        border-top: 0.1em solid @default-color;
         width: 10.8em;
         height: 1em;
         overflow: visible;
 
         #sizeIn {
             margin: 0;
+            padding: 0;
             width: 10.8em;
             height: 2em;
             cursor: pointer;
@@ -111,12 +112,21 @@ canvas {
             &::-moz-range-track {
                 background: transparent;
             }
+            &::-ms-track {
+                border: none;
+                background: transparent;
+                color: transparent;
+            }
+            &::-ms-fill-lower {
+                background: transparent;
+            }
             // * * * THUMB * * *
             .range-thumb() {
                 width: 2em;
                 height: 2em;
                 background-color: @default-color;
                 border-radius: 100%;
+                border: none;
                 cursor: pointer;
             }
 
@@ -126,7 +136,6 @@ canvas {
             }
 
             &::-moz-range-thumb {
-                border: 0;
                 .range-thumb();
             }
 
@@ -282,7 +291,6 @@ canvas {
 .menu {
     height: 1.5em;
     width: 1.8em;
-    display: block;
     position: absolute;
     top: 0.5em;
     right: 0.5em;
@@ -298,10 +306,10 @@ canvas {
         border-radius: 1em;
 
         &:nth-child(2) {
-            transform: translate(0, 200%);
+            transform: translate(0, 180%);
         }
         &:nth-child(3) {
-            transform: translate(0, 400%);
+            transform: translate(0, 360%);
         }
     }
 
@@ -310,13 +318,13 @@ canvas {
 
          div {
              &:nth-child(1) {
-                 transform: translate(0, 200%) rotate(135deg);
+                 transform: translate(0, 180%) rotate(135deg);
              }
              &:nth-child(2) {
-                 transform: translate(0, 200%) scale(0.2, 1);
+                 transform: translate(0, 180%) scale(0.2, 1);
              }
              &:nth-child(3) {
-                 transform: translate(0, 200%) rotate(-135deg);
+                 transform: translate(0, 180%) rotate(-135deg);
              }
          }
      }
