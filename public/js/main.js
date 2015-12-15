@@ -8,17 +8,17 @@ var socket = io(),
 // Game info.
 var game = {
     running: false,     // Whether the game has been started.
-    word: '',          // The word being drawn.
-    currentPlayer: 0,  // The current player ID.
-    mode: 0,           // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
-    time: 0            // The current game time.
+    word: '',           // The word being drawn.
+    currentPlayer: 0,   // The current player ID.
+    mode: 0,            // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    time: 0             // The current game time.
 };
 
 // User info.
 var player = {
         name: '??',     // The name of the player.
         number: -1,     // The ID number of the player.
-        mode: -1         // The mode of the player: 0 = guessing, 1 = drawing.
+        mode: -1        // The mode of the player: 0 = guessing, 1 = drawing.
     },
     playerNames = [];   // Names of all players in the lobby.
 
