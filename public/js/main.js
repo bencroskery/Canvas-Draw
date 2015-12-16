@@ -7,20 +7,20 @@ var socket = io(),
 
 // Game info.
 var game = {
-    running: false,     // Whether the game has been started.
-    word: '',           // The word being drawn.
-    currentPlayer: 0,   // The current player ID.
-    mode: 0,            // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
-    time: 0             // The current game time.
+    running: false, // Whether the game has been started.
+    drawing: true,  // If this player can draw.
+    word: '',       // The word being drawn.
+    currentID: 0,   // The current players ID.
+    myID: -1,       // This players's ID.
+    mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
+    time: 0         // The current game time.
 };
 
-// User info.
-var player = {
-        name: '??',     // The name of the player.
-        number: -1,     // The ID number of the player.
-        mode: -1        // The mode of the player: 0 = guessing, 1 = drawing.
-    },
-    playerNames = [];   // Names of all players in the lobby.
+// Player info.
+var players = {
+    name: '??',     // Player name.
+    score: 0        // Player score, totalling points.
+};
 
 // Startup.
 fadeOut('loading');
@@ -49,17 +49,19 @@ function runCommand(arg) {
             break;
         case '/freedraw':
             game.running = true;
-            player.mode = 1;
+            game.draw = true;
             game.mode = 2;
             addMessage('Free drawing activated');
             break;
         case '/user':
-            addMessage('I am ' + player.name + ' player number ' + player.number);
+            addMessage('I am ' + players[game.myID].name + ', player number ' + game.myID);
             break;
-        case '/userlist':
-            addMessage('The users are: ' + playerNames);
+        case '/listusers':
+            addMessage('The users are: ' + players.map(function (p) {
+                    return p.name;
+                }));
             break;
-        case '/userlistserver':
+        case '/listusersserver':
             socket.emit('list users', 0);
             addMessage('See server console');
             break;
@@ -73,17 +75,17 @@ function runCommand(arg) {
 
 socket.on('start game', function () {
     setInfo('START THE GAME!!!');
-    player.mode = 0;
+    game.draw = false;
     game.running = true;
-    game.currentPlayer = 0;
+    game.currentID = 0;
     timer();
 });
 
 socket.on('stop game', function () {
     setInfo('Use /start to start the game');
-    player.mode = 1;
+    game.draw = true;
     game.running = false;
-    game.currentPlayer = 0;
+    game.currentID = 0;
     game.mode = 0;
     game.time = 0;
     setTimer('-');
@@ -93,17 +95,17 @@ socket.on('stop game', function () {
 
 socket.on('turn-wait', function (next) {
     draw.clear();
-    game.currentPlayer += next;
-    if (game.currentPlayer >= playerNames.length) {
-        game.currentPlayer = 0;
+    game.currentID += next;
+    if (game.currentID >= players.length) {
+        game.currentID = 0;
     }
-    if (game.currentPlayer === player.number) {
-        player.mode = 1;
+    if (game.currentID === game.myID) {
+        game.draw = true;
         setInfo("It's now your turn!");
         fadeIn('tools');
     } else {
-        player.mode = 0;
-        setInfo("It's now " + playerNames[game.currentPlayer] + "'s turn!");
+        game.draw = false;
+        setInfo("It's now " + players[game.currentID].name + "'s turn!");
         fadeOut('tools');
     }
     game.mode = 0;
@@ -111,11 +113,11 @@ socket.on('turn-wait', function (next) {
 });
 
 socket.on('turn-choose', function (words) {
-    if (player.mode == 1) {
+    if (game.draw) {
         setInfo('Choose a word!');
         setChoose(words);
     } else {
-        setInfo(playerNames[game.currentPlayer] + ' is choosing!');
+        setInfo(players[game.currentID].name + ' is choosing!');
     }
     game.mode = 1;
     game.time = TIME_WAIT;
@@ -123,7 +125,7 @@ socket.on('turn-choose', function (words) {
 
 socket.on('turn-draw', function (word) {
     game.word = word;
-    if (player.mode == 1) {
+    if (game.draw) {
         fadeOut('worddiag');
         setInfo('DRAW!!! Word: ' + game.word);
     } else {
@@ -143,7 +145,7 @@ function timer() {
         if (game.time !== 0) {
             game.time--;
         }
-        else if (player.mode === 1) {
+        else if (game.draw) {
             if (game.mode === 0) {
                 // Waiting for next turn ended.
                 socket.emit('turn-choose', 0);
@@ -167,12 +169,12 @@ socket.on('correct guess', function (name) {
     addMessage(name + ' guessed the word!');
 });
 
-socket.on('setup', function (names) {
-    playerNames = names;
-    player.number = playerNames.length - 1;
+socket.on('setup', function (p) {
+    players = p;
+    game.myID = p.length - 1;
     document.getElementById("users").innerHTML = '';
-    for (var i = 0; i < playerNames.length; i++) {
-        addUser(playerNames[i]);
+    for (var i = 0; i < players.length; i++) {
+        addUser(players[i].name);
     }
 });
 
@@ -211,20 +213,20 @@ var mouseDown; // Remember if down and already drawing.
 canvas.onmousedown = canvas.ontouchstart = function (e) {
     var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
-    if (player.mode == 1 && game.mode == 2 || !game.running) {
+    if (game.draw && game.mode == 2 || !game.running) {
         if (e.button === 2) {
             if (mouseDown) {
                 mouseDown = false;
-                draw.fill(player.number);
+                draw.fill(game.myID);
                 emitMouse(3, mouseX, mouseY);
             } else {
-                draw.bucket(mouseX, mouseY, player.number);
+                draw.bucket(mouseX, mouseY, game.myID);
                 emitMouse(4, mouseX, mouseY);
             }
         } else {
             mouseDown = true;
             emitMouse(0, mouseX, mouseY);
-            draw.down(mouseX, mouseY, WIDTH, player.number);
+            draw.down(mouseX, mouseY, WIDTH, game.myID);
         }
 
     }
@@ -241,9 +243,9 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
     }
     var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
-    if (player.mode == 1 && game.mode == 2 || !game.running) {
+    if (game.draw && game.mode == 2 || !game.running) {
         emitMouse(1, mouseX, mouseY);
-        draw.drag(mouseX, mouseY, player.number);
+        draw.drag(mouseX, mouseY, game.myID);
     }
 };
 
@@ -252,11 +254,11 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
  * @type event
  */
 canvas.onmouseup = canvas.ontouchend = function (e) {
-    if (player.mode == 1 && game.mode == 2 || !game.running) {
+    if (game.draw && game.mode == 2 || !game.running) {
         if (e.button !== 2 && mouseDown) {
             mouseDown = false;
             emitMouse(2, 0, 0);
-            draw.up(player.number);
+            draw.up(game.myID);
         }
     }
 };
@@ -265,7 +267,7 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
  * Capture all key presses.
  */
 document.onkeypress = function () {
-    if (player.mode == 1 && game.mode == 2 || !game.running) {
+    if (game.draw && game.mode == 2 || !game.running) {
         var key = event.charCode || event.keyCode;
         // Check keys for colors.
         if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn") {
@@ -282,8 +284,8 @@ document.onkeypress = function () {
  * @param val : color to set
  */
 function setDrawColor(val) {
-    draw.setColor(val, player.number);
-    socket.emit('set color', {c: val, l: player.number});
+    draw.setColor(val, game.myID);
+    socket.emit('set color', {c: val, l: game.myID});
 }
 // Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
@@ -298,8 +300,8 @@ for (var x = 0; x < inputColor.length; x++) {
  * @param val : size to set
  */
 function setDrawSize(val) {
-    draw.setRadius(val, player.number);
-    socket.emit('set size', {r: val, l: player.number});
+    draw.setRadius(val, game.myID);
+    socket.emit('set size', {r: val, l: game.myID});
 }
 /**
  * Mouse was scrolled to change size.
@@ -342,7 +344,7 @@ function emitMouse(type, x, y) {
         t: type,
         x: x / draw.getWidth() * WIDTH,
         y: y / draw.getHeight() * WIDTH,
-        l: player.number
+        l: game.myID
     });
 }
 
@@ -442,10 +444,10 @@ document.getElementById("gform").onsubmit = function () {
     if (guessBox.value.charAt(0) == '/') {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
-        if (guessBox.value.toLowerCase() === game.word.toLowerCase() && player.mode === 0) {
+        if (guessBox.value.toLowerCase() === game.word.toLowerCase() && !game.draw) {
             socket.emit('correct guess', 0);
         } else {
-            addMessage(player.name + ': ' + guessBox.value);
+            addMessage(players[game.myID].name + ': ' + guessBox.value);
             socket.emit('message', guessBox.value);
         }
     }
@@ -464,10 +466,10 @@ socket.on('message', function (data) {
 /**
  * A user connected.
  */
-socket.on('user joined', function (name) {
-    addUser(name);
-    addMessage(name + ' has joined.');
-    playerNames.push(name);
+socket.on('user joined', function (p) {
+    addUser(p.name);
+    addMessage(p.name + ' has joined.');
+    players.push(p);
 });
 
 /**
@@ -476,14 +478,14 @@ socket.on('user joined', function (name) {
 socket.on('user left', function (data) {
     removeUser(data.number);
     addMessage(data.name + ' has left.');
-    playerNames.splice(data.number, 1);
+    players.splice(data.number, 1);
     draw.spliceLayer(data.number);
-    if (data.number < player.number) {
-        player.number--;
-        if (game.currentPlayer >= playerNames.length) {
-            game.currentPlayer = 0;
+    if (data.number < game.myID) {
+        game.myID--;
+        if (game.currentID >= players.length) {
+            game.currentID = 0;
         }
-        if (game.currentPlayer === player.number) {
+        if (game.currentID === game.myID) {
             socket.emit('turn-wait', 0);
         }
     }
@@ -522,8 +524,8 @@ document.getElementById('worddiag').onsubmit = function () {
 document.getElementById('lform').onsubmit = function () {
     var name = document.getElementById('nameIn').value;
     if (name !== '') {
-        player.name = name;
-        socket.emit('add user', name);
+        players.name = name;
+        socket.emit('add user', players);
         fadeOut("login");
         fadeIn("game");
         resize();

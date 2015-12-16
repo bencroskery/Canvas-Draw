@@ -16,16 +16,16 @@ server.listen(port, function () {
     console.log('Server listening on port ' + port);
 });
 
-var userList,       // List of all users with IDs.
-    playerNames,  // List of the names of the users.
+var players,      // List of the names of the users.
     running,      // Whether a game is in progress.
     words,        // Words the drawer is asked to choose from.
-    wordList;    // The full list of all words.
+    wordList;     // The full list of all words.
 
-// Setup all game variables (used for reset).
+/**
+ * Setup all game variables (used for reset).
+ */
 function setupGame() {
-    userList = [];
-    playerNames = [];
+    players = [];
     running = false;
     words = [];
     wordList = fs.readFileSync('words.txt').toString().split("\n");
@@ -35,27 +35,25 @@ setupGame();
 io.on('connection', function (socket) {
     var addedUser = false;
 
-    socket.on('add user', function (name) {
+    socket.on('add user', function (player) {
         if (running) {
             return;
         }
         // Add the user.
-        userList.push(socket.id);
-        playerNames.push(name);
-        socket.number = userList.length - 1;
-        socket.name = name;
+        players.push(player);
+        socket.number = players.length - 1;
+        socket.name = player.name;
         addedUser = true;
 
-        console.log('User ' + name + ' has joined');
         // Tell everyone that this user has joined.
-        socket.emit('setup', playerNames);
-        socket.broadcast.emit('user joined', socket.name);
+        console.log('User ' + player.name + ' has joined');
+        socket.emit('setup', players);
+        socket.broadcast.emit('user joined', player);
     });
 
     socket.on('list users', function () {
-        console.log('Number of users: ' + userList.length);
-        console.log(userList);
-        console.log(playerNames);
+        console.log('Number of players: ' + players.length);
+        console.log(players.map(p => p.name));
     });
 
     socket.on('start game', function () {
@@ -144,21 +142,20 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
-        // Remove the name from global userList and playerNames list.
+        // Remove the name from global players list.
         if (addedUser) {
-            if (userList.length === 1) {
+            if (players.length === 1) {
                 console.log('Nobody left.');
                 setupGame();
             } else {
-                userList.splice(socket.number, 1);
-                playerNames.splice(socket.number, 1);
+                players.splice(socket.number, 1);
                 for (var i = 0; i < io.sockets.sockets.length; i++) {
                     if (io.sockets.sockets[i].number > socket.number) {
                         io.sockets.sockets[i].number--;
                     }
                 }
 
-                console.log('User ' + socket.name + ' (#' + socket.number + ') has left');
+                console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
                 // Tell everyone that this user has left.
                 socket.broadcast.emit('user left', {
                     name: socket.name,
