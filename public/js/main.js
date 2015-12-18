@@ -16,6 +16,7 @@ var game = {
 
 // Complete settings list.
 var settings = {
+    gamemode: 0,
     time_wait: 6,
     time_choose: 10,
     time_draw: 60
@@ -472,6 +473,9 @@ socket.on('message', function (data) {
  * A user connected.
  */
 socket.on('user joined', function (p) {
+    if (players[0] === undefined) {
+        return;
+    }
     addUser(p.name);
     addMessage(p.name + ' has joined.');
     players.push(p);
@@ -481,6 +485,9 @@ socket.on('user joined', function (p) {
  * A user disconnected.
  */
 socket.on('user left', function (data) {
+    if (players[0] === undefined) {
+        return;
+    }
     removeUser(data.number);
     addMessage(data.name + ' has left.');
     players.splice(data.number, 1);
