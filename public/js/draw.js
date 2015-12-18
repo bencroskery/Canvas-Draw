@@ -161,7 +161,7 @@ Draw.prototype.undo = function () {
  * Clears all lines from the canvas.
  */
 Draw.prototype.clear = function () {
-    this.line = [];
+    this.line = this.layer = [];
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
 };
 

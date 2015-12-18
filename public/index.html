@@ -89,8 +89,16 @@
             <input type="submit" id="word3" value="3"><br>
             <input type="text" id="custom" autocomplete="off" placeholder="Custom" maxlength="25">
         </form>
-        <div id="options" class="white">
-            Here's the options page.
+        <div id="settings" class="white">
+            <div id="s_user">
+                <h1>User Settings</h1>
+            </div>
+            <div id="s_game">
+                <h1>Game Settings</h1>
+                <label>Waiting Time:</label><input id="s_waiting" type="number"/><br>
+                <label>Picking Time:</label><input id="s_picking" type="number"/><br>
+                <label>Drawing Time:</label><input id="s_drawing" type="number"/><br>
+            </div>
         </div>
         <div class="menu" onclick="openMenu(this)">
             <div></div>

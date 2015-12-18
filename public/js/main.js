@@ -1,9 +1,7 @@
 "use strict";
 
-// Main Variables.
-var socket = io(),
-    TIME_WAIT = 6,
-    TIME_DRAW = 60;
+// Socket for connections.
+var socket = io();
 
 // Game info.
 var game = {
@@ -14,6 +12,13 @@ var game = {
     myID: -1,       // This players's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
     time: 0         // The current game time.
+};
+
+// Complete settings list.
+var settings = {
+    time_wait: 6,
+    time_choose: 10,
+    time_draw: 60
 };
 
 // Player info.
@@ -109,7 +114,7 @@ socket.on('turn-wait', function (next) {
         fadeOut('tools');
     }
     game.mode = 0;
-    game.time = TIME_WAIT;
+    game.time = settings.time_wait;
 });
 
 socket.on('turn-choose', function (words) {
@@ -120,7 +125,7 @@ socket.on('turn-choose', function (words) {
         setInfo(players[game.currentID].name + ' is choosing!');
     }
     game.mode = 1;
-    game.time = TIME_WAIT;
+    game.time = settings.time_choose;
 });
 
 socket.on('turn-draw', function (word) {
@@ -132,7 +137,7 @@ socket.on('turn-draw', function (word) {
         setInfo('Guess! ' + game.word.replace(/[^ '-.]/g, " _").replace(' ', '   '));
     }
     game.mode = 2;
-    game.time = TIME_DRAW;
+    game.time = settings.time_draw;
 });
 
 function timer() {
@@ -564,9 +569,9 @@ function openMenu(el) {
     var cName = el.className;
     if (cName.substring(cName.length - 4, cName.length) === "open") {
         el.className = cName.substring(0, cName.length - 5);
-        fadeOut('options');
+        fadeOut('settings');
     } else {
         el.className += " open";
-        fadeIn('options');
+        fadeIn('settings');
     }
 }
