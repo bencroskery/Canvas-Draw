@@ -95,6 +95,10 @@ io.on('connection', function (socket) {
         io.sockets.emit('turn-draw', word);
     });
 
+    socket.on('reveal', function (i) {
+        socket.broadcast.emit('reveal', i);
+    });
+
     socket.on('point', function (point) {
         console.log(point);
         socket.broadcast.emit('point', point);

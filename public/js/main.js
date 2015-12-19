@@ -8,6 +8,7 @@ var game = {
     running: false, // Whether the game has been started.
     drawing: true,  // If this player can draw.
     word: '',       // The word being drawn.
+    hideList: null,   // List of the hidden characters of the word.
     currentID: 0,   // The current players ID.
     myID: -1,       // This players's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
@@ -19,7 +20,8 @@ var settings = {
     gamemode: 0,
     time_wait: 6,
     time_choose: 10,
-    time_draw: 60
+    time_draw: 60,
+    time_react: 8
 };
 
 // Player info.
@@ -99,7 +101,7 @@ socket.on('stop game', function () {
     fadeIn('tools');
 });
 
-socket.on('turn-wait', function (next) {
+socket.on('turn-wait', function turn_wait(next) {
     draw.clear();
     game.currentID += next;
     if (game.currentID >= players.length) {
@@ -118,7 +120,7 @@ socket.on('turn-wait', function (next) {
     game.time = settings.time_wait;
 });
 
-socket.on('turn-choose', function (words) {
+socket.on('turn-choose', function turn_choose(words) {
     if (game.draw) {
         setInfo('Choose a word!');
         setChoose(words);
@@ -129,27 +131,64 @@ socket.on('turn-choose', function (words) {
     game.time = settings.time_choose;
 });
 
-socket.on('turn-draw', function (word) {
+socket.on('turn-draw', function turn_draw(word) {
     game.word = word;
-    if (game.draw) {
-        fadeOut('worddiag');
-        setInfo('DRAW!!! Word: ' + game.word);
-    } else {
-        setInfo('Guess! ' + game.word.replace(/[^ '-.]/g, " _").replace(' ', '   '));
-    }
+    buildWord();
     game.mode = 2;
     game.time = settings.time_draw;
+});
+
+/**
+ * Build up the word as time goes on.
+ */
+function buildWord() {
+    // Hide elements by character type then split into an array.
+    var chars = game.word.replace(/[aeiou]/ig, '♠').replace(/[a-z0-9]/ig, '♣').split('');
+
+    if (game.draw) {
+        fadeOut('worddiag');
+        // Create a list of elements that can be revealed.
+        game.hideList = chars.reduce(function (o, c) {
+            if (c === '♣') {
+                o.char.push(o.length);
+            }
+            o.length++;
+            return o;
+        }, {char: [], length: 0});
+        setInfo('DRAW!!! Word: ' + game.word);
+    } else {
+        // Add all the visible and hidden elements to the output.
+        var out = chars.reduce(function (o, c) {
+            if (c === '♠' || c === '♣') {
+                return o + "<span class='char b'> </span>";
+            } else {
+                return o + "<span class='char'>" + c + "</span>";
+            }
+        }, '');
+        setInfo(out);
+    }
+}
+
+socket.on('reveal', function (i) {
+    document.getElementById('info').children[i].innerHTML = game.word.split('')[i];
 });
 
 function timer() {
     setTimer(game.time--);
     setInterval(function () {
         if (!game.running) {
+            // Check game actually running.
             return;
         }
-        setTimer(game.time);
         if (game.time !== 0) {
-            game.time--;
+            // Decrement the time if not passed zero.
+            setTimer(game.time--);
+            if (game.draw && game.hideList !== null) {
+                // Potentially show another letter.
+                if (game.time < settings.time_draw * game.hideList.char.length / game.hideList.length) {
+                    socket.emit('reveal', game.hideList.char.splice(Math.random() * game.hideList.char.length, 1));
+                }
+            }
         }
         else if (game.draw) {
             if (game.mode === 0) {
@@ -157,11 +196,11 @@ function timer() {
                 socket.emit('turn-choose', 0);
             }
             else if (game.mode == 1) {
-                // Selecting word ended (auto select).
+                // Selecting word ended (auto select by ID -1).
                 socket.emit('turn-draw', -1);
             }
             else if (game.mode == 2) {
-                // Guessing out of time.
+                // Guessing out of time (increment current player by 1).
                 socket.emit('turn-wait', 1);
             }
         }
@@ -169,8 +208,9 @@ function timer() {
 }
 
 socket.on('correct guess', function (name) {
-    if (game.time > 8) {
-        game.time = 8;
+    if (game.time > settings.time_react) {
+        game.hideList = null;
+        game.time = settings.time_react;
     }
     addMessage(name + ' guessed the word!');
 });
@@ -197,7 +237,7 @@ function setTimer(text) {
 }
 
 function setInfo(text) {
-    document.getElementById('info').textContent = text;
+    document.getElementById('info').innerHTML = text;
 }
 
 function setChoose(words) {
