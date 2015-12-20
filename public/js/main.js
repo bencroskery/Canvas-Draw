@@ -6,9 +6,9 @@ var socket = io();
 // Game info.
 var game = {
     running: false, // Whether the game has been started.
-    drawing: true,  // If this player can draw.
+    draw: true,  // If this player can draw.
     word: '',       // The word being drawn.
-    hideList: null,   // List of the hidden characters of the word.
+    hideList: null, // List of the hidden characters of the word.
     currentID: 0,   // The current players ID.
     myID: -1,       // This players's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
@@ -54,12 +54,6 @@ function runCommand(arg) {
         case '/stop':
             socket.emit('stop game', 0);
             addMessage('You stopped the game');
-            break;
-        case '/freedraw':
-            game.running = true;
-            game.draw = true;
-            game.mode = 2;
-            addMessage('Free drawing activated');
             break;
         case '/user':
             addMessage('I am ' + players[game.myID].name + ', player number ' + game.myID);
@@ -259,7 +253,7 @@ var mouseDown; // Remember if down and already drawing.
 canvas.onmousedown = canvas.ontouchstart = function (e) {
     var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
-    if (game.draw && game.mode == 2 || !game.running) {
+    if (game.draw) {
         if (e.button === 2) {
             if (mouseDown) {
                 mouseDown = false;
@@ -289,7 +283,7 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
     }
     var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
     var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
-    if (game.draw && game.mode == 2 || !game.running) {
+    if (game.draw) {
         emitMouse(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY, game.myID);
     }
@@ -300,7 +294,7 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
  * @type event
  */
 canvas.onmouseup = canvas.ontouchend = function (e) {
-    if (game.draw && game.mode == 2 || !game.running) {
+    if (game.draw) {
         if (e.button !== 2 && mouseDown) {
             mouseDown = false;
             emitMouse(2, 0, 0);
@@ -313,7 +307,7 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
  * Capture all key presses.
  */
 document.onkeypress = function () {
-    if (game.draw && game.mode == 2 || !game.running) {
+    if (game.draw) {
         var key = event.charCode || event.keyCode;
         // Check keys for colors.
         if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn") {

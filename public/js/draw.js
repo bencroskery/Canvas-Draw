@@ -1,6 +1,7 @@
 "use strict";
 
 /**
+ * Initialize the Draw object connected to the canvas parameter.
  *
  * @param canvas
  * @constructor
@@ -140,28 +141,24 @@ Draw.prototype.pushLine = function (l) {
  * Undo last action.
  */
 Draw.prototype.undo = function () {
-    if (this.line.length === 0) {
-        return;
+    if (this.line.length === 0) return;
+
+    switch (this.actions.pop()) {
+        case 0: this.line.pop();
+            break;
+        case 1: this.line.splice(--this.lindex, 1);
+            break;
+        default: this.line[act.index].rgb = act.color;
     }
-    var act = this.actions.pop();
-    if (act === 0 && this.line.length > 0) {
-        this.line.pop();
-        this.reDraw();
-    } else if (act === 1) {
-        this.line.splice(this.lindex - 1, 1);
-        this.lindex--;
-        this.reDraw();
-    } else {
-        this.line[act.index].rgb = act.color;
-        this.reDraw();
-    }
+
+    this.reDraw();
 };
 
 /**
  * Clears all lines from the canvas.
  */
 Draw.prototype.clear = function () {
-    this.line = this.layer = [];
+    this.line = [];
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
 };
 
