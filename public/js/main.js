@@ -6,9 +6,10 @@ var socket = io();
 // Game info.
 var game = {
     running: false, // Whether the game has been started.
-    draw: true,  // If this player can draw.
+    draw: true,     // If this player can draw.
     word: '',       // The word being drawn.
     hideList: null, // List of the hidden characters of the word.
+    correct: 0,     // Number of players who have correctly guessed.
     currentID: 0,   // The current players ID.
     myID: -1,       // This players's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
@@ -27,6 +28,7 @@ var settings = {
 // Player info.
 var players = {
     name: '??',     // Player name.
+    color: '',      // Player's defining color.
     score: 0        // Player score, totalling points.
 };
 
@@ -42,36 +44,36 @@ document.getElementById('nameIn').focus();
 function runCommand(arg) {
     switch (arg[0]) {
         case '/help':
-            addMessage('Possible commands are:\nhelp, test, start, stop, freedraw, user, userlist');
+            addMessage(null, 'Possible commands are:\nhelp, test, start, stop, freedraw, user, userlist');
             break;
         case '/test':
-            addMessage('You said: ' + arg[1]);
+            addMessage(null, 'You said: ' + arg[1]);
             break;
         case '/start':
             socket.emit('start game', 0);
-            addMessage('You started the game');
+            addMessage(null, 'You started the game');
             break;
         case '/stop':
             socket.emit('stop game', 0);
-            addMessage('You stopped the game');
+            addMessage(null, 'You stopped the game');
             break;
         case '/user':
-            addMessage('I am ' + players[game.myID].name + ', player number ' + game.myID);
+            addMessage(null, 'I am ' + players[game.myID].name + ', player number ' + game.myID);
             break;
         case '/listusers':
-            addMessage('The users are: ' + players.map(function (p) {
+            addMessage(null, 'The users are: ' + players.map(function (p) {
                     return p.name;
                 }));
             break;
         case '/listusersserver':
             socket.emit('list users', 0);
-            addMessage('See server console');
+            addMessage(null, 'See server console');
             break;
         case '/reboot':
             socket.emit('reboot server', 0);
             break;
         default:
-            addMessage('Unrecognized command\nTry /help for info');
+            addMessage(null, 'Unrecognized command\nTry /help for info');
     }
 }
 
@@ -97,6 +99,7 @@ socket.on('stop game', function () {
 
 socket.on('turn-wait', function turn_wait(next) {
     draw.clear();
+    game.correct = 0;
     game.currentID += next;
     if (game.currentID >= players.length) {
         game.currentID = 0;
@@ -201,12 +204,17 @@ function timer() {
     }, 1000);
 }
 
-socket.on('correct guess', function (name) {
+socket.on('correct guess', function (id) {
     if (game.time > settings.time_react) {
         game.hideList = null;
         game.time = settings.time_react;
     }
-    addMessage(name + ' guessed the word!');
+    if (game.correct++ === 0) {
+        players[game.currentID].score += 2;
+        players[id].score += 5;
+    }
+    players[id].score += Math.floor(5 / game.correct);
+    addMessage(id, ' guessed the word!');
 });
 
 socket.on('setup', function (p) {
@@ -214,7 +222,7 @@ socket.on('setup', function (p) {
     game.myID = p.length - 1;
     document.getElementById("users").innerHTML = '';
     for (var i = 0; i < players.length; i++) {
-        addUser(players[i].name);
+        addUser(i);
     }
 });
 
@@ -445,11 +453,11 @@ socket.on('clear canvas', function () {
 
 /**
  * Add list user element.
- * @param text
+ * @param id
  */
-function addUser(text) {
+function addUser(id) {
     var node = document.createElement("li");
-    node.appendChild(document.createTextNode(text));
+    node.innerHTML = '<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>';
     document.getElementById("users").appendChild(node);
 }
 
@@ -466,11 +474,13 @@ function removeUser(num) {
 
 /**
  * Add list message element.
+ * @param id
  * @param text
  */
-function addMessage(text) {
+function addMessage(id, text) {
+    console.log(text);
     var node = document.createElement("li");
-    node.appendChild(document.createTextNode(text));
+    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>') : '')  + text;
     document.getElementById("messages").appendChild(node);
 }
 
@@ -485,9 +495,9 @@ document.getElementById("gform").onsubmit = function () {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
         if (guessBox.value.toLowerCase() === game.word.toLowerCase() && !game.draw) {
-            socket.emit('correct guess', 0);
+            socket.emit('correct guess');
         } else {
-            addMessage(players[game.myID].name + ': ' + guessBox.value);
+            addMessage(game.myID, ': ' + guessBox.value);
             socket.emit('message', guessBox.value);
         }
     }
@@ -500,7 +510,7 @@ document.getElementById("gform").onsubmit = function () {
  * Getting a chat message.
  */
 socket.on('message', function (data) {
-    addMessage(data.name + ': ' + data.message);
+    addMessage(data.id, ': ' + data.message);
 });
 
 /**
@@ -510,9 +520,9 @@ socket.on('user joined', function (p) {
     if (players[0] === undefined) {
         return;
     }
-    addUser(p.name);
-    addMessage(p.name + ' has joined.');
     players.push(p);
+    addUser(players.length-1);
+    addMessage(players.length-1, ' has joined.');
 });
 
 /**
@@ -523,7 +533,7 @@ socket.on('user left', function (data) {
         return;
     }
     removeUser(data.number);
-    addMessage(data.name + ' has left.');
+    addMessage(data.number, ' has left.');
     players.splice(data.number, 1);
     draw.spliceLayer(data.number);
     if (data.number < game.myID) {
@@ -569,8 +579,9 @@ document.getElementById('worddiag').onsubmit = function () {
  */
 document.getElementById('lform').onsubmit = function () {
     var name = document.getElementById('nameIn').value;
-    if (name !== '') {
+    if (name !== '' && name.toLowerCase() !== 'you') {
         players.name = name;
+        players.color = 'rgb(' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ')';
         socket.emit('add user', players);
         fadeOut("login");
         fadeIn("game");

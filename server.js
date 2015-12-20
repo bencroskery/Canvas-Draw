@@ -128,7 +128,7 @@ io.on('connection', function (socket) {
         console.log(socket.name + ' said ' + msg);
         // Send the message to everyone.
         socket.broadcast.emit('message', {
-            name: socket.name,
+            id: socket.number,
             message: msg
         });
     });
@@ -136,7 +136,7 @@ io.on('connection', function (socket) {
     socket.on('correct guess', function () {
         console.log(socket.name + ' guessed right!');
         // Send the message to everyone.
-        io.sockets.emit('correct guess', socket.name);
+        io.sockets.emit('correct guess', socket.number);
     });
 
     socket.on('reboot server', function () {

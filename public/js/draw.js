@@ -143,7 +143,8 @@ Draw.prototype.pushLine = function (l) {
 Draw.prototype.undo = function () {
     if (this.line.length === 0) return;
 
-    switch (this.actions.pop()) {
+    var act = this.actions.pop();
+    switch (act) {
         case 0: this.line.pop();
             break;
         case 1: this.line.splice(--this.lindex, 1);
