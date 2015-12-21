@@ -83,3 +83,4 @@ obj/
 public/js/main.min.js
 public/js/draw.min.js
 server.min.js
+public/js/tools.min.js

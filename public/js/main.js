@@ -315,15 +315,15 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
  * Capture all key presses.
  */
 document.onkeypress = function () {
-    if (game.draw) {
-        var key = event.charCode || event.keyCode;
-        // Check keys for colors.
-        if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn") {
-            document.getElementById("r" + String.fromCharCode(key)).checked = true;
-            setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
-        } else {
-            document.getElementById("guessIn").focus();
-        }
+    var key = event.charCode || event.keyCode;
+    console.log(key);
+    // Check keys for colors.
+    if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn" && game.draw) {
+        document.getElementById("r" + String.fromCharCode(key)).checked = true;
+        setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
+    } else if (key === 47) {
+        document.getElementById("guessIn").focus();
+        return false;
     }
 };
 
@@ -480,7 +480,7 @@ function removeUser(num) {
 function addMessage(id, text) {
     console.log(text);
     var node = document.createElement("li");
-    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>') : '')  + text;
+    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>') : '') + text;
     document.getElementById("messages").appendChild(node);
 }
 
@@ -521,8 +521,8 @@ socket.on('user joined', function (p) {
         return;
     }
     players.push(p);
-    addUser(players.length-1);
-    addMessage(players.length-1, ' has joined.');
+    addUser(players.length - 1);
+    addMessage(players.length - 1, ' has joined.');
 });
 
 /**
@@ -581,7 +581,7 @@ document.getElementById('lform').onsubmit = function () {
     var name = document.getElementById('nameIn').value;
     if (name !== '' && name.toLowerCase() !== 'you') {
         players.name = name;
-        players.color = 'rgb(' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ',' + Math.floor(Math.random()*256) + ')';
+        players.color = randRGB();
         socket.emit('add user', players);
         fadeOut("login");
         fadeIn("game");
@@ -589,41 +589,3 @@ document.getElementById('lform').onsubmit = function () {
     }
     return false;
 };
-
-/**
- * Fade an element out.
- * @param id
- */
-function fadeOut(id) {
-    var s = document.getElementById(id).style;
-    var val = s.opacity = 1;
-    (function fade() {
-        s.opacity = (val -= .1).toFixed(1);
-        val <= 0.1 ? s.display = "none" : setTimeout(fade, 40);
-    })();
-}
-
-/**
- * Fade an element in.
- * @param id
- */
-function fadeIn(id) {
-    var s = document.getElementById(id).style;
-    var val = s.opacity = 0;
-    s.display = "inherit";
-    (function fade() {
-        s.opacity = (val += .1);
-        val < 0.9 ? setTimeout(fade, 40) : 0;
-    })();
-}
-
-function openMenu(el) {
-    var cName = el.className;
-    if (cName.substring(cName.length - 4, cName.length) === "open") {
-        el.className = cName.substring(0, cName.length - 5);
-        fadeOut('settings');
-    } else {
-        el.className += " open";
-        fadeIn('settings');
-    }
-}
