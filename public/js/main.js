@@ -98,6 +98,9 @@ socket.on('stop game', function () {
 });
 
 socket.on('turn-wait', function turn_wait(next) {
+    if (next !== 0) {
+        addMessage(null, 'The word was: ' + game.word);
+    }
     draw.clear();
     game.correct = 0;
     game.currentID += next;
@@ -211,9 +214,10 @@ socket.on('correct guess', function (id) {
     }
     if (game.correct++ === 0) {
         players[game.currentID].score += 2;
-        players[id].score += 5;
+        updateUser(game.currentID, players[game.currentID].score);
     }
     players[id].score += Math.floor(5 / game.correct);
+    updateUser(id, players[id].score);
     addMessage(id, ' guessed the word!');
 });
 
@@ -316,14 +320,15 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
  */
 document.onkeypress = function () {
     var key = event.charCode || event.keyCode;
-    console.log(key);
     // Check keys for colors.
-    if ((key >= 48 && key <= 57 || key === 45) && document.activeElement.id !== "guessIn" && game.draw) {
-        document.getElementById("r" + String.fromCharCode(key)).checked = true;
-        setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
-    } else if (key === 47) {
-        document.getElementById("guessIn").focus();
-        return false;
+    if (document.activeElement.tagName !== 'INPUT') {
+        if ((key >= 48 && key <= 57 || key === 45) && game.draw) {
+            document.getElementById("r" + String.fromCharCode(key)).checked = true;
+            setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
+        } else if (key === 47) {
+            document.getElementById("guessIn").focus();
+            return false;
+        }
     }
 };
 
@@ -345,7 +350,7 @@ for (var x = 0; x < inputColor.length; x++) {
 
 /**
  * Size changed.
- * @param val : size to set
+ * @param val : number size to set
  */
 function setDrawSize(val) {
     draw.setRadius(val, game.myID);
@@ -457,8 +462,18 @@ socket.on('clear canvas', function () {
  */
 function addUser(id) {
     var node = document.createElement("li");
-    node.innerHTML = '<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>';
+    node.innerHTML = '<span style="color:' + players[id].color + '">'
+        + (game.myID === id ? 'You' : players[id].name) + '</span>' + '<div>0 PTS</div>';
     document.getElementById("users").appendChild(node);
+}
+
+/**
+ * Remove list user element.
+ * @param num
+ * @param amount
+ */
+function updateUser(num, amount) {
+    document.getElementById("users").childNodes[num].lastChild.innerHTML = amount + ' PTS';
 }
 
 /**
@@ -466,10 +481,8 @@ function addUser(id) {
  * @param num
  */
 function removeUser(num) {
-    var nodes = document.querySelectorAll("#users li");
-    console.log(nodes);
-    console.log(num + " " + nodes.length);
-    document.getElementById("users").removeChild(nodes[num]);
+    var nodes = document.getElementById("users");
+    nodes.removeChild(nodes.childNodes[num]);
 }
 
 /**
@@ -478,7 +491,6 @@ function removeUser(num) {
  * @param text
  */
 function addMessage(id, text) {
-    console.log(text);
     var node = document.createElement("li");
     node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>') : '') + text;
     document.getElementById("messages").appendChild(node);
