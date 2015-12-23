@@ -46,9 +46,6 @@ function runCommand(arg) {
         case '/help':
             addMessage(null, 'Possible commands are:\nhelp, test, start, stop, freedraw, user, userlist');
             break;
-        case '/test':
-            addMessage(null, 'You said: ' + arg[1]);
-            break;
         case '/start':
             socket.emit('start game', 0);
             addMessage(null, 'You started the game');
@@ -213,11 +210,9 @@ socket.on('correct guess', function (id) {
         game.time = settings.time_react;
     }
     if (game.correct++ === 0) {
-        players[game.currentID].score += 2;
-        updateUser(game.currentID, players[game.currentID].score);
+        updateScore(game.currentID, 2);
     }
-    players[id].score += Math.floor(5 / game.correct);
-    updateUser(id, players[id].score);
+    updateScore(id, Math.floor(5 / game.correct));
     addMessage(id, ' guessed the word!');
 });
 
@@ -468,12 +463,13 @@ function addUser(id) {
 }
 
 /**
- * Remove list user element.
+ * Update the score of a user.
  * @param num
  * @param amount
  */
-function updateUser(num, amount) {
-    document.getElementById("users").childNodes[num].lastChild.innerHTML = amount + ' PTS';
+function updateScore(num, amount) {
+    players[num].score += amount;
+    document.getElementById("users").childNodes[num].lastChild.innerHTML = players[num].score + ' PTS';
 }
 
 /**
