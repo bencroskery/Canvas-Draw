@@ -148,7 +148,8 @@ Draw.prototype.undo = function () {
     switch (act) {
         case 0: this.line.pop();
             break;
-        case 1: this.line.splice(--this.lindex, 1);
+        case 1:
+            this.line.splice((--this.lindex), 1);
             break;
         default: this.line[act.index].rgb = act.color;
     }
