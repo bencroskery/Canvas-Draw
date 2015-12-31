@@ -76,6 +76,14 @@ io.on('connection', function (socket) {
         io.sockets.emit('stop game', 0);
     });
 
+    socket.on('settings', function (s) {
+        if (running) {
+            return;
+        }
+        console.log('Settings changed.');
+        socket.broadcast.emit('gamemode', s);
+    });
+
     socket.on('turn-wait', function (next) {
         io.sockets.emit('turn-wait', next);
         console.log('Next turn');

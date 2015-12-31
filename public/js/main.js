@@ -54,6 +54,17 @@ function runCommand(arg) {
             socket.emit('stop game', 0);
             addMessage(null, 'You stopped the game');
             break;
+        case '/gamemode':
+            var mode = settings.gamemode;
+            if (arg[1] === 'default')   mode = 0;
+            else if (arg[1] === 'team') mode = 1;
+            else if (arg[1] === 'rate') mode = 2;
+            if (settings.gamemode !== mode && !game.running) {
+                settings.gamemode = mode;
+                socket.emit('settings', settings);
+                addMessage(null, 'Gamemode changed.');
+            }
+            break;
         case '/user':
             addMessage(null, 'I am ' + players[game.myID].name + ', player number ' + game.myID);
             break;
@@ -92,6 +103,10 @@ socket.on('stop game', function () {
     setTimer('-');
     draw.clear();
     fadeIn('tools');
+});
+
+socket.on('settings', function (s) {
+    settings = s;
 });
 
 socket.on('turn-wait', function turn_wait(next) {
