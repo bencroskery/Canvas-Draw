@@ -1,4 +1,6 @@
 // A set of tools used in the game.
+if (!(document.addEventListener || false))
+    document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";
 
 /**
  * Fade an element out.
@@ -7,9 +9,9 @@
 function fadeOut(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 1;
-    (function fade() {
+    (function f() {
         s.opacity = (val -= .1).toFixed(1);
-        val <= 0.1 ? s.display = "none" : setTimeout(fade, 40);
+        val <= 0.1 ? s.display = "none" : setTimeout(f, 40);
     })();
 }
 
@@ -21,9 +23,9 @@ function fadeIn(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 0;
     s.display = "inherit";
-    (function fade() {
+    (function f() {
         s.opacity = (val += .1);
-        val < 0.9 ? setTimeout(fade, 40) : 0;
+        val < 0.9 ? setTimeout(f, 40) : 0;
     })();
 }
 
@@ -32,9 +34,9 @@ function fadeIn(id) {
  * @param el
  */
 function openMenu(el) {
-    var cName = el.className;
-    if (cName.substring(cName.length - 4, cName.length) === "open") {
-        el.className = cName.substring(0, cName.length - 5);
+    var cn = el.className;
+    if (cn.substring(cn.length - 4, cn.length) === "open") {
+        el.className = cn.substring(0, cn.length - 5);
         fadeOut('settings');
     } else {
         el.className += " open";

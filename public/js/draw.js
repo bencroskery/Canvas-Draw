@@ -39,8 +39,6 @@ Draw.prototype.checkLayer = function (l) {
             radius: 10,
             line: null
         }
-    } else if (this.layer[l].line !== null) {
-        this.pushLine(l);
     }
 };
 
@@ -75,6 +73,9 @@ Draw.prototype.resized = function () {
 Draw.prototype.down = function (x, y, scale, l) {
     l = l || 0;
     this.checkLayer(l);
+    if (this.layer[l].line !== null) {
+        this.pushLine(l);
+    }
     this.layer[l].line = {
         point: [],
         rgb: this.layer[l].color,
@@ -243,7 +244,7 @@ Draw.prototype.fill = function (l) {
     this.ctx.fill();
 
     this.layer[l].line.width *= -1;
-
+    this.pushLine(l);
 };
 
 /**

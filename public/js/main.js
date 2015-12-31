@@ -258,9 +258,9 @@ var mouseDown; // Remember if down and already drawing.
  * @type event
  */
 canvas.onmousedown = canvas.ontouchstart = function (e) {
-    var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
-    var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
     if (game.draw) {
+        var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+        var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         if (e.button === 2) {
             if (mouseDown) {
                 mouseDown = false;
@@ -285,12 +285,12 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
  * @type event
  */
 canvas.onmousemove = canvas.ontouchmove = function (e) {
-    if (!mouseDown) {
-        return;
-    }
-    var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
-    var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
     if (game.draw) {
+        if (!mouseDown) {
+            return;
+        }
+        var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+        var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         emitMouse(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY, game.myID);
     }
@@ -316,7 +316,7 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
 document.onkeypress = function () {
     var key = event.charCode || event.keyCode;
     // Check keys for colors.
-    if (document.activeElement.tagName !== 'INPUT') {
+    if (document.activeElement.type !== 'text' && document.activeElement.type !== 'number') {
         if ((key >= 48 && key <= 57 || key === 45) && game.draw) {
             document.getElementById("r" + String.fromCharCode(key)).checked = true;
             setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
