@@ -1,10 +1,9 @@
 var canvas = document.getElementById('draw'),
-    draw = new Draw(canvas),
-    WIDTH = 1280;
+    draw = new Draw(canvas);
 
 function resize() {
-    var A = 16 / 8,
-        P = "px",
+    var A = 16 / 8, // Aspect ratio.
+        P = "px",   // Pixel tag.
         dw = window.innerWidth - 40,
         dh = window.innerHeight - 40;
 
@@ -16,9 +15,9 @@ function resize() {
     var g = document.getElementById("game").style;
     g.width = dw + P;
     g.height = dh + P;
-    draw.resized();
+    draw.resize();
 
-    // Set the font size based off size (for scaling elements).
-    document.body.style.fontSize = 16 * dw / WIDTH + P;
+    // Set the font size based off size and scaling factor (16pt font / 1280px width).
+    document.body.style.fontSize = dw / 80 + P;
 }
 resize();

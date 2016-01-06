@@ -33,7 +33,7 @@ function setupGame() {
 setupGame();
 
 io.on('connection', function (socket) {
-    var addedUser = false;
+    var joined = false;
 
     socket.on('add user', function (player) {
         if (running) {
@@ -43,7 +43,7 @@ io.on('connection', function (socket) {
         players.push(player);
         socket.number = players.length - 1;
         socket.name = player.name;
-        addedUser = true;
+        joined = true;
 
         // Tell everyone that this user has joined.
         console.log('User ' + player.name + ' has joined');
@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
             return;
         }
         console.log('Settings changed.');
-        socket.broadcast.emit('gamemode', s);
+        socket.broadcast.emit('settings', s);
     });
 
     socket.on('turn-wait', function (next) {
@@ -108,7 +108,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('point', function (point) {
-        console.log(point);
         socket.broadcast.emit('point', point);
     });
 
@@ -123,12 +122,10 @@ io.on('connection', function (socket) {
     });
 
     socket.on('undo line', function () {
-        console.log('UNDO!');
         socket.broadcast.emit('undo line', 0);
     });
 
     socket.on('clear canvas', function () {
-        console.log('CLEAR!');
         socket.broadcast.emit('clear canvas', 0);
     });
 
@@ -155,17 +152,15 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
         // Remove the name from global players list.
-        if (addedUser) {
+        if (joined) {
             if (players.length === 1) {
                 console.log('Nobody left.');
                 setupGame();
             } else {
                 players.splice(socket.number, 1);
-                for (var i = 0; i < io.sockets.sockets.length; i++) {
-                    if (io.sockets.sockets[i].number > socket.number) {
-                        io.sockets.sockets[i].number--;
-                    }
-                }
+                io.sockets.sockets.forEach(function (s) {
+                    if (s.number > socket.number) s.number--;
+                });
 
                 console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
                 // Tell everyone that this user has left.

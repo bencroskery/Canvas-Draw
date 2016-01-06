@@ -49,7 +49,7 @@ Draw.prototype.spliceLayer = function (l) {
 /**
  * Resize the canvas width and height to the actual width and height.
  */
-Draw.prototype.resized = function () {
+Draw.prototype.resize = function () {
     /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
      for (var i = 0; i < size; i++) {
      for (var j = 0; j < line[i].length; j++) {
@@ -70,7 +70,7 @@ Draw.prototype.resized = function () {
  * @param scale
  * @param l
  */
-Draw.prototype.down = function (x, y, scale, l) {
+Draw.prototype.down = function (x, y, l) {
     l = l || 0;
     this.checkLayer(l);
     if (this.layer[l].line !== null) {
@@ -79,7 +79,7 @@ Draw.prototype.down = function (x, y, scale, l) {
     this.layer[l].line = {
         point: [],
         rgb: this.layer[l].color,
-        width: this.layer[l].radius * 2 * this.width / scale
+        width: this.layer[l].radius * 2 * this.width / 1280
     };
     this.layer[l].current = null;
     this.drawPoint(x, y, l);
@@ -158,11 +158,18 @@ Draw.prototype.undo = function () {
 };
 
 /**
- * Clears all lines from the canvas.
+ * Clears the canvas.
  */
 Draw.prototype.clear = function () {
-    this.line = [];
+    this.dump();
     this.ctx.clearRect(0, 0, this.width, this.height); // Clears the canvas
+};
+
+/**
+ * Dumps all lines out to be forgotten.
+ */
+Draw.prototype.dump = function () {
+    this.line = [];
 };
 
 /**
@@ -257,7 +264,6 @@ Draw.prototype.fill = function (l) {
 Draw.prototype.bucket = function (x, y, l) {
     var imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
     var pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
-    console.log(pixCol);
     if (this.layer[l].color === pixCol && imgCol[3] !== 0) {
         return;
     }
@@ -280,12 +286,10 @@ Draw.prototype.bucket = function (x, y, l) {
     // Check elements for color replace.
     var found = [];
     for (var n = 0; n < this.line.length; n++) {
-        console.log(this.line[n].rgb);
         if (this.line[n].rgb === pixCol) {
             found.push(n);
         }
     }
-    console.log(found.length);
 
     if (found.length === 1) {  // Set the element color if there is 1.
         this.actions.push({index: found[0], color: this.line[found[0]].rgb});
@@ -297,7 +301,6 @@ Draw.prototype.bucket = function (x, y, l) {
             minDist[i] = -1;
             for (var j = 0; j < this.line[found[i]].point.length; j++) {
                 var nextDist = Math.pow((this.line[found[i]].point[j].x - x), 2) + Math.pow((this.line[found[i]].point[j].y - y), 2);
-                console.log(i + "-" + j + ': ' + nextDist);
                 if (nextDist < minDist[i] || minDist[i] === -1) {
                     minDist[i] = nextDist;
                 }
@@ -309,13 +312,11 @@ Draw.prototype.bucket = function (x, y, l) {
                 best = k;
             }
         }
-        console.log(minDist);
         this.actions.push({index: found[best], color: this.line[found[best]].rgb});
         this.line[found[best]].rgb = this.layer[l].color;
     }
     else {  // Do something else...
 
     }
-    console.log('done');
     this.reDraw();
 };

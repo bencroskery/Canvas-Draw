@@ -58,7 +58,8 @@ function runCommand(arg) {
             var mode = settings.gamemode;
             if (arg[1] === 'default')   mode = 0;
             else if (arg[1] === 'team') mode = 1;
-            else if (arg[1] === 'rate') mode = 2;
+            else if (arg[1] === 'vs')   mode = 2;
+            else if (arg[1] === 'rate') mode = 3;
             if (settings.gamemode !== mode && !game.running) {
                 settings.gamemode = mode;
                 socket.emit('settings', settings);
@@ -70,7 +71,7 @@ function runCommand(arg) {
             break;
         case '/listusers':
             addMessage(null, 'The users are: ' + players.map(function (p) {
-                    return p.name;
+                    return '<span style="color:' + p.color + '">' + p.name + '</span>';
                 }));
             break;
         case '/listusersserver':
@@ -95,6 +96,7 @@ socket.on('start game', function () {
 
 socket.on('stop game', function () {
     setInfo('Use /start to start the game');
+    if (game.mode === 1 && game.currentID === game.myID) fadeOut('worddiag');
     game.draw = true;
     game.running = false;
     game.currentID = 0;
@@ -272,23 +274,23 @@ var mouseDown; // Remember if down and already drawing.
  * Mouse button was pressed.
  * @type event
  */
-canvas.onmousedown = canvas.ontouchstart = function (e) {
+canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
     if (game.draw) {
         var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         if (e.button === 2) {
             if (mouseDown) {
-                mouseDown = false;
                 draw.fill(game.myID);
                 emitMouse(3, mouseX, mouseY);
             } else {
                 draw.bucket(mouseX, mouseY, game.myID);
                 emitMouse(4, mouseX, mouseY);
             }
+            mouseDown = false;
         } else {
             mouseDown = true;
             emitMouse(0, mouseX, mouseY);
-            draw.down(mouseX, mouseY, WIDTH, game.myID);
+            draw.down(mouseX, mouseY, game.myID);
         }
 
     }
@@ -299,15 +301,16 @@ canvas.onmousedown = canvas.ontouchstart = function (e) {
  * Mouse was dragged.
  * @type event
  */
-canvas.onmousemove = canvas.ontouchmove = function (e) {
+canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
     if (game.draw) {
-        if (!mouseDown) {
-            return;
-        }
+        if (!mouseDown) return;
+
         var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         emitMouse(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY, game.myID);
+    } else if (mouseDown) {
+        onUp();
     }
 };
 
@@ -315,9 +318,9 @@ canvas.onmousemove = canvas.ontouchmove = function (e) {
  * Mouse button was released.
  * @type event
  */
-canvas.onmouseup = canvas.ontouchend = function (e) {
+canvas.onmouseup = canvas.ontouchend = function onUp() {
     if (game.draw) {
-        if (e.button !== 2 && mouseDown) {
+        if (mouseDown) {
             mouseDown = false;
             emitMouse(2, 0, 0);
             draw.up(game.myID);
@@ -328,8 +331,8 @@ canvas.onmouseup = canvas.ontouchend = function (e) {
 /**
  * Capture all key presses.
  */
-document.onkeypress = function () {
-    var key = event.charCode || event.keyCode;
+document.onkeypress = function (e) {
+    var key = e.charCode || e.keyCode;
     // Check keys for colors.
     if (document.activeElement.type !== 'text' && document.activeElement.type !== 'number') {
         if ((key >= 48 && key <= 57 || key === 45) && game.draw) {
@@ -405,8 +408,8 @@ document.getElementById('clearbtn').addEventListener('click', function () {
 function emitMouse(type, x, y) {
     socket.emit('point', {
         t: type,
-        x: x / draw.getWidth() * WIDTH,
-        y: y / draw.getHeight() * WIDTH,
+        x: x / draw.getWidth(),
+        y: y / draw.getHeight(),
         l: game.myID
     });
 }
@@ -417,10 +420,10 @@ function emitMouse(type, x, y) {
 socket.on('point', function (p) {
     switch (p.t) {
         case 0:
-            draw.down(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, WIDTH, p.l);
+            draw.down(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
             break;
         case 1:
-            draw.drag(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
+            draw.drag(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
             break;
         case 2:
             draw.up(p.l);
@@ -429,7 +432,7 @@ socket.on('point', function (p) {
             draw.fill(p.l);
             break;
         case 4:
-            draw.bucket(p.x * draw.getWidth() / WIDTH, p.y * draw.getHeight() / WIDTH, p.l);
+            draw.bucket(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
             break;
     }
 });
