@@ -10,7 +10,7 @@ var game = {
     word: '',       // The word being drawn.
     hideList: null, // List of the hidden characters of the word.
     correct: 0,     // Number of players who have correctly guessed.
-    currentID: 0,   // The current players ID.
+    currentID: -1,   // The current players ID.
     myID: -1,       // This players's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing word, 2 = draw.
     time: 0         // The current game time.
@@ -99,7 +99,7 @@ socket.on('stop game', function () {
     if (game.mode === 1 && game.currentID === game.myID) fadeOut('worddiag');
     game.draw = true;
     game.running = false;
-    game.currentID = 0;
+    game.currentID = -1;
     game.mode = 0;
     game.time = 0;
     setTimer('-');
@@ -115,7 +115,7 @@ socket.on('turn-wait', function turn_wait(next) {
     if (next !== 0) {
         addMessage(null, 'The word was: ' + game.word);
     }
-    draw.clear();
+    draw.dump();
     game.correct = 0;
     game.currentID += next;
     if (game.currentID >= players.length) {
@@ -135,6 +135,7 @@ socket.on('turn-wait', function turn_wait(next) {
 });
 
 socket.on('turn-choose', function turn_choose(words) {
+    draw.reDraw();
     if (game.draw) {
         setInfo('Choose a word!');
         setChoose(words);
@@ -209,11 +210,11 @@ function timer() {
                 // Waiting for next turn ended.
                 socket.emit('turn-choose', 0);
             }
-            else if (game.mode == 1) {
+            else if (game.mode === 1) {
                 // Selecting word ended (auto select by ID -1).
                 socket.emit('turn-draw', -1);
             }
-            else if (game.mode == 2) {
+            else if (game.mode === 2) {
                 // Guessing out of time (increment current player by 1).
                 socket.emit('turn-wait', 1);
             }
@@ -517,7 +518,7 @@ function addMessage(id, text) {
 document.getElementById("gform").onsubmit = function () {
     var guessBox = document.getElementById("guessIn");
 
-    if (guessBox.value.charAt(0) == '/') {
+    if (guessBox.value.charAt(0) === '/') {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
         if (guessBox.value.toLowerCase() === game.word.toLowerCase() && !game.draw) {
@@ -589,7 +590,7 @@ window.onresize = resize;
 document.getElementById('worddiag').onsubmit = function () {
     var val = document.activeElement.value.trim();
     if (val.length) {
-        socket.emit('turn-draw', val);
+        if (game.currentID === game.myID) socket.emit('turn-draw', val);
         fadeOut('worddiag');
     }
     return false;
