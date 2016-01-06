@@ -5,7 +5,8 @@ var express = require('express'),
     app = express(),
     server = require('http').Server(app),
     io = require('socket.io')(server),
-    fs = require('fs');
+    fs = require('fs'),
+    _ = require('lodash');
 
 // Folder holding all client pages.
 app.use(express.static(__dirname + '/public'));
@@ -16,10 +17,10 @@ server.listen(port, function () {
     console.log('Server listening on port ' + port);
 });
 
-var players,      // List of the names of the users.
-    running,      // Whether a game is in progress.
-    words,        // Words the drawer is asked to choose from.
-    wordList;     // The full list of all words.
+var players,    // List of the names of the users.
+    running,    // Whether a game is in progress.
+    words,      // Words the drawer is asked to choose from.
+    wordList;   // The full list of all words.
 
 /**
  * Setup all game variables (used for reset).
@@ -31,6 +32,13 @@ function setupGame() {
     wordList = fs.readFileSync('words.txt').toString().split("\n");
 }
 setupGame();
+
+/**
+ * Generate 3 an array of 3 words from the list.
+ */
+function generateWords() {
+    words = _.sample(wordList, 3);
+}
 
 io.on('connection', function (socket) {
     var joined = false;
@@ -64,7 +72,7 @@ io.on('connection', function (socket) {
         console.log('Game started!');
         io.sockets.emit('start game', 0);
         io.sockets.emit('turn-wait', 0);
-        words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
+        generateWords();
     });
 
     socket.on('stop game', function () {
@@ -85,9 +93,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('turn-wait', function (next) {
-        io.sockets.emit('turn-wait', next);
         console.log('Next turn');
-        words = [wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)], wordList[Math.floor(Math.random() * wordList.length)]];
+        io.sockets.emit('turn-wait', next);
+        generateWords();
     });
 
     socket.on('turn-choose', function () {
@@ -97,9 +105,7 @@ io.on('connection', function (socket) {
 
     socket.on('turn-draw', function (word) {
         console.log('Drawing');
-        if (word === -1) {
-            word = wordList[Math.floor(Math.random() * wordList.length)];
-        }
+        if (word === -1) word = _.sample(wordList);
         io.sockets.emit('turn-draw', word);
     });
 
@@ -158,9 +164,7 @@ io.on('connection', function (socket) {
                 setupGame();
             } else {
                 players.splice(socket.number, 1);
-                io.sockets.sockets.forEach(function (s) {
-                    if (s.number > socket.number) s.number--;
-                });
+                io.sockets.sockets.forEach(s => {if (s.number > socket.number) s.number--});
 
                 console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
                 // Tell everyone that this user has left.
