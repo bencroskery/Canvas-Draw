@@ -65,9 +65,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('start game', function () {
-        if (running) {
-            return;
-        }
+        if (running) return;
         running = true;
         console.log('Game started!');
         io.sockets.emit('start game', 0);
@@ -76,18 +74,14 @@ io.on('connection', function (socket) {
     });
 
     socket.on('stop game', function () {
-        if (!running) {
-            return;
-        }
+        if (!running) return;
         running = false;
         console.log('Game stopped!');
         io.sockets.emit('stop game', 0);
     });
 
     socket.on('settings', function (s) {
-        if (running) {
-            return;
-        }
+        if (running) return;
         console.log('Settings changed.');
         socket.broadcast.emit('settings', s);
     });
@@ -109,8 +103,8 @@ io.on('connection', function (socket) {
         io.sockets.emit('turn-draw', word);
     });
 
-    socket.on('reveal', function (i) {
-        socket.broadcast.emit('reveal', i);
+    socket.on('reveal char', function (i) {
+        socket.broadcast.emit('reveal char', i);
     });
 
     socket.on('point', function (point) {
