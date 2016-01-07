@@ -33,7 +33,6 @@ var players = {
 };
 
 // Startup.
-fadeOut('loading');
 fadeIn('login');
 document.getElementById('nameIn').focus();
 

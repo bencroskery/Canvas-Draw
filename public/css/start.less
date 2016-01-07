@@ -6,7 +6,7 @@
 
 body {
     margin: 20px 0;
-    background: rgb(240, 240, 240);
+    background: #F0F0F0;
     overflow: hidden;
 }
 
@@ -14,27 +14,13 @@ body {
     display: none;
 }
 
-#loading {
-    @load-thickness: 0.8em;
-    @load-size: 5em;
+#logo {
+    @load-size: 8em;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     height: @load-size;
     width: @load-size;
-    border: @load-thickness solid gray;
-    border-right-color: transparent;
-    border-radius: 50%;
-    margin: -@load-size/2 0 0 -@load-size/2;
-    transition: height ease 1s, width ease 1s, margin ease 1s, border ease 1s;
-    animation: spin 1s infinite linear;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+    margin: -(3em+@load-size/2) 0 0 -@load-size/2;
+    transition: height ease 1s, width ease 1s, margin ease 1s;
 }
