@@ -10,13 +10,18 @@
   },
   "dependencies": {
     "express": "^4.13.3",
-    "socket.io": "^1.4.0",
-    "lodash": "^3.10.1"
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-less": "^1.1.0",
+    "grunt-contrib-uglify": "^0.11.0",
+    "less-plugin-clean-css": "^1.5.1",
+    "lodash": "^3.10.1",
+    "socket.io": "~1.4.3"
   },
   "scripts": {
+    "postinstall": "grunt uglify",
     "start": "node server.js"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bencroskery/Canvas-Draw.git"
