@@ -27,13 +27,41 @@ module.exports = function (grunt) {
                     'public/js/start.min.js': ['public/js/start.js']
                 }
             }
+        },
+        jade: {
+            compile: {
+                options: {
+                    data: {
+                        debug: false
+                    }
+                },
+                files: {
+                    'public/index.html': 'public/index.jade'
+                }
+            }
+        },
+        watch: {
+            css: {
+                files: ['public/css/*.less'],
+                tasks: ['less']
+            },
+            js: {
+                files: ['public/js/*.js'],
+                tasks: ['uglify']
+            },
+            jade: {
+                files: ['public/*.jade'],
+                tasks: ['jade']
+            }
         }
     });
 
     // Load plugins for tasks.
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-jade');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default tasks.
-    grunt.registerTask('default', ['uglify','less']);
+    grunt.registerTask('default', ['uglify','less','jade']);
 };

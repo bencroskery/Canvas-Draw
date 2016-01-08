@@ -1,0 +1,98 @@
+doctype html
+html
+    head
+        title Canvas Drawing
+        meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+        link(rel='stylesheet', href='css/start.min.css')
+        link(rel='icon', type='image/png', href='favicon-32x32.png', sizes='32x32')
+        link(rel='icon', type='image/png', href='android-chrome-192x192.png', sizes='192x192')
+        link(rel='icon', type='image/png', href='favicon-96x96.png', sizes='96x96')
+        link(rel='icon', type='image/png', href='favicon-16x16.png', sizes='16x16')
+        link(rel='manifest', href='manifest.json')
+        link(rel='mask-icon', href='logo.svg', color='#ee7b00')
+        meta(name='msapplication-TileColor', content='#ee7b00')
+        meta(name='msapplication-TileImage', content='mstile-144x144.png')
+        meta(name='theme-color', content='#f0f0f0')
+    body.container-fluid
+        img#logo(src='logo.svg')
+        #login
+            form#lform(action='')
+                label.title(for='nameIn') What's your nickname?
+                input#nameIn(type='text', maxlength='25')
+        #game
+            .left
+                ul#users
+            .center.noselect
+                canvas#draw.white(oncontextmenu='return false')
+                #tools
+                    input#r1(type='radio', name='color', value='1', checked='checked')
+                    label.swatch(for='r1', style='background-color:rgb(0, 0, 0)')
+                    input#r2(type='radio', name='color', value='2')
+                    label.swatch(for='r2', style='background-color:rgb(132, 132, 132)')
+                    input#r3(type='radio', name='color', value='3')
+                    label.swatch(for='r3', style='background-color:rgb(140, 70, 20)')
+                    input#r4(type='radio', name='color', value='4')
+                    label.swatch(for='r4', style='background-color:rgb(255, 0, 0)')
+                    input#r5(type='radio', name='color', value='5')
+                    label.swatch(for='r5', style='background-color:rgb(238, 123, 0)')
+                    input#r6(type='radio', name='color', value='6')
+                    label.swatch(for='r6', style='background-color:rgb(255, 255, 0)')
+                    input#r7(type='radio', name='color', value='7')
+                    label.swatch(for='r7', style='background-color:rgb(0, 255, 0)')
+                    input#r8(type='radio', name='color', value='8')
+                    label.swatch(for='r8', style='background-color:rgb(0, 0, 255)')
+                    input#r9(type='radio', name='color', value='9')
+                    label.swatch(for='r9', style='background-color:rgb(100, 42, 130)')
+                    input#r0(type='radio', name='color', value='0')
+                    label.swatch(for='r0', style='background-color:rgb(255, 190, 200)')
+                    input#r-(type='radio', name='color', value='-')
+                    label.swatch(for='r-', style='background-color:rgb(255, 255, 255);margin-right:4em')
+                    span#sizeBar
+                        input#sizeIn(type='range', value='10', min='2', max='40', step='2', onchange='setDrawSize(parseInt(this.value))')
+                    svg#undo(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 2 2')
+                        path(d='M2 0 L0 1 2 2z')
+                    svg#clear(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 40 40')
+                        path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
+            .right
+                #infobox.white
+                    #timer -
+                    #info Use /start to start the game
+                #messbox.white
+                    ul#messages
+                form#gform(action='')
+                    input#guessIn(autocomplete='off', placeholder='Type here...')
+            #overlay
+                form#worddiag(action='')
+                    Choose a word
+                    br
+                    input#word1(type='submit', value='1')
+                    br
+                    input#word2(type='submit', value='2')
+                    br
+                    input#word3(type='submit', value='3')
+                    br
+                    input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
+                #settings.white
+                    #s_user
+                        h1 User Settings
+                    #s_game
+                        h1 Game Settings
+                        label Waiting Time:
+                        input#s_waiting(type='number')
+                        br
+                        label Picking Time:
+                        input#s_picking(type='number')
+                        br
+                        label Drawing Time:
+                        input#s_drawing(type='number')
+                        br
+                .menu(onclick='openMenu(this)')
+                    div
+                    div
+                    div
+        script(src='js/draw.js')
+        script(src='js/start.min.js')
+        link(rel='stylesheet', property='stylesheet', href='css/style.min.css')
+        script(src='/socket.io/socket.io.js')
+        script(src='js/tools.js')
+        script(src='js/main.js')
