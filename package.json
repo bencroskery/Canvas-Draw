@@ -19,7 +19,7 @@
     "socket.io": "~1.4.3"
   },
   "scripts": {
-    "postinstall": "grunt uglify",
+    "postinstall": "grunt",
     "start": "node server.js"
   },
   "repository": {
