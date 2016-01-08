@@ -381,7 +381,7 @@ canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll
 /**
  * Undo button clicked.
  */
-document.getElementById('undobtn').addEventListener('click', function () {
+document.getElementById('undo').addEventListener('click', function () {
     draw.undo();
     socket.emit('undo line', 0);
 });
@@ -389,7 +389,7 @@ document.getElementById('undobtn').addEventListener('click', function () {
 /**
  * Clear button clicked.
  */
-document.getElementById('clearbtn').addEventListener('click', function () {
+document.getElementById('clear').addEventListener('click', function () {
     draw.clear();
     socket.emit('clear canvas', 0);
 });
@@ -604,6 +604,7 @@ document.getElementById('lform').onsubmit = function () {
         players.name = name;
         players.color = randRGB();
         socket.emit('add user', players);
+        fadeOut("logo");
         fadeOut("login");
         fadeIn("game");
         resize();

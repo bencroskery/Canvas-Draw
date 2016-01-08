@@ -89,32 +89,34 @@ button, input[type="submit"] {
 #tools {
     margin-top: 0.438em;
 
-    .swatch {
+    .swatch, #undo, #clear {
         display: inline-block;
         width: @swatch-size;
         height: @swatch-size;
-        border-radius: 100%;
         cursor: pointer;
+    }
+
+    .swatch {
+        border-radius: 100%;
         background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
+
+        &:hover {
+            border: 0.1px solid @swatch-select;
+        }
     }
 
     input[type=radio] {
         display: none;
 
         &:checked + .swatch {
-            border: 0.1em solid @swatch-select;
+            border: 0.1px solid @swatch-select;
         }
-    }
-
-    .swatch:hover {
-        border: 0.1em solid @swatch-select;
     }
 
     #sizeBar {
         font-size: @swatch-size/2;
-        border-top: 0.1em solid @default-color;
+        border-top: 0.1px solid @default-color;
         width: 10.8em;
-        height: 1em;
         overflow: visible;
 
         #sizeIn {
@@ -177,49 +179,13 @@ button, input[type="submit"] {
         }
     }
 
-    #undobtn {
+    #undo, #clear {
         float: right;
-        width: 0;
-        height: 0;
-        border-top: @swatch-size/2 solid transparent;
-        border-right: @swatch-size solid @default-color;
-        border-bottom: @swatch-size/2 solid transparent;
-        cursor: pointer;
+        fill: currentColor;
+        color: @default-color;
 
         &:hover {
-            border-right-color: @hover-color;
-        }
-    }
-
-    #clearbtn {
-        float: right;
-        width: @swatch-size;
-        height: @swatch-size;
-        position: relative;
-        cursor: pointer;
-
-        &:before, &:after {
-            width: 2.875em;
-            height: 0.5em;
-            top: 1em;
-            left: -0.188em;
-            position: absolute;
-            content: "";
-            background: @default-color;
-        }
-
-        &:hover:before, &:hover:after {
-            background: @hover-color;
-        }
-
-        &:before {
-            -webkit-transform: rotateZ(45deg);
-            transform: rotateZ(45deg);
-        }
-
-        &:after {
-            -webkit-transform: rotateZ(-45deg);
-            transform: rotateZ(-45deg);
+            color: @hover-color;
         }
     }
 }
@@ -250,7 +216,7 @@ button, input[type="submit"] {
         margin: 0 0.2em;
 
         &.b {
-            border-bottom: 0.1em solid red;
+            border-bottom: 0.2em solid red;
             width: 0.6em;
             display: inline-block;
         }

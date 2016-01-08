@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Canvas Drawing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <link rel="stylesheet" href="css/start.min.css">
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="android-chrome-192x192.png" sizes="192x192">
@@ -15,7 +16,7 @@
 </head>
 
 <body class="container-fluid">
-<img id="logo" src="logo.svg" />
+<img id="logo" src="logo.svg"/>
 
 <div id="login">
     <form id="lform" action="">
@@ -32,33 +33,33 @@
 
         <div id="tools">
             <input type="radio" name="color" value="1" id="r1" checked="checked"/>
-            <label class="swatch" for="r1" style="background-color: rgb(0, 0, 0)"></label>
+            <label class="swatch" for="r1" style="background-color:rgb(0, 0, 0)"></label>
             <input type="radio" name="color" value="2" id="r2"/>
-            <label class="swatch" for="r2" style="background-color: rgb(132, 132, 132)"></label>
+            <label class="swatch" for="r2" style="background-color:rgb(132, 132, 132)"></label>
             <input type="radio" name="color" value="3" id="r3"/>
-            <label class="swatch" for="r3" style="background-color: rgb(140, 70, 20)"></label>
+            <label class="swatch" for="r3" style="background-color:rgb(140, 70, 20)"></label>
             <input type="radio" name="color" value="4" id="r4"/>
-            <label class="swatch" for="r4" style="background-color: rgb(255, 0, 0)"></label>
+            <label class="swatch" for="r4" style="background-color:rgb(255, 0, 0)"></label>
             <input type="radio" name="color" value="5" id="r5"/>
-            <label class="swatch" for="r5" style="background-color: rgb(238, 123, 0)"></label>
+            <label class="swatch" for="r5" style="background-color:rgb(238, 123, 0)"></label>
             <input type="radio" name="color" value="6" id="r6"/>
-            <label class="swatch" for="r6" style="background-color: rgb(255, 255, 0)"></label>
+            <label class="swatch" for="r6" style="background-color:rgb(255, 255, 0)"></label>
             <input type="radio" name="color" value="7" id="r7"/>
-            <label class="swatch" for="r7" style="background-color: rgb(0, 255, 0)"></label>
+            <label class="swatch" for="r7" style="background-color:rgb(0, 255, 0)"></label>
             <input type="radio" name="color" value="8" id="r8"/>
-            <label class="swatch" for="r8" style="background-color: rgb(0, 0, 255)"></label>
+            <label class="swatch" for="r8" style="background-color:rgb(0, 0, 255)"></label>
             <input type="radio" name="color" value="9" id="r9"/>
-            <label class="swatch" for="r9" style="background-color: rgb(100, 42, 130)"></label>
+            <label class="swatch" for="r9" style="background-color:rgb(100, 42, 130)"></label>
             <input type="radio" name="color" value="0" id="r0"/>
-            <label class="swatch" for="r0" style="background-color: rgb(255, 190, 200)"></label>
+            <label class="swatch" for="r0" style="background-color:rgb(255, 190, 200)"></label>
             <input type="radio" name="color" value="-" id="r-"/>
-            <label class="swatch" for="r-" style="background-color: rgb(255, 255, 255); margin-right: 4em"></label>
+            <label class="swatch" for="r-" style="background-color:rgb(255, 255, 255);margin-right:4em"></label>
 
             <span id="sizeBar"><input id="sizeIn" type="range" value="10" min="2" max="40" step="2"
                                       onchange="setDrawSize(parseInt(this.value))"/></span>
 
-            <div id="undobtn"></div>
-            <div id="clearbtn"></div>
+            <svg id="undo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"><path d="M2 0 L0 1 2 2z"/></svg>
+            <svg id="clear" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path d="M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z"/></svg>
         </div>
     </div>
     <div class="right">
