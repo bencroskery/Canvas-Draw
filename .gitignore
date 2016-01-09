@@ -81,3 +81,4 @@ obj/
 *.sln
 .idea
 *.min.*
+*.html

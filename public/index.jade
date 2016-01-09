@@ -25,28 +25,13 @@ html
             .center.noselect
                 canvas#draw.white(oncontextmenu='return false')
                 #tools
-                    input#r1(type='radio', name='color', value='1', checked='checked')
-                    label.swatch(for='r1', style='background-color:rgb(0, 0, 0)')
-                    input#r2(type='radio', name='color', value='2')
-                    label.swatch(for='r2', style='background-color:rgb(132, 132, 132)')
-                    input#r3(type='radio', name='color', value='3')
-                    label.swatch(for='r3', style='background-color:rgb(140, 70, 20)')
-                    input#r4(type='radio', name='color', value='4')
-                    label.swatch(for='r4', style='background-color:rgb(255, 0, 0)')
-                    input#r5(type='radio', name='color', value='5')
-                    label.swatch(for='r5', style='background-color:rgb(238, 123, 0)')
-                    input#r6(type='radio', name='color', value='6')
-                    label.swatch(for='r6', style='background-color:rgb(255, 255, 0)')
-                    input#r7(type='radio', name='color', value='7')
-                    label.swatch(for='r7', style='background-color:rgb(0, 255, 0)')
-                    input#r8(type='radio', name='color', value='8')
-                    label.swatch(for='r8', style='background-color:rgb(0, 0, 255)')
-                    input#r9(type='radio', name='color', value='9')
-                    label.swatch(for='r9', style='background-color:rgb(100, 42, 130)')
-                    input#r0(type='radio', name='color', value='0')
-                    label.swatch(for='r0', style='background-color:rgb(255, 190, 200)')
-                    input#r-(type='radio', name='color', value='-')
-                    label.swatch(for='r-', style='background-color:rgb(255, 255, 255);margin-right:4em')
+                    // - Build selection of color swatches.
+                    - var s_id = [1,2,3,4,5,6,7,8,9,0,'-']
+                    - var s_color = ['0,0,0','132,132,132','140,70,20','255,0,0','238,123,0','255,255,0','0,255,0','0,0,255','100,42,130','255,190,200','255,255,255']
+                    - for (var i = 0; i < s_id.length; i++)
+                        input(id=('r' + s_id[i]), type='radio', name='color', value=s_id[i], checked=(i === 0))
+                        label.swatch(for=('r' + s_id[i]), style=('background-color:rgb(' + s_color[i] + ')'))
+
                     span#sizeBar
                         input#sizeIn(type='range', value='10', min='2', max='40', step='2', onchange='setDrawSize(parseInt(this.value))')
                     svg#undo(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 2 2')
@@ -62,15 +47,16 @@ html
                 form#gform(action='')
                     input#guessIn(autocomplete='off', placeholder='Type here...')
             #overlay
+                svg#refresh(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 84 84')
+                    path(d='M84 0L84 33.94 50.06 33.94zM0 84L0 50.06 33.94 50.06z')
+                    path(fill='none', stroke='currentColor', stroke-width='12', stroke-linecap='round', d='M69.58 18.86A36 36 0 0 0 8.17 29.69M14.42 65.14A36 36 0 0 0 75.83 54.31')
                 form#worddiag(action='')
+                    // - 3 words to select from + custom.
                     Choose a word
                     br
-                    input#word1(type='submit', value='1')
-                    br
-                    input#word2(type='submit', value='2')
-                    br
-                    input#word3(type='submit', value='3')
-                    br
+                    - for (var i = 1; i <= 3; i++)
+                        input(id=('word'+i), type='submit', value=i)
+                        br
                     input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
                 #settings.white
                     #s_user

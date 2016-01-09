@@ -1,3 +1,5 @@
+"use strict";
+
 // A set of tools used in the game.
 if (!(document.addEventListener || false))
     document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";

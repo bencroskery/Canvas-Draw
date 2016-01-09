@@ -88,106 +88,122 @@ button, input[type="submit"] {
 
 #tools {
     margin-top: 0.438em;
+}
 
-    .swatch, #undo, #clear {
-        display: inline-block;
-        width: @swatch-size;
-        height: @swatch-size;
-        cursor: pointer;
+.swatch, #undo, #clear {
+    display: inline-block;
+    width: @swatch-size;
+    height: @swatch-size;
+    cursor: pointer;
+    margin-right: 0.2em;
+}
+
+.swatch {
+    border-radius: 100%;
+    background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
+
+    &:hover {
+        border: 0.15em solid @swatch-select;
     }
 
-    .swatch {
-        border-radius: 100%;
-        background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
+    &[for="r-"] {
+        margin-right: 4em;
+    }
+}
+
+input[type=radio] {
+    display: none;
+
+    &:checked + .swatch {
+        border: 0.15em solid @swatch-select;
+    }
+}
+
+#sizeBar {
+    font-size: @swatch-size/2;
+    border-top: 0.1px solid @default-color;
+    width: 10.8em;
+    overflow: visible;
+
+    #sizeIn {
+        margin: 0;
+        padding: 0;
+        width: 10.8em;
+        height: 2em;
+        cursor: pointer;
+        outline: none;
+        background-color: transparent;
+        -webkit-appearance: none;
+        // * * * TRACK * * *
+        &::-moz-range-track {
+            background: transparent;
+        }
+        &::-ms-track {
+            border: none;
+            background: transparent;
+            color: transparent;
+        }
+        &::-ms-fill-lower {
+            background: transparent;
+        }
+        // * * * THUMB * * *
+        .range-thumb() {
+            width: 2em;
+            height: 2em;
+            background-color: @default-color;
+            border-radius: 100%;
+            border: none;
+            cursor: pointer;
+        }
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            .range-thumb();
+        }
+
+        &::-moz-range-thumb {
+            .range-thumb();
+        }
+
+        &::-ms-thumb {
+            .range-thumb();
+        }
 
         &:hover {
-            border: 0.1px solid @swatch-select;
-        }
-    }
-
-    input[type=radio] {
-        display: none;
-
-        &:checked + .swatch {
-            border: 0.1px solid @swatch-select;
-        }
-    }
-
-    #sizeBar {
-        font-size: @swatch-size/2;
-        border-top: 0.1px solid @default-color;
-        width: 10.8em;
-        overflow: visible;
-
-        #sizeIn {
-            margin: 0;
-            padding: 0;
-            width: 10.8em;
-            height: 2em;
-            cursor: pointer;
-            outline: none;
-            background-color: transparent;
-            -webkit-appearance: none;
-            // * * * TRACK * * *
-            &::-moz-range-track {
-                background: transparent;
-            }
-            &::-ms-track {
-                border: none;
-                background: transparent;
-                color: transparent;
-            }
-            &::-ms-fill-lower {
-                background: transparent;
-            }
-            // * * * THUMB * * *
-            .range-thumb() {
-                width: 2em;
-                height: 2em;
-                background-color: @default-color;
-                border-radius: 100%;
-                border: none;
-                cursor: pointer;
-            }
-
             &::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                .range-thumb();
+                background-color: @hover-color;
             }
 
             &::-moz-range-thumb {
-                .range-thumb();
+                background-color: @hover-color;
             }
 
             &::-ms-thumb {
-                .range-thumb();
-            }
-
-            &:hover {
-                &::-webkit-slider-thumb {
-                    background-color: @hover-color;
-                }
-
-                &::-moz-range-thumb {
-                    background-color: @hover-color;
-                }
-
-                &::-ms-thumb {
-                    background-color: @hover-color;
-                }
+                background-color: @hover-color;
             }
         }
     }
+}
 
-    #undo, #clear {
-        float: right;
-        fill: currentColor;
-        color: @default-color;
+#undo, #clear, #refresh {
+    float: right;
+    fill: currentColor;
+    color: @default-color;
 
-        &:hover {
-            color: @hover-color;
-        }
+    &:hover {
+        color: @hover-color;
     }
+}
+
+#refresh {
+    display: none;
+    opacity: 0.5;
+    width: @swatch-size;
+    height: @swatch-size;
+    position: absolute;
+    top: 0.7em;
+    right: 24%;
+    cursor: pointer;
 }
 
 #guessIn {
@@ -325,18 +341,18 @@ button, input[type="submit"] {
     }
 
     &.open {
-         transform: translate(0.1em, 0);
+        transform: translate(0.1em, 0);
 
-         div {
-             &:nth-child(1) {
-                 transform: translate(0, 180%) rotate(135deg);
-             }
-             &:nth-child(2) {
-                 transform: translate(0, 180%) scale(0.2, 1);
-             }
-             &:nth-child(3) {
-                 transform: translate(0, 180%) rotate(-135deg);
-             }
-         }
-     }
+        div {
+            &:nth-child(1) {
+                transform: translate(0, 180%) rotate(135deg);
+            }
+            &:nth-child(2) {
+                transform: translate(0, 180%) scale(0.2, 1);
+            }
+            &:nth-child(3) {
+                transform: translate(0, 180%) rotate(-135deg);
+            }
+        }
+    }
 }

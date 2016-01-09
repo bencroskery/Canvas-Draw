@@ -19,7 +19,7 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 mangle: {
-                    except: ['canvas', 'draw']
+                    except: ['canvas', 'draw', 'game']
                 }
             },
             targets: {

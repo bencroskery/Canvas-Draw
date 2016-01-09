@@ -48,15 +48,29 @@ Draw.prototype.spliceLayer = function (l) {
 
 /**
  * Resize the canvas width and height to the actual width and height.
+ * @param reScale Properly size all lines.
  */
-Draw.prototype.resize = function () {
-    /*var scaling = canvas.clientWidth / width; Doesn't work on such small resize events.
-     for (var i = 0; i < size; i++) {
-     for (var j = 0; j < line[i].length; j++) {
-     line[i].point[j].x = line[i].point[j].x * scaling;
-     line[i].point[j].y = line[i].point[j].y * scaling;
-     }
-     }*/
+Draw.prototype.resize = function (reScale) {
+    if (reScale) {
+        var i, j, scaling = this.canvas.clientWidth / this.width;
+        for (i = 0; i < this.line.length; i++) {
+            this.line[i].width *= scaling;
+            for (j = 0; j < this.line[i].point.length; j++) {
+                this.line[i].point[j].x *= scaling;
+                this. line[i].point[j].y *= scaling;
+            }
+        }
+        for (i = 0; i < this.layer.length; i++) {
+            if (this.layer[i] !== undefined && this.layer[i].line !== null) {
+                this.layer[i].line.width *= scaling;
+                for (j = 0; j < this.layer[i].line.point.length; j++) {
+                    this.layer[i].line.point[j].x *= scaling;
+                    this.layer[i].line.point[j].y *= scaling;
+                }
+            }
+        }
+    }
+
     this.canvas.width = this.width = this.canvas.clientWidth;
     this.canvas.height = this.height = this.canvas.clientHeight;
 
@@ -67,15 +81,12 @@ Draw.prototype.resize = function () {
  * Start a new line with a point.
  * @param x
  * @param y
- * @param scale
  * @param l
  */
 Draw.prototype.down = function (x, y, l) {
     l = l || 0;
     this.checkLayer(l);
-    if (this.layer[l].line !== null) {
-        this.pushLine(l);
-    }
+    if (this.layer[l].line !== null) this.pushLine(l);
     this.layer[l].line = {
         point: [],
         rgb: this.layer[l].color,
@@ -146,12 +157,14 @@ Draw.prototype.undo = function () {
 
     var act = this.actions.pop();
     switch (act) {
-        case 0: this.line.pop();
+        case 0:
+            this.line.pop();
             break;
         case 1:
             this.line.splice((--this.lindex), 1);
             break;
-        default: this.line[act.index].rgb = act.color;
+        default:
+            this.line[act.index].rgb = act.color;
     }
 
     this.reDraw();

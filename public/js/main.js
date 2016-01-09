@@ -270,6 +270,10 @@ var mouseDown; // Remember if down and already drawing.
  * @type event
  */
 canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
+    if (draw.reScale) {
+        refreshOff();
+        return false;
+    }
     if (game.draw) {
         var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
@@ -381,18 +385,44 @@ canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll
 /**
  * Undo button clicked.
  */
-document.getElementById('undo').addEventListener('click', function () {
+document.getElementById('undo').onclick = function () {
     draw.undo();
     socket.emit('undo line', 0);
-});
+};
 
 /**
  * Clear button clicked.
  */
-document.getElementById('clear').addEventListener('click', function () {
+document.getElementById('clear').onclick = function () {
     draw.clear();
     socket.emit('clear canvas', 0);
-});
+};
+
+var refreshTime;
+draw.reScale = false;
+var refresh = document.getElementById("refresh");
+/**
+ * Turn on the refresh button and set a resize timer for 2s.
+ */
+function refreshOn() {
+    draw.reScale = true;
+    refresh.style.display = "block";
+    if (draw.getWidth() === canvas.clientWidth) {
+        draw.reScale = false;
+        refresh.style.display = "none";
+    }
+    clearTimeout(refreshTime);
+    refreshTime = setTimeout(refreshOff, 2000);
+}
+refresh.onclick = refreshOff;
+/**
+ * Turn OFF the refresh and resize the canvas.
+ */
+function refreshOff() {
+    draw.reScale = false;
+    draw.resize(true);
+    refresh.style.display = "none";
+}
 
 /**
  * Send a point to the server.
@@ -507,7 +537,7 @@ function addMessage(id, text) {
 
 /**
  * Output a chat message.
- * @returns {boolean} stop form submit
+ * @returns {boolean} Stop form submit.
  */
 document.getElementById("gform").onsubmit = function () {
     var guessBox = document.getElementById("guessIn");
@@ -534,6 +564,7 @@ socket.on('message', function (data) {
     addMessage(data.id, ': ' + data.message);
 });
 
+/**
 /**
  * A user connected.
  */
