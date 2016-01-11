@@ -36,12 +36,11 @@ function fadeIn(id) {
  * @param el
  */
 function openMenu(el) {
-    var cn = el.className;
-    if (cn.substring(cn.length - 4, cn.length) === "open") {
-        el.className = cn.substring(0, cn.length - 5);
+    if (el.classList.contains("open")) {
+        el.classList.remove("open");
         fadeOut('settings');
     } else {
-        el.className += " open";
+        el.classList.add("open");
         fadeIn('settings');
     }
 }

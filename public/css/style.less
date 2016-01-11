@@ -83,7 +83,7 @@ button, input[type="submit"] {
     outline: none;
     border: none;
     border-radius: 4em;
-    padding: 0.75em 1em;
+    padding: 0.75em 1em 0.6em;
 }
 
 #tools {
@@ -215,6 +215,7 @@ input[type=radio] {
 }
 
 #infobox {
+    position: relative;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -225,16 +226,59 @@ input[type=radio] {
 }
 
 #timer, #info {
-    margin-top: 1em;
+    height: 1em;
+    margin-top: 1.2em;
     white-space: pre;
+}
 
-    .char {
-        margin: 0 0.2em;
+#info .char {
+    margin: 0 0.2em;
 
-        &.b {
-            border-bottom: 0.2em solid red;
-            width: 0.6em;
-            display: inline-block;
+    &.b {
+        border-bottom: 0.2em solid red;
+        width: 0.6em;
+        display: inline-block;
+    }
+}
+
+#start {
+    position: absolute;
+    top: 0.5em;
+    left: 0;
+    width: 50%;
+    height: 2.3em;
+    margin: 0 25%;
+    background: #3F3;
+    transition: all 400ms;
+    white-space: nowrap;
+
+    div {
+        vertical-align: top;
+        display: inline-block;
+        line-height: 0.95em;
+    }
+
+    #icon {
+        margin-right: 0.6em;
+        width: 0.8em;
+        overflow: hidden;
+    }
+
+    svg {
+        display: block;
+        transform-origin: .3em .4em;
+        transition: transform 400ms;
+    }
+
+    &.going {
+        width: 2em;
+        height: 2em;
+        padding: 0.61em;
+        margin: 0 0.5em;
+        background: #F33;
+
+        svg {
+            transform: scale(2.5) rotate(63deg);
         }
     }
 }

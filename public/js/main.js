@@ -47,11 +47,9 @@ function runCommand(arg) {
             break;
         case '/start':
             socket.emit('start game', 0);
-            addMessage(null, 'You started the game');
             break;
         case '/stop':
             socket.emit('stop game', 0);
-            addMessage(null, 'You stopped the game');
             break;
         case '/gamemode':
             var mode = settings.gamemode;
@@ -86,6 +84,7 @@ function runCommand(arg) {
 }
 
 socket.on('start game', function () {
+    document.getElementById('start').classList.add("going");
     setInfo('START THE GAME!!!');
     game.draw = false;
     game.currentID = 0;
@@ -93,13 +92,13 @@ socket.on('start game', function () {
 });
 
 socket.on('stop game', function () {
+    document.getElementById('start').classList.remove("going");
     setInfo('Use /start to start the game');
     if (game.mode === 1 && game.currentID === game.myID) fadeOut('worddiag');
     game.draw = true;
     game.currentID = -1;
     game.mode = 0;
     game.time = 0;
-    setTimer('-');
     draw.clear();
     fadeIn('tools');
     clearInterval(game.timer);
@@ -423,6 +422,15 @@ function refreshOff() {
     draw.resize(true);
     refresh.style.display = "none";
 }
+
+document.getElementById('start').onclick = function () {
+    if (this.classList.contains("going")) {
+        socket.emit('stop game', 0);
+    } else {
+        socket.emit('start game', 0);
+    }
+    return false;
+};
 
 /**
  * Send a point to the server.

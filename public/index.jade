@@ -34,20 +34,25 @@ html
 
                     span#sizeBar
                         input#sizeIn(type='range', value='10', min='2', max='40', step='2', onchange='setDrawSize(parseInt(this.value))')
-                    svg#undo(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 2 2')
+                    svg#undo(viewBox='0 0 2 2')
                         path(d='M2 0 L0 1 2 2z')
-                    svg#clear(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 40 40')
+                    svg#clear(viewBox='0 0 40 40')
                         path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
             .right
                 #infobox.white
-                    #timer -
+                    #timer
                     #info Use /start to start the game
+                    button#start
+                        #icon
+                            svg(viewBox='0 0 2 2')
+                                path(fill='white' d='M0 0 L0 2 2 1z')
+                        div Start!
                 #messbox.white
                     ul#messages
                 form#gform(action='')
                     input#guessIn(autocomplete='off', placeholder='Type here...')
             #overlay
-                svg#refresh(xmlns='http://www.w3.org/2000/svg', viewbox='0 0 84 84')
+                svg#refresh(viewBox='0 0 84 84')
                     path(d='M84 0L84 33.94 50.06 33.94zM0 84L0 50.06 33.94 50.06z')
                     path(fill='none', stroke='currentColor', stroke-width='12', stroke-linecap='round', d='M69.58 18.86A36 36 0 0 0 8.17 29.69M14.42 65.14A36 36 0 0 0 75.83 54.31')
                 form#worddiag(action='')
