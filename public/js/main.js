@@ -85,7 +85,6 @@ function runCommand(arg) {
 
 socket.on('start game', function () {
     document.getElementById('start').classList.add("going");
-    setInfo('START THE GAME!!!');
     game.draw = false;
     game.currentID = 0;
     game.timer = setInterval(timerStep, 1000);
@@ -93,7 +92,7 @@ socket.on('start game', function () {
 
 socket.on('stop game', function () {
     document.getElementById('start').classList.remove("going");
-    setInfo('Use /start to start the game');
+    setInfo('Draw freely or start a game');
     if (game.mode === 1 && game.currentID === game.myID) fadeOut('worddiag');
     game.draw = true;
     game.currentID = -1;

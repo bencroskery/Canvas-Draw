@@ -16,7 +16,12 @@
     background: white;
 }
 
+.over {
+    overflow: hidden;
+}
+
 #game {
+    padding: 1%;
     margin: auto;
 }
 
@@ -220,8 +225,6 @@ input[type=radio] {
     margin: 0;
     padding: 0;
     height: 15%;
-    overflow-y: auto;
-    overflow-x: hidden;
     text-align: center;
 }
 
@@ -252,22 +255,22 @@ input[type=radio] {
     transition: all 400ms;
     white-space: nowrap;
 
-    div {
+    & > * {
         vertical-align: top;
         display: inline-block;
-        line-height: 0.95em;
+        height: 0.8em;
+        max-width: 3em;
     }
 
     #icon {
         margin-right: 0.6em;
         width: 0.8em;
-        overflow: hidden;
-    }
 
-    svg {
-        display: block;
-        transform-origin: .3em .4em;
-        transition: transform 400ms;
+        svg {
+            display: block;
+            transform-origin: .3em .4em;
+            transition: transform 400ms;
+        }
     }
 
     &.going {
@@ -277,7 +280,7 @@ input[type=radio] {
         margin: 0 0.5em;
         background: #F33;
 
-        svg {
+        #icon svg {
             transform: scale(2.5) rotate(63deg);
         }
     }
@@ -287,7 +290,6 @@ input[type=radio] {
     margin-top: 4%;
     height: 73%;
     position: relative;
-    overflow: hidden;
 }
 
 #users {

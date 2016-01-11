@@ -7,8 +7,8 @@ var canvas = document.getElementById('draw'),
 function resize() {
     var ASPECT = 16 / 8,
         PX = "px",
-        width = window.innerWidth - 40,
-        height = window.innerHeight - 40,
+        width = window.innerWidth,
+        height = window.innerHeight,
         gameBox = document.getElementById("game").style;
 
 

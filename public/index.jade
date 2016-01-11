@@ -13,7 +13,7 @@ html
         meta(name='msapplication-TileColor', content='#ee7b00')
         meta(name='msapplication-TileImage', content='mstile-144x144.png')
         meta(name='theme-color', content='#f0f0f0')
-    body.container-fluid
+    body.container-fluid.over
         img#logo(src='logo.svg')
         #login
             form#lform(action='')
@@ -39,15 +39,16 @@ html
                     svg#clear(viewBox='0 0 40 40')
                         path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
             .right
-                #infobox.white
+                #infobox.white.over
                     #timer
-                    #info Use /start to start the game
-                    button#start
-                        #icon
+                    #info Draw freely or start a game
+                    button#start.over
+                        #icon.over
                             svg(viewBox='0 0 2 2')
                                 path(fill='white' d='M0 0 L0 2 2 1z')
-                        div Start!
-                #messbox.white
+                        svg(viewBox='0 0 19 6.5')
+                            text(style="font-size:8px" x="0" y="6.5" fill="white") Start!
+                #messbox.white.over
                     ul#messages
                 form#gform(action='')
                     input#guessIn(autocomplete='off', placeholder='Type here...')
