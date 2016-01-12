@@ -62,14 +62,17 @@ canvas {
     position: absolute;
     width: 50%;
     margin-left: 25%;
-    top: 12em;
-    text-align: center;
+    top: 10em;
     display: none;
     pointer-events: none;
 
-    input {
-        margin: 0.5em 0;
+    * {
+        display: block;
+        margin: 0.5em auto;
         text-align: center;
+    }
+
+    input {
         pointer-events: all;
 
         &[type="text"] {
@@ -258,13 +261,17 @@ input[type=radio] {
     & > * {
         vertical-align: top;
         display: inline-block;
-        height: 0.8em;
-        max-width: 3em;
+    }
+
+    & > svg {
+        height: 1em;
+        max-width: 2.6em;
     }
 
     #icon {
         margin-right: 0.6em;
         width: 0.8em;
+        height: 0.8em;
 
         svg {
             display: block;

@@ -25,7 +25,7 @@ html
             .center.noselect
                 canvas#draw.white(oncontextmenu='return false')
                 #tools
-                    // - Build selection of color swatches.
+                    //- Build selection of color swatches.
                     - var s_id = [1,2,3,4,5,6,7,8,9,0,'-']
                     - var s_color = ['0,0,0','132,132,132','140,70,20','255,0,0','238,123,0','255,255,0','0,255,0','0,0,255','100,42,130','255,190,200','255,255,255']
                     - for (var i = 0; i < s_id.length; i++)
@@ -46,8 +46,8 @@ html
                         #icon.over
                             svg(viewBox='0 0 2 2')
                                 path(fill='white' d='M0 0 L0 2 2 1z')
-                        svg(viewBox='0 0 19 6.5')
-                            text(style="font-size:8px" x="0" y="6.5" fill="white") Start!
+                        svg(viewBox='0 0 19 7.5')
+                            text(style="font-size:8px" x="0" y="6" fill="white") Start!
                 #messbox.white.over
                     ul#messages
                 form#gform(action='')
@@ -57,12 +57,10 @@ html
                     path(d='M84 0L84 33.94 50.06 33.94zM0 84L0 50.06 33.94 50.06z')
                     path(fill='none', stroke='currentColor', stroke-width='12', stroke-linecap='round', d='M69.58 18.86A36 36 0 0 0 8.17 29.69M14.42 65.14A36 36 0 0 0 75.83 54.31')
                 form#worddiag(action='')
-                    // - 3 words to select from + custom.
-                    Choose a word
-                    br
+                    //- 3 words to select from + custom.
+                    div What are you going to draw?
                     - for (var i = 1; i <= 3; i++)
                         input(id=('word'+i), type='submit', value=i)
-                        br
                     input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
                 #settings.white
                     #s_user
