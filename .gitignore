@@ -82,3 +82,4 @@ obj/
 .idea
 *.min.*
 *.html
+public/js/draw.js

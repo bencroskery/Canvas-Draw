@@ -13,9 +13,8 @@ app.use(express.static(__dirname + '/public'));
 
 // Start listening on the port.
 var port = process.env.PORT || 3000;
-server.listen(port, function () {
-    console.log('Server listening on port ' + port);
-});
+server.on('error', (e) => console.log('Another process is already using port ' + port));
+server.listen(port, () => console.log('Server listening on port ' + port));
 
 var players,    // List of the names of the users.
     running,    // Whether a game is in progress.
