@@ -35,7 +35,7 @@ class Draw {
     actions:Array<number | ColorIndex>;
     layer:Array<{color:string, radius:number, line:Line, current:Point}>;
     line:Array<Line>;
-    lindex:number;
+    fillLength:number;
 
     constructor(canvas:any) {
         this.canvas = canvas;
@@ -45,7 +45,7 @@ class Draw {
         this.actions = [];          // List of actions.
         this.layer = [];            // List of layers.
         this.line = [];             // List of all the lines drawn.
-        this.lindex = 0;            // The index of lines after fills.
+        this.fillLength = 0;        // The index of lines after fills.
     }
 
     setRadius(r:number, l:number) {
@@ -193,7 +193,7 @@ class Draw {
                 this.line.pop();
                 break;
             case 1:
-                this.line.splice((--this.lindex), 1);
+                this.line.splice((--this.fillLength), 1);
                 break;
             default:
                 if (act instanceof ColorIndex)
@@ -325,7 +325,7 @@ class Draw {
                 rgb: this.layer[l].color,
                 width: -1
             });
-            this.lindex++;
+            this.fillLength++;
             this.reDraw();
             return;
         }

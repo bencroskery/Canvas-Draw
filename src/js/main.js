@@ -43,7 +43,7 @@ document.getElementById('nameIn').focus();
 function runCommand(arg) {
     switch (arg[0]) {
         case '/help':
-            addMessage(null, 'Possible commands are:\nhelp, test, start, stop, freedraw, user, userlist');
+            addMessage(null, 'Possible commands are:\nhelp, start, stop, freedraw, user, listusers');
             break;
         case '/start':
             socket.emit('start game', 0);
@@ -595,7 +595,7 @@ socket.on('user left', function (data) {
     addMessage(data.number, ' has left.');
     players.splice(data.number, 1);
     draw.spliceLayer(data.number);
-    if (data.number < game.myID) {
+    if (data.number < game.currentID) {
         game.myID--;
         if (game.currentID >= players.length) {
             game.currentID = 0;

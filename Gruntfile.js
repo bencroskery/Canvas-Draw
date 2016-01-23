@@ -5,23 +5,43 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         typescript: {
             base: {
-                src: ['public/js/draw.ts'],
-                dest: 'public/js',
+                src: ['src/js/*.ts'],
+                dest: 'build',
                 options: {
                     module: 'commonjs',
-                    target: 'es5'
+                    target: 'es5',
+                    sourceMap: true
                 }
             }
         },
         uglify: {
-            options: {
-                mangle: {
-                    except: ['canvas', 'draw', 'game']
+            start: {
+                options: {
+                    mangle: {
+                        except: ['canvas', 'draw', 'game']
+                    }
+                },
+                files: {
+                    'public/js/start.min.js': ['src/start/start.js']
                 }
             },
-            targets: {
+            build: {
+                options: {
+                    mangle: true,
+                    sourceMap: 'public/js/draw.min.map',
+                    sourceMapIn: 'build/draw.js.map'
+                },
                 files: {
-                    'public/js/start.min.js': ['public/js/start.js']
+                    'public/js/draw.min.js': ['build/draw.js']
+                }
+            },
+            main: {
+                options: {
+                    mangle: true,
+                    sourceMap: 'public/js/main.min.map'
+                },
+                files: {
+                    'public/js/main.min.js': ['src/js/*.js']
                 }
             }
         },
@@ -33,8 +53,8 @@ module.exports = function (grunt) {
                     ]
                 },
                 files: {
-                    "public/css/style.min.css": "public/css/style.less",
-                    "public/css/start.min.css": "public/css/start.less"
+                    "public/css/style.min.css": "src/css/style.less",
+                    "public/css/start.min.css": "src/css/start.less"
                 }
             }
         },
@@ -46,7 +66,7 @@ module.exports = function (grunt) {
                     }
                 },
                 files: {
-                    'public/index.html': 'public/index.jade'
+                    'public/index.html': 'src/index.jade'
                 }
             }
         },
@@ -55,19 +75,23 @@ module.exports = function (grunt) {
                 atBegin: true
             },
             typescript: {
-                files: ['public/css/*.less'],
-                tasks: ['typescript']
+                files: ['src/js/*.ts'],
+                tasks: ['typescript', 'uglify:build']
+            },
+            start: {
+                files: ['src/start/start.js'],
+                tasks: ['uglify:start']
+            },
+            main: {
+                files: ['src/js/*.js'],
+                tasks: ['uglify:main']
             },
             less: {
-                files: ['public/css/*.less'],
+                files: ['src/css/*.less'],
                 tasks: ['less']
             },
-            js: {
-                files: ['public/js/start.js'],
-                tasks: ['uglify']
-            },
             jade: {
-                files: ['public/*.jade'],
+                files: ['src/*.jade'],
                 tasks: ['jade']
             }
         }
