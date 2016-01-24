@@ -20,38 +20,6 @@ html
                 label.title(for='nameIn') What's your nickname?
                 input#nameIn(type='text', maxlength='25')
         #game
-            .left
-                ul#users
-            .center.noselect
-                canvas#draw.white(oncontextmenu='return false')
-                #tools
-                    //- Build selection of color swatches.
-                    - var s_id = [1,2,3,4,5,6,7,8,9,0,'-']
-                    - var s_color = ['0,0,0','132,132,132','140,70,20','255,0,0','238,123,0','255,255,0','0,255,0','0,0,255','100,42,130','255,190,200','255,255,255']
-                    - for (var i = 0; i < s_id.length; i++)
-                        input(id=('r' + s_id[i]), type='radio', name='color', value=s_id[i], checked=(i === 0))
-                        label.swatch(for=('r' + s_id[i]), style=('background-color:rgb(' + s_color[i] + ')'))
-
-                    span#sizeBar
-                        input#sizeIn(type='range', value='10', min='2', max='40', step='2', onchange='setDrawSize(parseInt(this.value))')
-                    svg#undo(viewBox='0 0 2 2')
-                        path(d='M2 0 L0 1 2 2z')
-                    svg#clear(viewBox='0 0 40 40')
-                        path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
-            .right
-                #infobox.white.over
-                    #timer
-                    #info Draw freely or start a game
-                    button#start.over
-                        #icon.over
-                            svg(viewBox='0 0 2 2')
-                                path(fill='white' d='M0 0 L0 2 2 1z')
-                        svg(viewBox='0 0 19 7.5')
-                            text(style="font-size:8px" x="0" y="6" fill="white") Start!
-                #messbox.white.over
-                    ul#messages
-                form#gform(action='')
-                    input#guessIn(autocomplete='off', placeholder='Type here...')
             #overlay
                 svg#refresh(viewBox='0 0 84 84')
                     path(d='M84 0L84 33.94 50.06 33.94zM0 84L0 50.06 33.94 50.06z')
@@ -60,7 +28,7 @@ html
                     //- 3 words to select from + custom.
                     div What are you going to draw?
                     - for (var i = 1; i <= 3; i++)
-                        input(id=('word'+i), type='submit', value=i)
+                    input(id=('word' + i), type='submit', value=i)
                     input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
                 #settings.white
                     #s_user
@@ -80,6 +48,38 @@ html
                     div
                     div
                     div
+            .center.noselect
+                canvas#draw.white(oncontextmenu='return false')
+                #tools
+                    //- Build selection of color swatches.
+                    - var s_id = [1,2,3,4,5,6,7,8,9,0,'-']
+                    - var s_color = ['0,0,0','132,132,132','140,70,20','255,0,0','238,123,0','255,255,0','0,255,0','0,0,255','100,42,130','255,190,200','255,255,255']
+                    - for (var i = 0; i < s_id.length; i++)
+                        input(id=('r' + s_id[i]), type='radio', name='color', value=s_id[i], checked=(i === 0))
+                        label.swatch(for=('r' + s_id[i]), style=('background-color:rgb(' + s_color[i] + ')'))
+
+                    span#sizeBar
+                        input#sizeIn(type='range', value='10', min='2', max='40', step='2', onchange='setDrawSize(parseInt(this.value))')
+                    svg#undo(viewBox='0 0 2 2')
+                        path(d='M2 0 L0 1 2 2z')
+                    svg#clear(viewBox='0 0 40 40')
+                        path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
+            .left
+                ul#users
+            .right
+                #infobox.white.over
+                    #timer
+                    #info Draw freely or start a game
+                    button#start.over
+                        #icon.over
+                            svg(viewBox='0 0 2 2')
+                                path(fill='white' d='M0 0 L0 2 2 1z')
+                        svg(viewBox='0 0 19 7.5')
+                            text(style="font-size:8px" x="0" y="6" fill="white") Start!
+                #messbox.white.over
+                    ul#messages
+                form#gform(action='')
+                    input#guessIn(autocomplete='off', placeholder='Type here...')
         script(src='js/draw.min.js')
         script(src='js/start.min.js')
         link(rel='stylesheet', property='stylesheet', href='css/style.min.css')

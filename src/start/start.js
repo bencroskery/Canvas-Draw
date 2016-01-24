@@ -11,7 +11,6 @@ function resize() {
         height = window.innerHeight,
         gameBox = document.getElementById("game").style;
 
-
     // Scale by largest edge.
     if (width > height * ASPECT) width = height * ASPECT;
     else height = width / ASPECT;

@@ -11,6 +11,9 @@ interface Point {
     y: number;
 }
 
+/**
+ * Used to apply a color to the line at an index.
+ */
 class ColorIndex {
     index: number;
     color: string;
@@ -40,8 +43,8 @@ class Draw {
     constructor(canvas:any) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
-        this.width = canvas.clientWidth;
-        this.height = canvas.clientHeight;
+        this.width = canvas.clientWidth * window.devicePixelRatio;
+        this.height = canvas.clientHeight* window.devicePixelRatio;
         this.actions = [];          // List of actions.
         this.layer = [];            // List of layers.
         this.line = [];             // List of all the lines drawn.
@@ -57,12 +60,16 @@ class Draw {
         this.layer[l || 0].color = c;
     }
     getWidth():number {
-        return this.width;
+        return this.canvas.clientWidth;
     }
     getHeight():number {
-        return this.height;
+        return this.canvas.clientHeight;
     }
 
+    /**
+     * Initialize a layer if it does not exist yet.
+     * @param l
+     */
     checkLayer(l:number) {
         if (this.layer[l] === undefined) {
             this.layer[l] = {
@@ -74,6 +81,10 @@ class Draw {
         }
     }
 
+    /**
+     * Cut out the layer at the index.
+     * @param l
+     */
     spliceLayer(l:number) {
         this.layer.splice(l, 1);
     }
@@ -83,8 +94,12 @@ class Draw {
      * @param reScale Properly size all lines.
      */
     resize(reScale:boolean) {
+        let newWidth = this.canvas.clientWidth * window.devicePixelRatio;
+        let newHeight = this.canvas.clientHeight * window.devicePixelRatio;
+
+        // Resize all the lines based off the change in scale.
         if (reScale) {
-            let i, j, scaling = this.canvas.clientWidth / this.width;
+            let i, j, scaling = newWidth / this.width;
             for (i = 0; i < this.line.length; i++) {
                 this.line[i].width *= scaling;
                 for (j = 0; j < this.line[i].point.length; j++) {
@@ -103,8 +118,8 @@ class Draw {
             }
         }
 
-        this.canvas.width = this.width = this.canvas.clientWidth;
-        this.canvas.height = this.height = this.canvas.clientHeight;
+        this.canvas.width = this.width = newWidth;
+        this.canvas.height = this.height = newHeight;
 
         this.reDraw();
     }
@@ -117,8 +132,12 @@ class Draw {
      */
     down(x:number, y:number, l:number) {
         l = l || 0;
+
+        // Get the layer and line ready if needed.
         this.checkLayer(l);
         if (this.layer[l].line !== null) this.pushLine(l);
+
+        // Setup a new line and draw the point.
         this.layer[l].line = {
             point: [],
             rgb: this.layer[l].color,
@@ -153,7 +172,11 @@ class Draw {
      * @param l
      */
     drawPoint(x:number, y:number, l:number) {
+        x *= window.devicePixelRatio;
+        y *= window.devicePixelRatio;
+
         let last = this.layer[l].current || {x: x + 0.01, y: y};
+
         // Set the current point to the point given.
         this.layer[l].current = {x: x, y: y};
         this.layer[l].line.point.push(this.layer[l].current);
@@ -174,6 +197,7 @@ class Draw {
      * @param l
      */
     pushLine(l:number) {
+        // Make sure the layer line is available to push.
         if (this.layer[l] !== undefined && this.layer[l].line !== null) {
             this.actions.push(0);
             this.line.push(this.layer[l].line);

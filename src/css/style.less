@@ -27,28 +27,30 @@
 
 #overlay {
     position: relative;
+    z-index: 1;
     height: 0;
     width: 100%;
 }
 
+.left, .center, .right {
+    display: inline-block;
+    height: 100%;
+}
+
 .left {
     width: 6%;
-    height: 100%;
     float: left;
 }
 
 .center {
     width: 70%;
-    height: 100%;
     margin-left: 1%;
-    float: left;
 }
 
 .right {
     width: 22%;
-    height: 100%;
     margin-left: 1%;
-    float: left;
+    float: right;
 }
 
 canvas {
@@ -353,7 +355,7 @@ input[type=radio] {
     top: 0;
     right: 0;
     width: 93%;
-    height: 40em;
+    height: 38em;
     padding: 2em;
 
     #s_user, #s_game {
