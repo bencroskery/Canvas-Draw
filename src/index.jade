@@ -24,7 +24,7 @@ html
         form#worddiag(action='')
           //- 3 words to select from + custom.
           div What are you going to draw?
-          each val in [1,2,3]
+          each i in [1,2,3]
             input(id=('word' + i), type='submit', value=i)
           input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
         #settings.white

@@ -187,6 +187,9 @@ socket.on('reveal char', function (i) {
     document.getElementById('info').children[i].innerHTML = game.word.split('')[i];
 });
 
+/**
+ * Main game timer loop.
+ */
 function timerStep() {
     if (game.time >= 0) {
         // Decrement the time if not passed zero.
@@ -215,13 +218,16 @@ function timerStep() {
 }
 
 socket.on('correct guess', function (id) {
+    // Pull down time to the reaction time for guessing.
     if (game.time > settings.time_react) {
         game.hideList = null;
         game.time = settings.time_react;
     }
+    // Give points to player drawing on first correct.
     if (game.correct++ === 0) {
         updateScore(game.currentID, 2);
     }
+    // Update score of the player that is correct with relative points.
     updateScore(id, Math.floor(5 / game.correct));
     addMessage(id, ' guessed the word!');
 });
@@ -252,10 +258,15 @@ function setInfo(text) {
 }
 
 function setChoose(words) {
-    document.getElementById('word1').value = words[0];
-    document.getElementById('word2').value = words[1];
-    document.getElementById('word3').value = words[2];
-    fadeIn('worddiag');
+    try {
+        document.getElementById('word1').value = words[0];
+        document.getElementById('word2').value = words[1];
+        document.getElementById('word3').value = words[2];
+        fadeIn('worddiag');
+    }
+    catch (e) {
+        console.debug("Setting up word dialog -> " + e);
+    }
 }
 
 // ----------------------------
