@@ -2,6 +2,7 @@
 @swatch-select: #3F3F3F;
 @default-color: #B3B3B3;
 @hover-color: gray;
+@border-width: calc(~"0.1em + 1px");
 
 .noselect {
     -webkit-touch-callout: none;
@@ -98,6 +99,7 @@ button, input[type="submit"] {
 
 #tools {
     margin-top: 0.438em;
+    width: 100%;
 }
 
 .swatch, #undo, #clear {
@@ -113,7 +115,7 @@ button, input[type="submit"] {
     background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
 
     &:hover {
-        border: 0.15em solid @swatch-select;
+        border: @border-width solid @swatch-select;
     }
 
     &[for="r-"] {
@@ -125,20 +127,19 @@ input[type=radio] {
     display: none;
 
     &:checked + .swatch {
-        border: 0.15em solid @swatch-select;
+        border: @border-width solid @swatch-select;
     }
 }
 
 #sizeBar {
     font-size: @swatch-size/2;
-    border-top: 0.15em solid @default-color;
-    width: 10.8em;
+    border-top: @border-width solid @default-color;
     overflow: visible;
 
     #sizeIn {
         margin: 0;
         padding: 0;
-        width: 10.8em;
+        width: 23%;
         height: 2em;
         cursor: pointer;
         outline: none;
@@ -195,7 +196,7 @@ input[type=radio] {
     }
 }
 
-#undo, #clear, #refresh {
+#undo, #clear {
     float: right;
     fill: currentColor;
     color: @default-color;
@@ -203,17 +204,6 @@ input[type=radio] {
     &:hover {
         color: @hover-color;
     }
-}
-
-#refresh {
-    display: none;
-    opacity: 0.5;
-    width: @swatch-size;
-    height: @swatch-size;
-    position: absolute;
-    top: 0.7em;
-    right: 24%;
-    cursor: pointer;
 }
 
 #guessIn {

@@ -18,11 +18,7 @@ function resize() {
     // Set the size and resize the game and drawing canvas.
     gameBox.width = width + PX;
     gameBox.height = height + PX;
-    if (game.myID > -1) {
-        refreshOn();
-    } else {
-        draw.resize();
-    }
+    draw.resize(game.myID > -1);
 
     // Set the font size based off size and scaling factor (16pt font / 1280px width).
     document.body.style.fontSize = width / 80 + PX;

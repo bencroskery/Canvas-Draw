@@ -1,7 +1,7 @@
 {
   "name": "canvas-draw",
-  "version": "0.3.0",
-  "description": "DRAW!!!",
+  "version": "0.4.0",
+  "description": "A drawing game ot play with friends!",
   "main": "server.js",
   "author": "Ben Croskery",
   "license": "ISC",
@@ -9,7 +9,7 @@
     "node": "^5.3.0"
   },
   "dependencies": {
-    "express": "^4.13.3",
+    "express": "^4.13.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jade": "^0.15.0",
@@ -17,8 +17,8 @@
     "grunt-contrib-uglify": "^0.11.0",
     "grunt-typescript": "^0.8.0",
     "less-plugin-clean-css": "^1.5.1",
-    "lodash": "^3.10.1",
-    "socket.io": "~1.4.3"
+    "lodash": "^4.0.0",
+    "socket.io": "~1.4.4"
   },
   "scripts": {
     "postinstall": "grunt",

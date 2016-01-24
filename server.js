@@ -36,7 +36,7 @@ setupGame();
  * Generate 3 an array of 3 words from the list.
  */
 function generateWords() {
-    words = _.sample(wordList, 3);
+    words = _.sampleSize(wordList, 3);
 }
 
 io.on('connection', function (socket) {
