@@ -332,6 +332,9 @@ class Draw {
      * @param l
      */
     bucket(x:number, y:number, l:number) {
+        x *= window.devicePixelRatio;
+        y *= window.devicePixelRatio;
+
         let imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
         let pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
         this.checkLayer(l);

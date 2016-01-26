@@ -43,7 +43,7 @@ document.getElementById('nameIn').focus();
 function runCommand(arg) {
     switch (arg[0]) {
         case '/help':
-            addMessage(null, 'Possible commands are:\nhelp, start, stop, freedraw, user, listusers');
+            addMessage(null, 'Possible commands are:\nhelp, start, stop, gamemode, user, listusers');
             break;
         case '/start':
             socket.emit('start game', 0);
@@ -57,10 +57,10 @@ function runCommand(arg) {
             else if (arg[1] === 'team') mode = 1;
             else if (arg[1] === 'vs')   mode = 2;
             else if (arg[1] === 'rate') mode = 3;
-            if (settings.gamemode !== mode && game.currentID !== -1) {
+            if (settings.gamemode !== mode && game.currentID === -1) {
                 settings.gamemode = mode;
                 socket.emit('settings', settings);
-                addMessage(null, 'Gamemode changed.');
+                addMessage(null, 'Gamemode: ' + arg[1]);
             }
             break;
         case '/user':
@@ -320,7 +320,7 @@ canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
  * Mouse button was released.
  * @type event
  */
-canvas.onmouseup = canvas.ontouchend = function onUp() {
+window.onmouseup = canvas.ontouchend = function onUp() {
     if (game.draw && mouseDown) {
         mouseDown = false;
         emitMouse(2, 0, 0);
@@ -572,8 +572,10 @@ socket.on('user left', function (data) {
     addMessage(data.number, ' has left.');
     players.splice(data.number, 1);
     draw.spliceLayer(data.number);
-    if (data.number < game.currentID) {
+    if (game.myID > data.number) {
         game.myID--;
+    }
+    if (data.number < game.currentID) {
         if (game.currentID >= players.length) {
             game.currentID = 0;
         }
