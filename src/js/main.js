@@ -415,10 +415,10 @@ document.getElementById('start').onclick = function () {
  * @param y
  */
 function emitMouse(type, x, y) {
-    socket.emit('point', {
+    socket.emit('p', {
         t: type,
-        x: x / draw.getWidth(),
-        y: y / draw.getHeight(),
+        x: (x / draw.getWidth()).toFixed(8),
+        y: (y / draw.getHeight()).toFixed(8),
         l: game.myID
     });
 }
@@ -426,7 +426,7 @@ function emitMouse(type, x, y) {
 /**
  * Add a point according to type.
  */
-socket.on('point', function (p) {
+socket.on('p', function (p) {
     switch (p.t) {
         case 0:
             draw.down(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);

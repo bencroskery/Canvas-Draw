@@ -106,8 +106,8 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('reveal char', i);
     });
 
-    socket.on('point', function (point) {
-        socket.broadcast.emit('point', point);
+    socket.on('p', function (point) {
+        socket.broadcast.emit('p', point);
     });
 
     socket.on('set color', function (d) {
