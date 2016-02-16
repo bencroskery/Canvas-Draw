@@ -4,77 +4,97 @@
 // ------------------
 
 // Setup express server.
-var cluster = require("cluster");
+var cluster = require("cluster"),
+    fs = require('fs'),
+    _ = require('lodash');
+var port = process.env.PORT || 3000;
+
+var players,    // List of the names of the users.
+    words = [], // Words the drawer is asked to choose from.
+    wordList;   // The full list of all words.
+
+/**
+ * Setup all game variables (used for reset).
+ */
+function setupGame() {
+    players = [];
+    wordList = fs.readFileSync('words.txt').toString().split("\n");
+}
+setupGame();
+
+/**
+ * Generate 3 an array of 3 words from the list.
+ */
+function generateWords() {
+    words = _.sampleSize(wordList, 3);
+}
 
 if (cluster.isMaster) {
-    var i = require('os').cpus().length;
-    while (i-- > 0) {
-        cluster.fork();
+    let workers = [];
+    let CPUs = require('os').cpus().length;
+    for (let i = 0; i < CPUs; i++) {
+        let worker = cluster.fork();
+
+        worker.on('message', (msg) => {
+            console.log('Received messsage');
+            for (let i = 0; i < workers.length; i++) {
+                workers[i].send(msg);
+            }
+        });
+
+        workers[i] = worker;
     }
 
     cluster.on('fork', (worker) => {
-        console.log("forked worker " + worker.process.pid);
+        console.log("Forked worker " + worker.process.pid);
     });
 
     cluster.on('listening', (worker, address) => {
-        console.log("worker " + worker.process.pid + " is now connected to " + address.address + ":" + address.port);
+        console.log("Worker " + worker.process.pid + " is now connected to port " + address.port);
     });
 
     cluster.on('exit', (worker) => {
-        console.log("worker " + worker.process.pid + " died");
+        console.log("Worker " + worker.process.pid + " died");
+        if (!worker.suicide) {
+            console.log("Forked new worker " + worker.process.pid);
+            cluster.fork();
+        }
     });
 } else {
-    var express = require('express'),
+    var http = require('http'),
+        express = require('express'),
         app = express(),
-        server = require('http').Server(app),
+        server = http.createServer(app),
         io = require('socket.io')(server),
-        fs = require('fs'),
-        _ = require('lodash');
-    var redis = require('socket.io-redis');
-    io.adapter(redis({ host: 'localhost', port: 6379 }));
+        redis = require('socket.io-redis');
+
+    http.globalAgent.maxSockets = Infinity;
+    io.adapter(redis({host: 'localhost', port: 6379}));
 
     // Folder holding all client pages.
     app.use(express.static(__dirname + '/public'));
 
     // Start listening on the port.
-    var port = process.env.PORT || 3000;
     server.on('error', (e) => console.log('Another process is already using port ' + port));
     server.listen(port, () => console.log('Server listening on port ' + port));
 
-    var players,    // List of the names of the users.
-        running,    // Whether a game is in progress.
-        words,      // Words the drawer is asked to choose from.
-        wordList;   // The full list of all words.
+    process.on('message', (msg) => {
+        if (msg.name) {
+            console.log('Add player.');
+            players.push(msg);
+        } else if (msg.disc) {
+            console.log('Remove player.');
+            players.splice(msg.disc, 1);
+        }
+    });
 
-    ///**
-    // * Setup all game variables (used for reset).
-    // */
-    //function setupGame() {
-        players = [];
-        running = false;
-        words = [];
-        wordList = fs.readFileSync('words.txt').toString().split("\n");
-    //}
-    //setupGame();
-    //
-    ///**
-    // * Generate 3 an array of 3 words from the list.
-    // */
-    //function generateWords() {
-    //    words = _.sampleSize(wordList, 3);
-    //}
-    //
     io.on('connection', function (socket) {
         console.log('Socket handled by worker #' + process.pid);
         var joined = false;
 
         socket.on('add user', function (player) {
-            if (running) {
-                return;
-            }
             // Add the user.
-            players.push(player);
-            socket.number = players.length - 1;
+            socket.number = players.length;
             socket.name = player.name;
             joined = true;
 
@@ -82,6 +102,7 @@ if (cluster.isMaster) {
             console.log('User ' + player.name + ' has joined');
             socket.emit('setup', players);
             socket.broadcast.emit('user joined', player);
+            process.send(player);
         });
 
         socket.on('list users', function () {
@@ -90,23 +111,18 @@ if (cluster.isMaster) {
         });
 
         socket.on('start game', function () {
-            if (running) return;
-            running = true;
             console.log('Game started!');
             io.sockets.emit('start game', 0);
             io.sockets.emit('turn-wait', 0);
-            words = _.sampleSize(wordList, 3); // Generate Words.
+            generateWords();
         });
 
         socket.on('stop game', function () {
-            if (!running) return;
-            running = false;
             console.log('Game stopped!');
             io.sockets.emit('stop game', 0);
         });
 
         socket.on('settings', function (s) {
-            if (running) return;
             console.log('Settings changed.');
             socket.broadcast.emit('settings', s);
         });
@@ -114,7 +130,7 @@ if (cluster.isMaster) {
         socket.on('turn-wait', function (next) {
             console.log('Next turn');
             io.sockets.emit('turn-wait', next);
-            words = _.sampleSize(wordList, 3); // Generate Words.
+            generateWords();
         });
 
         socket.on('turn-choose', function () {
@@ -178,22 +194,12 @@ if (cluster.isMaster) {
         socket.on('disconnect', function () {
             // Remove the name from global players list.
             if (joined) {
-                if (players.length === 1) {
-                    console.log('Nobody left.');
-                    //setupGame();
-                } else {
-                    players.splice(socket.number, 1);
-                    _.values(io.sockets.sockets).forEach(s => {
-                        if (s.number > socket.number) s.number--
-                    });
-
-                    console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
-                    // Tell everyone that this user has left.
-                    socket.broadcast.emit('user left', {
-                        name: socket.name,
-                        number: socket.number
-                    });
-                }
+                console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
+                socket.broadcast.emit('user left', {
+                    name: socket.name,
+                    number: socket.number
+                });
+                process.send({disc: socket.number});
             }
         });
     });
