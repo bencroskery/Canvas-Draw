@@ -157,7 +157,9 @@ io.on('connection', function (socket) {
                 setupGame();
             } else {
                 players.splice(socket.number, 1);
-                _.values(io.sockets.sockets).forEach(s => {if (s.number > socket.number) s.number--});
+                _.values(io.sockets.sockets).forEach(s => {
+                    if (s.number > socket.number) s.number--
+                });
 
                 console.log('User ' + socket.name + ' (current ID #' + socket.number + ') has left');
                 // Tell everyone that this user has left.
