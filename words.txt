@@ -3,7 +3,7 @@ Hammock
 Anchor
 Skunk
 Desk Chair
-Van Gogh’s Ear
+Van Gogh's Ear
 Sandwich
 String Quartet
 Ottoman
@@ -313,7 +313,7 @@ Spool of Thread
 Wild Blue Yonder
 Rabbit
 Boom Box
-Bird’s Nest
+Bird's Nest
 Power Tool
 Butterfly
 Toast
@@ -336,7 +336,7 @@ Bookstore
 Dumplings
 Prom Dress
 Bowl of Pudding
-Director’s Chair
+Director's Chair
 Beetle
 Water Jug
 Least Favorite Food
@@ -364,7 +364,7 @@ Keyboard
 Anteater
 Comet
 Globe
-Noah’s Ark
+Noah's Ark
 Popcorn
 Mac and Cheese
 Moon
