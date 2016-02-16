@@ -233,7 +233,9 @@ socket.on('correct guess', function (id) {
 });
 
 socket.on('setup', function (p) {
-    players = p;
+    p[p.length] = players;  // Add this player to list.
+    console.log(p);
+    players = p;            // Save players.
     game.myID = p.length - 1;
     document.getElementById("users").innerHTML = '';
     for (var i = 0; i < players.length; i++) {

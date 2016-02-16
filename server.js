@@ -47,8 +47,7 @@ io.on('connection', function (socket) {
             return;
         }
         // Add the user.
-        players.push(player);
-        socket.number = players.length - 1;
+        socket.number = players.length;
         socket.name = player.name;
         joined = true;
 
@@ -56,6 +55,7 @@ io.on('connection', function (socket) {
         console.log('User ' + player.name + ' has joined');
         socket.emit('setup', players);
         socket.broadcast.emit('user joined', player);
+        players.push(player);
     });
 
     socket.on('list users', function () {
