@@ -16,18 +16,18 @@ var port = process.env.PORT || 3000;
 server.on('error', (e) => console.log('Another process is already using port ' + port));
 server.listen(port, () => console.log('Server listening on port ' + port));
 
-var players,    // List of the names of the users.
-    running,    // Whether a game is in progress.
-    words,      // Words the drawer is asked to choose from.
-    wordList;   // The full list of all words.
+var players = [],  // List of the names of the users.
+    running,       // Whether a game is in progress.
+    words = [],    // Words the drawer is asked to choose from.
+    wordList;      // The full list of all words.
 
 /**
  * Setup all game variables (used for reset).
  */
 function setupGame() {
-    players = [];
+    players.length = 0;
     running = false;
-    words = [];
+    words.length = 0;
     wordList = fs.readFileSync('words.txt').toString().split("\n");
 }
 setupGame();
