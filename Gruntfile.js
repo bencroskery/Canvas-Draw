@@ -18,7 +18,7 @@ module.exports = function (grunt) {
             start: {
                 options: {
                     mangle: {
-                        except: ['canvas', 'draw', 'game']
+                        except: ['canvas', 'draw', 'game', 'settings', 'players']
                     }
                 },
                 files: {
