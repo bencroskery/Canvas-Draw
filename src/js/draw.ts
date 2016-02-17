@@ -179,7 +179,7 @@ class Draw {
 
         // Set the current point to the point given.
         this.layer[l].current = {x: x, y: y};
-        this.layer[l].line.point.push(this.layer[l].current);
+        this.layer[l].line.point[this.layer[l].line.point.length] = this.layer[l].current;
 
         // Draw the line between the points.
         this.ctx.lineJoin = "round";
@@ -199,8 +199,8 @@ class Draw {
     pushLine(l:number) {
         // Make sure the layer line is available to push.
         if (this.layer[l] !== undefined && this.layer[l].line !== null) {
-            this.actions.push(0);
-            this.line.push(this.layer[l].line);
+            this.actions[this.actions.length] = 0;
+            this.line[this.line.length] = this.layer[l].line;
             this.layer[l].line = null;
         }
     }
@@ -239,7 +239,7 @@ class Draw {
      * Dumps all lines out to be forgotten.
      */
     dump() {
-        this.line = [];
+        this.line.length = 0;
     }
 
     /**
@@ -343,15 +343,15 @@ class Draw {
         }
         // If the size is zero then just fill the background.
         if (this.line.length === 0 || imgCol[3] === 0) {
-            this.actions.push(1);
-            this.line.unshift({
+            this.actions[this.actions.length] = 1;
+            this.line = [{
                 point: [{x: -5, y: -5}, {x: this.width, y: -5}, {
                     x: this.width,
                     y: this.height
                 }, {x: 0, y: this.height}],
                 rgb: this.layer[l].color,
                 width: -1
-            });
+            }].concat(this.line);
             this.fillLength++;
             this.reDraw();
             return;
@@ -361,12 +361,12 @@ class Draw {
         let found = [];
         for (let n = 0; n < this.line.length; n++) {
             if (this.line[n].rgb === pixCol) {
-                found.push(n);
+                found[found.length] = n;
             }
         }
 
         if (found.length === 1) {  // Set the element color if there is 1.
-            this.actions.push(new ColorIndex(found[0], this.line[found[0]].rgb));
+            this.actions[this.actions.length] = new ColorIndex(found[0], this.line[found[0]].rgb);
             this.line[found[0]].rgb = this.layer[l].color;
         }
         else if (found.length > 1) {  // Find the best and set it.
@@ -386,7 +386,7 @@ class Draw {
                     best = k;
                 }
             }
-            this.actions.push(new ColorIndex(found[best], this.line[found[best]].rgb));
+            this.actions[this.actions.length] = new ColorIndex(found[best], this.line[found[best]].rgb);
             this.line[found[best]].rgb = this.layer[l].color;
         }
         else {  // Do something else...
