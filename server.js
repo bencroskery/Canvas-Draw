@@ -19,7 +19,17 @@ server.listen(port, () => console.log('Server listening on port ' + port));
 var players = [],  // List of the names of the users.
     running,       // Whether a game is in progress.
     words = [],    // Words the drawer is asked to choose from.
-    wordList;      // The full list of all words.
+    wordList,      // The full list of all words.
+    skipper,
+    skip;
+
+const MAXSCALER = 1.5;
+/**
+ * Calculate the skipper to maintain performance while sending points.
+ */
+function calcSkip() {
+    skipper = Math.floor((Math.sqrt(players.length-10) || 0)/MAXSCALER);
+}
 
 /**
  * Setup all game variables (used for reset).
@@ -29,6 +39,7 @@ function setupGame() {
     running = false;
     words.length = 0;
     wordList = fs.readFileSync('words.txt').toString().split("\n");
+    skip = skipper = 0;
 }
 setupGame();
 
@@ -56,6 +67,7 @@ io.on('connection', function (socket) {
         socket.emit('setup', players);
         socket.broadcast.emit('user joined', player);
         players.push(player);
+        calcSkip();
     });
 
     socket.on('list users', function () {
@@ -107,7 +119,14 @@ io.on('connection', function (socket) {
     });
 
     socket.on('p', function (point) {
-        socket.broadcast.emit('p', point);
+        if (point.t !== 1) {
+            socket.broadcast.emit('p', point);
+        } else if (skip === 0) {
+            socket.broadcast.volatile.emit('p', point);
+            skip = skipper;
+        } else {
+            skip--;
+        }
     });
 
     socket.on('set color', function (d) {
@@ -167,6 +186,7 @@ io.on('connection', function (socket) {
                     name: socket.name,
                     number: socket.number
                 });
+                calcSkip();
             }
         }
     });
