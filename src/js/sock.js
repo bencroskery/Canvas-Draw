@@ -11,6 +11,10 @@ socket.on('settings', function (s) {
     settings = s;
 });
 
+socket.on('get skip', function (skip) {
+    addMessage(null, 'Skipping ' + skip + ' points at a time.')
+});
+
 socket.on('start game', start);
 
 socket.on('stop game', stop);

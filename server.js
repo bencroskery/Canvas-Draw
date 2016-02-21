@@ -75,6 +75,10 @@ io.on('connection', function (socket) {
         console.log(players.map(p => p.name));
     });
 
+    socket.on('get skip', function () {
+        socket.emit('get skip', skipper);
+    });
+
     socket.on('start game', function () {
         if (running) return;
         running = true;

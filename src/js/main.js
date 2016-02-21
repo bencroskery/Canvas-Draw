@@ -72,6 +72,9 @@ function runCommand(arg) {
             sockEmit('list users', 0);
             addMessage(null, 'See server console');
             break;
+        case '/getskip':
+            sockEmit('get skip', 0);
+            break;
         case '/reboot':
             sockEmit('reboot server', 0);
             break;
@@ -191,7 +194,7 @@ function timerStep() {
         setTimer(game.time--);
         if (game.draw && game.hideList !== null) {
             // Potentially show another letter.
-            if (game.time+1 < settings.time_draw * game.hideList.char.length / game.hideList.length) {
+            if (game.time + 1 < settings.time_draw * game.hideList.char.length / game.hideList.length) {
                 sockEmit('reveal char', game.hideList.char.splice(Math.random() * game.hideList.char.length, 1));
             }
         }
@@ -471,7 +474,7 @@ document.getElementById("gform").onsubmit = function () {
     if (guessBox.value.charAt(0) === '/') {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
-        if (guessBox.value.toLowerCase() === game.word.toLowerCase() && !game.draw) {
+        if (guessBox.value.trim().toLowerCase() === game.word.toLowerCase() && !game.draw) {
             sockEmit('correct guess');
         } else {
             addMessage(game.myID, ': ' + guessBox.value);
