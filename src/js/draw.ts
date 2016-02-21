@@ -177,19 +177,36 @@ class Draw {
 
         let last = this.layer[l].current || {x: x + 0.01, y: y};
 
-        // Set the current point to the point given.
+        let dist = Math.sqrt(Math.pow(last.x - x, 2) + Math.pow(last.y - y, 2));
+        let angl = Math.atan2(last.x - x, last.y - y );
+
+        for (let i = 0; i < dist; i+=5) {
+            let x = last.x + (Math.sin(angl) * i);
+            let y = last.y + (Math.cos(angl) * i);
+            let rad = this.layer[l].line.width/2;
+
+            let radgrad = this.ctx.createRadialGradient(x,y,rad-5,x,y,rad);
+
+            radgrad.addColorStop(0, this.layer[l].line.rgb);
+            radgrad.addColorStop(1, 'rgba(' + this.layer[l].line.rgb.slice(4, this.layer[l].line.rgb.length-1) + ',0)');
+            this.ctx.fillStyle = radgrad;
+
+            this.ctx.fillRect(x-rad, y-rad, this.layer[l].line.width, this.layer[l].line.width);
+        }
+
+        // Set the current point to the point given and add it to the point array.
         this.layer[l].current = {x: x, y: y};
         this.layer[l].line.point[this.layer[l].line.point.length] = this.layer[l].current;
 
         // Draw the line between the points.
-        this.ctx.lineJoin = "round";
+       /* this.ctx.lineJoin = "round";
         this.ctx.strokeStyle = this.layer[l].line.rgb;
         this.ctx.lineWidth = this.layer[l].line.width;
         this.ctx.beginPath();
         this.ctx.moveTo(last.x, last.y);
         this.ctx.lineTo(this.layer[l].current.x, this.layer[l].current.y);
         this.ctx.closePath();
-        this.ctx.stroke();
+        this.ctx.stroke();*/
     }
 
     /**
@@ -267,6 +284,7 @@ class Draw {
             ctx.lineWidth = Math.abs(line.width);
 
             if (line.width === 0) {
+                // Draw a fill area.
                 ctx.fillStyle = line.rgb;
                 ctx.beginPath();
                 ctx.moveTo(line.point[0].x, line.point[0].y);
@@ -276,17 +294,20 @@ class Draw {
                 ctx.closePath();
                 ctx.fill();
             } else if (line.point.length < 2) {
+                // Draw a point.
                 ctx.beginPath();
                 ctx.moveTo(line.point[0].x - 0.1, line.point[0].y);
                 ctx.lineTo(line.point[0].x, line.point[0].y);
                 ctx.stroke();
             } else {
+                // Draw a line.
                 ctx.beginPath();
                 ctx.moveTo(line.point[0].x, line.point[0].y);
                 for (n = 1; n < line.point.length; n++) {
                     ctx.lineTo(line.point[n].x, line.point[n].y);
                 }
                 if (line.width < 0) {
+                    // Close the loop and fill the line if needed.
                     ctx.closePath();
                     ctx.fillStyle = line.rgb;
                     ctx.fill();
