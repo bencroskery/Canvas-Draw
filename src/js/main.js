@@ -78,6 +78,9 @@ function runCommand(arg) {
         case '/reboot':
             sockEmit('reboot server', 0);
             break;
+        case '/export':
+            window.open('data:text/html,' + encodeURIComponent(draw.exportSVG(arg[1])));
+            break;
         default:
             addMessage(null, 'Unrecognized command\nTry /help for info');
     }

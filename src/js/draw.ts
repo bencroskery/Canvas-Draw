@@ -394,4 +394,45 @@ class Draw {
         }
         this.reDraw();
     }
+
+    /**
+     * Export the lines to an SVG.
+     * @param speed Optional parameter to draw the lines out.
+     * @returns {String}
+     */
+    exportSVG(speed:number) {
+        let output:String = "<svg class='draw' xmlns='http://www.w3.org/2000/svg' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 " + this.width + " " + this.height +"'>";
+        let lx, ly;
+
+        for (let i = 0; i < this.line.length; i++) {
+            output += "<path stroke='" + this.line[i].rgb + "' stroke-width='" + Math.round(Math.abs(this.line[i].width))
+                + "' fill='" + (this.line[i].width >= 0 ? "none" :  this.line[i].rgb)
+                + "' d='M" + Math.round(this.line[i].point[0].x) + " " + Math.round(this.line[i].point[0].y) + "L";
+
+            lx = this.line[i].point[0].x;
+            ly = this.line[i].point[0].y;
+            for (let k = 1; k < this.line[i].point.length-1; k++) {
+                // Draw another point if there is a length of at least the line radius (width/2).
+                if (Math.abs((this.line[i].point[k].x - lx)*(this.line[i].point[k].y - ly)) > Math.abs(this.line[i].width)/2) {
+                    lx = Math.round(this.line[i].point[k].x);
+                    ly = Math.round(this.line[i].point[k].y);
+                    output += lx + " " + ly + " ";
+                }
+            }
+            // Always add last point.
+            lx = Math.round(this.line[i].point[this.line[i].point.length-1].x);
+            ly = Math.round(this.line[i].point[this.line[i].point.length-1].y);
+            output += lx + " " + ly + " ";
+
+            output += (this.line[i].width >= 0 ? "'>" : "Z'>") + "</path>";
+        }
+
+        output += "</svg>";
+        if (speed) {
+            output += '<script>!function(){function e(){if(r<s.length){var i=t++/(o[r]||1)*l;i?1>i?s[r].style.strokeDashoffset=o[r]*(1-i):i<1+n/(o[r]+1)?s[r].style.strokeDashoffset=0:(t=0,r++):s[r].style.display="initial",a=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(a)}for(var t,a,s=document.querySelectorAll(".draw path"),o=[],l='
+                + speed + ',n=3e3/l,r=0;r<s.length;){var i=o[r]=s[r].getTotalLength();s[r].style.display="none",s[r].style.strokeDasharray=i+" "+i,s[r++].style.strokeDashoffset=Math.floor(i)}r=0,t=0,e()}()</script>';
+        }
+
+        return output;
+    }
 }
