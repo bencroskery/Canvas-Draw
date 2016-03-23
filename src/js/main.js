@@ -6,7 +6,8 @@ var game = {
     draw: true,     // If this player can draw.
     word: '',       // The word being drawn.
     hideList: null, // List of the hidden characters of the word.
-    correct: 0,     // Number of players who have correctly guessed.
+    iDone: false,  // Whether this player is done for this turn.
+    allDone: 0,     // Number of players who have correctly guessed.
     currentID: -1,  // The current player ID.
     myID: -1,       // This player's ID.
     mode: 0,        // The game mode: 0 = wait, 1 = choosing, 2 = draw.
@@ -111,7 +112,8 @@ function turn_wait(next) {
         addMessage(null, 'The word was: ' + game.word);
     }
     draw.dump();
-    game.correct = 0;
+    game.iDone = false;
+    game.allDone = 0;
     game.currentID += next;
     if (game.currentID >= players.length) {
         game.currentID = 0;
@@ -170,6 +172,7 @@ function buildWord() {
         }, {char: [], length: 0});
         setInfo('DRAW!!! Word: ' + game.word);
     } else {
+        game.hideList = true;
         // Add all the visible and hidden elements to the output.
         var out = chars.reduce(function (o, c) {
             if (c === '♠' || c === '♣') {
@@ -180,6 +183,26 @@ function buildWord() {
         }, '');
         setInfo(out);
     }
+}
+
+/**
+ * Check if the word was guessed correcly.
+ * @param guess
+ */
+function checkGuess(guess) {
+    // Cannot be drawing, can only guess once, guess must match word.
+    if (!game.draw && guess.trim().toLowerCase().localeCompare(game.word.toLowerCase()) === 0) {
+        if (!game.iDone) {
+            sockEmit('correct guess');
+            game.iDone = true;
+            setInfo(game.word);
+        } else {
+            addMessage(null, "Chill bro, you already got it");
+        }
+
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -412,7 +435,7 @@ document.getElementById('clear').onclick = function () {
 };
 
 /**
- * Start button clickled.
+ * Start button clicked.
  */
 document.getElementById('start').onclick = function () {
     if (this.classList.contains("going"))
@@ -433,7 +456,7 @@ document.getElementById('start').onclick = function () {
 function addUser(id) {
     var node = document.createElement("li");
     node.innerHTML = '<span style="color:' + players[id].color + '">'
-        + (game.myID === id ? 'You' : players[id].name) + '</span>' + '<div>0 PTS</div>';
+        + players[id].name + '</span>' + '<div>0 PTS</div>';
     document.getElementById("users").appendChild(node);
 }
 
@@ -463,7 +486,8 @@ function removeUser(num) {
  */
 function addMessage(id, text) {
     var node = document.createElement("li");
-    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">' + (game.myID === id ? 'You' : players[id].name) + '</span>') : '') + text;
+    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">'
+        + players[id].name + '</span>') : '') + text;
     document.getElementById("messages").appendChild(node);
 }
 
@@ -477,9 +501,7 @@ document.getElementById("gform").onsubmit = function () {
     if (guessBox.value.charAt(0) === '/') {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
-        if (guessBox.value.trim().toLowerCase() === game.word.toLowerCase() && !game.draw) {
-            sockEmit('correct guess');
-        } else {
+        if (!checkGuess(guessBox.value)) {
             addMessage(game.myID, ': ' + guessBox.value);
             sockEmit('message', guessBox.value);
         }
@@ -506,7 +528,7 @@ document.getElementById('worddiag').onsubmit = function () {
     var val = document.activeElement.value.trim();
     if (val.length) {
         if (game.currentID === game.myID) sockEmit('turn-draw', val);
-        fadeOut('worddiag');
+            fadeOut('worddiag');
     }
     return false;
 };
@@ -524,6 +546,7 @@ document.getElementById('lform').onsubmit = function () {
     if (name !== '' && name.toLowerCase() !== 'you') {
         players.name = name;
         players.color = randRGB();
+        socketeer();
         sockEmit('add user', players);
         fadeOut("logo");
         fadeOut("login");
