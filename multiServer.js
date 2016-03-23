@@ -179,10 +179,10 @@ if (cluster.isMaster) {
             });
         });
 
-        socket.on('correct guess', function () {
+        socket.on('allDone guess', function () {
             console.log(socket.name + ' guessed right!');
             // Send the message to everyone.
-            io.sockets.emit('correct guess', socket.number);
+            io.sockets.emit('allDone guess', socket.number);
         });
 
         socket.on('reboot server', function () {
