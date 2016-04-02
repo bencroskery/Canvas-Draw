@@ -1,7 +1,7 @@
 {
   "name": "canvas-draw",
   "version": "0.5.0",
-  "description": "A drawing game ot play with friends!",
+  "description": "A drawing game to play with friends!",
   "main": "server.js",
   "author": "Ben Croskery",
   "license": "ISC",
@@ -18,7 +18,7 @@
     "grunt-typescript": "^0.8.0",
     "less-plugin-clean-css": "^1.5.1",
     "lodash": "^4.0.0",
-    "socket.io": "~1.4.5",
+    "socket.io": "~1.4.5"
   },
   "scripts": {
     "postinstall": "grunt",
@@ -30,7 +30,10 @@
   },
   "keywords": [
     "draw",
-    "game"
+    "game",
+    "canvas",
+    "socket",
+    "real-time"
   ],
   "bugs": {
     "url": "https://github.com/bencroskery/Canvas-Draw/issues"
