@@ -1,22 +1,22 @@
 "use strict";
 
 interface Line {
-    rgb: string;
-    width: number;
-    point: Array<Point>;
+    rgb:string;
+    width:number;
+    point:Array<Point>;
 }
 
 interface Point {
-    x: number;
-    y: number;
+    x:number;
+    y:number;
 }
 
 /**
  * Used to apply a color to the line at an index.
  */
 class ColorIndex {
-    index: number;
-    color: string;
+    index:number;
+    color:string;
 
     constructor(i, c) {
         this.index = i;
@@ -44,7 +44,7 @@ class Draw {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.width = canvas.clientWidth * window.devicePixelRatio;
-        this.height = canvas.clientHeight* window.devicePixelRatio;
+        this.height = canvas.clientHeight * window.devicePixelRatio;
         this.actions = [];          // List of actions.
         this.layer = [];            // List of layers.
         this.line = [];             // List of all the lines drawn.
@@ -55,13 +55,16 @@ class Draw {
         this.checkLayer(l || 0);
         this.layer[l || 0].radius = r;
     }
+
     setColor(c:string, l:number) {
         this.checkLayer(l || 0);
         this.layer[l || 0].color = c;
     }
+
     getWidth():number {
         return this.canvas.clientWidth;
     }
+
     getHeight():number {
         return this.canvas.clientHeight;
     }
@@ -345,10 +348,10 @@ class Draw {
         if (this.line.length === 0 || imgCol[3] === 0) {
             this.actions[this.actions.length] = 1;
             this.line = [{
-                point: [{x: -5, y: -5}, {x: this.width, y: -5}, {
-                    x: this.width,
-                    y: this.height
-                }, {x: 0, y: this.height}],
+                point: [{x: -5, y: -5}, // 4 point square background.
+                    {x: this.width, y: -5},
+                    {x: this.width, y: this.height},
+                    {x: 0, y: this.height}],
                 rgb: this.layer[l].color,
                 width: -1
             }].concat(this.line);
@@ -365,21 +368,26 @@ class Draw {
             }
         }
 
-        if (found.length === 1) {  // Set the element color if there is 1.
+        // Set the element color if there is 1.
+        if (found.length === 1) {
             this.actions[this.actions.length] = new ColorIndex(found[0], this.line[found[0]].rgb);
             this.line[found[0]].rgb = this.layer[l].color;
         }
-        else if (found.length > 1) {  // Find the best and set it.
+        // Find the best and set it.
+        else if (found.length > 1) {
             let minDist = new Array(found.length);
+            // Get the distance from each line (closest point).
             for (let i = 0; i < found.length; i++) {
-                minDist[i] = -1;
+                minDist[i] = 0;
                 for (let j = 0; j < this.line[found[i]].point.length; j++) {
-                    let nextDist = Math.pow((this.line[found[i]].point[j].x - x), 2) + Math.pow((this.line[found[i]].point[j].y - y), 2);
-                    if (nextDist < minDist[i] || minDist[i] === -1) {
+                    let currPoint = this.line[found[i]].point[j];
+                    let nextDist = Math.pow(currPoint.x - x, 2) + Math.pow(currPoint.y - y, 2);
+                    if (nextDist < minDist[i] || j === 0) {
                         minDist[i] = nextDist;
                     }
                 }
             }
+            // Choose to the closest line to change.
             let best = 0;
             for (let k = 1; k < minDist.length; k++) {
                 if (minDist[k] < minDist[best]) {
@@ -389,7 +397,8 @@ class Draw {
             this.actions[this.actions.length] = new ColorIndex(found[best], this.line[found[best]].rgb);
             this.line[found[best]].rgb = this.layer[l].color;
         }
-        else {  // Do something else...
+        // Do something else...
+        else {
 
         }
         this.reDraw();
@@ -401,33 +410,38 @@ class Draw {
      * @returns {String}
      */
     exportSVG(speed:number) {
-        let output:String = "<svg class='draw' xmlns='http://www.w3.org/2000/svg' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 " + this.width + " " + this.height +"'>";
-        let lx, ly;
+        let output:String = "<svg class='draw' xmlns='http://www.w3.org/2000/svg' " +
+            "stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 " + this.width + " " + this.height + "'>";
+        let lx:number, ly:number;
 
+        // Create path for each line.
         for (let i = 0; i < this.line.length; i++) {
-            output += "<path stroke='" + this.line[i].rgb + "' stroke-width='" + Math.round(Math.abs(this.line[i].width))
-                + "' fill='" + (this.line[i].width >= 0 ? "none" :  this.line[i].rgb)
-                + "' d='M" + Math.round(this.line[i].point[0].x) + " " + Math.round(this.line[i].point[0].y) + "L";
+            lx = Math.round(this.line[i].point[0].x);
+            ly = Math.round(this.line[i].point[0].y);
 
-            lx = this.line[i].point[0].x;
-            ly = this.line[i].point[0].y;
-            for (let k = 1; k < this.line[i].point.length-1; k++) {
+            output += "<path stroke='" + this.line[i].rgb
+                + "' stroke-width='" + Math.round(Math.abs(this.line[i].width))
+                + "' fill='" + (this.line[i].width >= 0 ? "none" : this.line[i].rgb)
+                + "' d='M" + lx + " " + ly + "L";
+
+            let k, rad = Math.abs(this.line[i].width / 2);
+            for (k = 1; k < this.line[i].point.length - 1; k++) {
                 // Draw another point if there is a length of at least the line radius (width/2).
-                if (Math.abs((this.line[i].point[k].x - lx)*(this.line[i].point[k].y - ly)) > Math.abs(this.line[i].width)/2) {
+                if (Math.abs(this.line[i].point[k].x - lx) + Math.abs(this.line[i].point[k].y - ly) > rad) {
                     lx = Math.round(this.line[i].point[k].x);
                     ly = Math.round(this.line[i].point[k].y);
                     output += lx + " " + ly + " ";
                 }
             }
             // Always add last point.
-            lx = Math.round(this.line[i].point[this.line[i].point.length-1].x);
-            ly = Math.round(this.line[i].point[this.line[i].point.length-1].y);
+            lx = Math.round(this.line[i].point[k].x);
+            ly = Math.round(this.line[i].point[k].y);
             output += lx + " " + ly + " ";
 
             output += (this.line[i].width >= 0 ? "'>" : "Z'>") + "</path>";
         }
-
         output += "</svg>";
+
         if (speed) {
             output += '<script>!function(){function e(){if(r<s.length){var i=t++/(o[r]||1)*l;i?1>i?s[r].style.strokeDashoffset=o[r]*(1-i):i<1+n/(o[r]+1)?s[r].style.strokeDashoffset=0:(t=0,r++):s[r].style.display="initial",a=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(a)}for(var t,a,s=document.querySelectorAll(".draw path"),o=[],l='
                 + speed + ',n=3e3/l,r=0;r<s.length;){var i=o[r]=s[r].getTotalLength();s[r].style.display="none",s[r].style.strokeDasharray=i+" "+i,s[r++].style.strokeDashoffset=Math.floor(i)}r=0,t=0,e()}()</script>';
