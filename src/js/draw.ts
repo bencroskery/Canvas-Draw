@@ -178,7 +178,7 @@ class Draw {
         x *= window.devicePixelRatio;
         y *= window.devicePixelRatio;
 
-        let last = this.layer[l].current || {x: x + 0.01, y: y};
+        let last = this.layer[l].current || {x: x + 0.01, y: y}; // Fix for single points.
 
         // Set the current point to the point given.
         this.layer[l].current = {x: x, y: y};
@@ -278,14 +278,10 @@ class Draw {
                 }
                 ctx.closePath();
                 ctx.fill();
-            } else if (line.point.length < 2) {
-                ctx.beginPath();
-                ctx.moveTo(line.point[0].x - 0.1, line.point[0].y);
-                ctx.lineTo(line.point[0].x, line.point[0].y);
-                ctx.stroke();
             } else {
                 ctx.beginPath();
                 ctx.moveTo(line.point[0].x, line.point[0].y);
+                ctx.lineTo(line.point[0].x+0.01, line.point[0].y); // Fix for single points.
                 for (n = 1; n < line.point.length; n++) {
                     ctx.lineTo(line.point[n].x, line.point[n].y);
                 }
