@@ -38,10 +38,14 @@ module.exports = function (grunt) {
             main: {
                 options: {
                     mangle: true,
-                    sourceMap: 'public/js/main.min.map'
+                    sourceMap: 'public/js/bundle.min.map'
                 },
                 files: {
-                    'public/js/main.min.js': ['src/js/*.js']
+                    'public/js/bundle.min.js': [
+                        'node_modules/socket.io-client/socket.io.js',
+                        'node_modules/howler/howler.min.js',
+                        'src/js/*.js'
+                    ]
                 }
             }
         },

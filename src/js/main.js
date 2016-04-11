@@ -82,6 +82,12 @@ function runCommand(arg) {
         case '/export':
             window.open('data:text/html,' + encodeURIComponent(draw.exportSVG(arg[1])));
             break;
+        case '/playmusic':
+            playMusic();
+            break;
+        case '/stopmusic':
+            stopMusic();
+            break;
         default:
             addMessage(null, 'Unrecognized command\nTry /help for info');
     }
@@ -216,6 +222,13 @@ function timerStep() {
     }
 
     if (game.time >= 0) {
+        // Play countdown sounds if needed.
+        if ((game.mode === 1 && game.draw) || game.mode === 2) {
+            if (game.time === 0)
+                playSound('blip2');
+            else if (game.time <= 5)
+                playSound('blip1', 0.6 - (game.time / 10));
+        }
         // Decrement the time if not passed zero.
         setTimer(game.time--);
         if (game.draw && game.hideList !== null) {
