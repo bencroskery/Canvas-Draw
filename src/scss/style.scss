@@ -1,0 +1,410 @@
+﻿$swatch-size: 2.5em;
+$swatch-select: #3F3F3F;
+$default-color: #B3B3B3;
+$hover-color: gray;
+$border-width: calc(0.1em + 1px);
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.white {
+  border-radius: 0.625em;
+  background: white;
+}
+
+.over {
+  overflow: hidden;
+}
+
+#game {
+  padding: 1%;
+  margin: auto;
+}
+
+#overlay {
+  position: relative;
+  z-index: 1;
+  height: 0;
+  width: 100%;
+}
+
+.left, .center, .right {
+  display: inline-block;
+  height: 100%;
+}
+
+.left {
+  width: 6%;
+  float: left;
+}
+
+.center {
+  width: 70%;
+  margin-left: 1%;
+}
+
+.right {
+  width: 22%;
+  margin-left: 1%;
+  float: right;
+}
+
+canvas {
+  width: 100%;
+  height: 90%;
+  cursor: crosshair;
+  position: relative;
+}
+
+#worddiag {
+  position: absolute;
+  width: 50%;
+  margin-left: 25%;
+  top: 10em;
+  display: none;
+  pointer-events: none;
+
+  * {
+    display: block;
+    margin: 0.5em auto;
+    text-align: center;
+  }
+
+  input {
+    pointer-events: all;
+
+    &[type="text"] {
+      outline: 0;
+      border: solid 0.1em $default-color;
+      border-radius: 4em;
+      padding: 0.75em 1em;
+    }
+  }
+}
+
+button, input[type="submit"] {
+  background: deepskyblue;
+  color: white;
+  cursor: pointer;
+  outline: 0;
+  border: 0;
+  border-radius: 4em;
+  padding: 0.75em 1em 0.6em;
+
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+
+#tools {
+  margin-top: 0.438em;
+  width: 100%;
+}
+
+.swatch, #undo, #clear {
+  display: inline-block;
+  width: $swatch-size;
+  height: $swatch-size;
+  cursor: pointer;
+  margin-right: 0.2em;
+}
+
+.swatch {
+  border-radius: 100%;
+  background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
+
+  &:hover {
+    border: $border-width solid $swatch-select;
+  }
+
+  &[for="r-"] {
+    margin-right: 4em;
+  }
+}
+
+input[type=radio] {
+  display: none;
+
+  &:checked + .swatch {
+    border: $border-width solid $swatch-select;
+  }
+}
+
+#sizeBar {
+  font-size: $swatch-size/2;
+  border-top: $border-width solid $default-color;
+  overflow: visible;
+
+  #sizeIn {
+    margin: 0;
+    padding: 0;
+    width: 23%;
+    height: 2em;
+    cursor: pointer;
+    outline: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    // * * * TRACK * * *
+    &::-moz-range-track {
+      background: transparent;
+    }
+    &::-ms-track {
+      border: 0;
+      background: transparent;
+      color: transparent;
+    }
+    &::-ms-fill-lower {
+      background: transparent;
+    }
+    // * * * THUMB * * *
+    @mixin range-thumb {
+      width: 2em;
+      height: 2em;
+      background-color: $default-color;
+      border-radius: 100%;
+      border: 0;
+      cursor: pointer;
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      @include range-thumb;
+    }
+
+    &::-moz-range-thumb {
+      @include range-thumb;
+    }
+
+    &::-ms-thumb {
+      @include range-thumb;
+    }
+
+    &:hover {
+      &::-webkit-slider-thumb {
+        background-color: $hover-color;
+      }
+
+      &::-moz-range-thumb {
+        background-color: $hover-color;
+      }
+
+      &::-ms-thumb {
+        background-color: $hover-color;
+      }
+    }
+  }
+}
+
+#undo, #clear {
+  float: right;
+  fill: currentColor;
+  color: $default-color;
+
+  &:hover {
+    color: $hover-color;
+  }
+}
+
+#guessIn {
+  border: 0;
+  width: 100%;
+  height: $swatch-size;
+  padding-left: 0.625em;
+  margin-top: 0.625em;
+}
+
+#infobox {
+  position: relative;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  height: 15%;
+  text-align: center;
+}
+
+#timer, #info {
+  height: 1em;
+  margin-top: 1.2em;
+  white-space: pre;
+}
+
+#info .char {
+  margin: 0 0.2em;
+
+  &.b {
+    border-bottom: 0.2em solid red;
+    width: 0.6em;
+    display: inline-block;
+  }
+}
+
+#start {
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 50%;
+  height: 2.3em;
+  margin: 0 25%;
+  background: #3F3;
+  transition: all .4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  white-space: nowrap;
+
+  & > * {
+    vertical-align: top;
+    display: inline-block;
+  }
+
+  & > svg {
+    height: 1em;
+    max-width: 2.6em;
+    overflow: visible;
+  }
+
+  #icon {
+    margin-right: 0.6em;
+    width: 0.8em;
+    height: 0.8em;
+
+    svg {
+      display: block;
+      transform-origin: .3em .4em;
+      transition: transform .4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+    }
+  }
+
+  &.going {
+    width: 2em;
+    height: 2em;
+    padding: 0.61em;
+    margin: 0 0.5em;
+    background: #F33;
+
+    #icon svg {
+      transform: scale(2.5) rotate(63deg);
+    }
+  }
+}
+
+#messbox {
+  margin-top: 4%;
+  height: 73%;
+  position: relative;
+}
+
+#users {
+  text-align: right;
+  overflow-y: auto;
+  width: 400%;
+  height: 100%;
+  margin: 0 0 0 -300%;
+  padding: 0;
+  list-style-type: none;
+
+  li div {
+    font-size: 0.8em;
+    color: $default-color;
+  }
+}
+
+#messages {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  list-style-type: none;
+  position: absolute;
+  bottom: 0;
+
+  li {
+    padding: 0.313em 0.625em;
+  }
+}
+
+#login {
+  position: absolute;
+  text-align: center;
+  top: 40%;
+  width: 90%;
+  margin-left: 5%;
+  font-size: 200%;
+  font-weight: 100;
+
+  #nameIn {
+    border: 0;
+    outline: 0;
+    text-align: center;
+    width: 15em;
+  }
+
+  .title {
+    display: block;
+    margin: 1em;
+  }
+}
+
+#settings {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 93%;
+  height: 38em;
+  padding: 2em;
+
+  #s_user, #s_game {
+    float: left;
+    height: 100%;
+    width: 50%;
+
+    input {
+      margin: 0.5em;
+      width: 5em;
+    }
+  }
+}
+
+.menu {
+  height: 1.5em;
+  width: 1.8em;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  transition: transform 400ms;
+  cursor: pointer;
+
+  div {
+    background-color: $default-color;
+    height: 20%;
+    width: 100%;
+    position: absolute;
+    transition: transform 400ms;
+    border-radius: 1em;
+
+    &:nth-child(2) {
+      transform: translate(0, 180%);
+    }
+    &:nth-child(3) {
+      transform: translate(0, 360%);
+    }
+  }
+
+  &.open {
+    transform: translate(0.1em, 0);
+
+    div {
+      &:nth-child(1) {
+        transform: translate(0, 180%) rotate(135deg);
+      }
+      &:nth-child(2) {
+        transform: translate(0, 180%) scale(0.2, 1);
+      }
+      &:nth-child(3) {
+        transform: translate(0, 180%) rotate(-135deg);
+      }
+    }
+  }
+}

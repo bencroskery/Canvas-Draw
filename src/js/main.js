@@ -1,37 +1,11 @@
-"use strict";
-
-// Game info.
-var game = {
-    timer: null,    // Timer for the game interval.
-    draw: true,     // If this player can draw.
-    word: '',       // The word being drawn.
-    hideList: null, // List of the hidden characters of the word.
-    iDone: false,  // Whether this player is done for this turn.
-    allDone: 0,     // Number of players who have correctly guessed.
-    currentID: -1,  // The current player ID.
-    myID: -1,       // This player's ID.
-    mode: 0,        // The game mode: 0 = wait, 1 = choosing, 2 = draw.
-    time: 0         // The current game time.
-};
-
-// Complete settings list.
-var settings = {
-    gamemode: 0,
-    time_wait: 6,
-    time_choose: 10,
-    time_draw: 60,
-    time_react: 8
-};
-
-// Player info.
-var players = {
-    name: '??',     // Player name.
-    color: '',      // Player defining color.
-    score: 0        // Player score, totalling points.
-};
+import {socketeer, sockEmit} from './sock'
+import * as tools from './tools'
+import * as d from './data'
+import {addMessage, setInfo} from './view'
+import {playMusic, stopMusic} from './sound'
 
 // Startup.
-fadeIn('login');
+tools.fadeIn('login');
 document.getElementById('nameIn').focus();
 
 // ----------------------------
@@ -50,22 +24,22 @@ function runCommand(arg) {
             sockEmit('stop game', 0);
             break;
         case '/gamemode':
-            var mode = settings.gamemode;
+            var mode = d.settings.gamemode;
             if (arg[1] === 'default')   mode = 0;
             else if (arg[1] === 'team') mode = 1;
             else if (arg[1] === 'vs')   mode = 2;
             else if (arg[1] === 'rate') mode = 3;
-            if (settings.gamemode !== mode && game.currentID === -1) {
-                settings.gamemode = mode;
-                sockEmit('settings', settings);
+            if (d.settings.gamemode !== mode && d.game.currentID === -1) {
+                d.settings.gamemode = mode;
+                sockEmit('settings', d.settings);
                 addMessage(null, 'Gamemode: ' + arg[1]);
             }
             break;
         case '/user':
-            addMessage(null, 'I am ' + players[game.myID].name + ', player number ' + game.myID);
+            addMessage(null, 'I am ' + d.players[d.game.myID].name + ', player number ' + d.game.myID);
             break;
         case '/listusers':
-            addMessage(null, 'The users are: ' + players.map(function (p) {
+            addMessage(null, 'The users are: ' + d.players.map(function (p) {
                     return '<span style="color:' + p.color + '">' + p.name + '</span>';
                 }));
             break;
@@ -93,115 +67,17 @@ function runCommand(arg) {
     }
 }
 
-function start() {
-    document.getElementById('start').classList.add("going");
-    game.draw = false;
-    game.currentID = 0;
-    game.timer = setInterval(timerStep, 1000);
-}
-
-function stop() {
-    document.getElementById('start').classList.remove("going");
-    setInfo('Draw freely or start a game');
-    if (game.mode === 1 && game.currentID === game.myID) fadeOut('worddiag');
-    game.draw = true;
-    game.currentID = -1;
-    game.mode = 0;
-    game.time = 0;
-    draw.clear();
-    fadeIn('tools');
-    clearInterval(game.timer);
-}
-
-function turn_wait(next) {
-    if (next !== 0) {
-        addMessage(null, 'The word was: ' + game.word);
-    }
-    draw.dump();
-    game.iDone = false;
-    game.allDone = 0;
-    game.currentID += next;
-    if (game.currentID >= players.length) {
-        game.currentID = 0;
-    }
-    if (game.currentID === game.myID) {
-        game.draw = true;
-        setInfo("It's now your turn!");
-        fadeIn('tools');
-    } else {
-        game.draw = false;
-        setInfo("It's now " + players[game.currentID].name + "'s turn!");
-        fadeOut('tools');
-    }
-    game.mode = 0;
-    game.time = settings.time_wait;
-    setTimer(game.time--);
-}
-
-function turn_choose(words) {
-    draw.reDraw();
-    if (game.draw) {
-        setInfo('Choose a word!');
-        setChoose(words);
-    } else {
-        setInfo(players[game.currentID].name + ' is choosing!');
-    }
-    game.mode = 1;
-    game.time = settings.time_choose;
-    setTimer(game.time--);
-}
-
-function turn_draw(word) {
-    game.word = word;
-    buildWord();
-    game.mode = 2;
-    game.time = settings.time_draw;
-    setTimer(game.time--);
-}
-
-/**
- * Build up the word as time goes on.
- */
-function buildWord() {
-    // Hide elements by character type then split into an array.
-    var chars = game.word.replace(/[aeiou]/ig, '♠').replace(/[a-z0-9]/ig, '♣').split('');
-
-    if (game.draw) {
-        fadeOut('worddiag');
-        // Create a list of elements that can be revealed.
-        game.hideList = chars.reduce(function (o, c) {
-            if (c === '♣') {
-                o.char.push(o.length);
-            }
-            o.length++;
-            return o;
-        }, {char: [], length: 0});
-        setInfo('DRAW!!! Word: ' + game.word);
-    } else {
-        game.hideList = true;
-        // Add all the visible and hidden elements to the output.
-        var out = chars.reduce(function (o, c) {
-            if (c === '♠' || c === '♣') {
-                return o + "<span class='char b'> </span>";
-            } else {
-                return o + "<span class='char'>" + c + "</span>";
-            }
-        }, '');
-        setInfo(out);
-    }
-}
-
 /**
  * Check if the word was guessed correcly.
  * @param guess
  */
 function checkGuess(guess) {
     // Cannot be drawing, can only guess once, guess must match word.
-    if (!game.draw && guess.trim().toLowerCase().localeCompare(game.word.toLowerCase()) === 0) {
-        if (!game.iDone) {
+    if (!d.game.draw && guess.trim().toLowerCase().localeCompare(d.game.word.toLowerCase()) === 0) {
+        if (!d.game.iDone) {
             sockEmit('correct guess');
-            game.iDone = true;
-            setInfo(game.word);
+            d.game.iDone = true;
+            setInfo(d.game.word);
         } else {
             addMessage(null, "Chill bro, you already got it");
         }
@@ -211,99 +87,32 @@ function checkGuess(guess) {
     return false;
 }
 
-/**
- * Main game timer loop.
- */
-function timerStep() {
-    if (game.currentID === -1) {
-        // Should not be running a timer step if the game is stopped.
-        console.log('Halt timer.');
-        clearInterval(game.timer);
-    }
-
-    if (game.time >= 0) {
-        // Play countdown sounds if needed.
-        if ((game.mode === 1 && game.draw) || game.mode === 2) {
-            if (game.time === 0)
-                playSound('blip2');
-            else if (game.time <= 5)
-                playSound('blip1', 0.6 - (game.time / 10));
-        }
-        // Decrement the time if not passed zero.
-        setTimer(game.time--);
-        if (game.draw && game.hideList !== null) {
-            // Potentially show another letter.
-            if (game.time + 1 < settings.time_draw * game.hideList.char.length / game.hideList.length) {
-                sockEmit('reveal char', game.hideList.char.splice(Math.random() * game.hideList.char.length, 1));
-            }
-        }
-    }
-    else if (game.draw) {
-        if (game.mode === 0) {
-            // Waiting for next turn ended.
-            sockEmit('turn-choose', 0);
-        }
-        else if (game.mode === 1) {
-            // Selecting word ended (auto select by ID -1).
-            sockEmit('turn-draw', -1);
-        }
-        else if (game.mode === 2) {
-            // Guessing out of time (increment current player by 1).
-            sockEmit('turn-wait', 1);
-        }
-    }
-}
-
-// ----------------------------
-// Info Section
-// ----------------------------
-
-function setTimer(text) {
-    document.getElementById('timer').textContent = text;
-}
-
-function setInfo(text) {
-    document.getElementById('info').innerHTML = text;
-}
-
-function setChoose(words) {
-    try {
-        document.getElementById('word1').value = words[0];
-        document.getElementById('word2').value = words[1];
-        document.getElementById('word3').value = words[2];
-        fadeIn('worddiag');
-    }
-    catch (e) {
-        console.debug("Setting up word dialog -> " + e);
-    }
-}
-
 // ----------------------------
 // Draw Section
 // ----------------------------
 
-var mouseDown; // Remember if down and already drawing.
+var mouseDown = false; // Remember if down and already drawing.
 /**
  * Mouse button was pressed.
  * @type event
  */
 canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
-    if (game.draw) {
+    if (d.game.draw) {
         var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         if (e.button === 2) {
             if (mouseDown) {
-                draw.fill(game.myID);
+                draw.fill(d.game.myID);
                 emitPoint(3, mouseX, mouseY);
             } else {
-                draw.bucket(mouseX, mouseY, game.myID);
+                draw.bucket(mouseX, mouseY, d.game.myID);
                 emitPoint(4, mouseX, mouseY);
             }
             mouseDown = false;
         } else {
             mouseDown = true;
             emitPoint(0, mouseX, mouseY);
-            draw.down(mouseX, mouseY, game.myID);
+            draw.down(mouseX, mouseY, d.game.myID);
         }
 
     }
@@ -315,11 +124,11 @@ canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
  * @type event
  */
 canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
-    if (game.draw && mouseDown) {
+    if (d.game.draw && mouseDown) {
         var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         emitPoint(1, mouseX, mouseY);
-        draw.drag(mouseX, mouseY, game.myID);
+        draw.drag(mouseX, mouseY, d.game.myID);
     } else if (mouseDown) {
         onUp();
     }
@@ -330,10 +139,10 @@ canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
  * @type event
  */
 window.onmouseup = canvas.ontouchend = function onUp() {
-    if (game.draw && mouseDown) {
+    if (d.game.draw && mouseDown) {
         mouseDown = false;
         emitPoint(2, 0, 0);
-        draw.up(game.myID);
+        draw.up(d.game.myID);
     }
 };
 
@@ -348,32 +157,8 @@ function emitPoint(type, x, y) {
         t: type,
         x: (x / draw.getWidth()).toFixed(8),
         y: (y / draw.getHeight()).toFixed(8),
-        l: game.myID
+        l: d.game.myID
     });
-}
-
-/**
- * Add a point according to type.
- * @param p
- */
-function getPoint(p) {
-    switch (p.t) {
-        case 0:
-            draw.down(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
-            break;
-        case 1:
-            draw.drag(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
-            break;
-        case 2:
-            draw.up(p.l);
-            break;
-        case 3:
-            draw.fill(p.l);
-            break;
-        case 4:
-            draw.bucket(p.x * draw.getWidth(), p.y * draw.getHeight(), p.l);
-            break;
-    }
 }
 
 /**
@@ -383,7 +168,7 @@ document.onkeypress = function (e) {
     var key = e.charCode || e.keyCode;
     // Check keys for colors.
     if (document.activeElement.type !== 'text' && document.activeElement.type !== 'number') {
-        if ((key >= 48 && key <= 57 || key === 45) && game.draw) {
+        if ((key >= 48 && key <= 57 || key === 45) && d.game.draw) {
             document.getElementById("r" + String.fromCharCode(key)).checked = true;
             setDrawColor(document.querySelector("label[for=r" + String.fromCharCode(key) + "]").style.backgroundColor);
         } else if (key === 47) {
@@ -398,8 +183,8 @@ document.onkeypress = function (e) {
  * @param val : color to set
  */
 function setDrawColor(val) {
-    draw.setColor(val, game.myID);
-    sockEmit('set color', {c: val, l: game.myID});
+    draw.setColor(val, d.game.myID);
+    sockEmit('set color', {c: val, l: d.game.myID});
 }
 // Add event to all swatch buttons.
 var inputColor = document.querySelectorAll("input[name=color]");
@@ -414,8 +199,8 @@ for (var x = 0; x < inputColor.length; x++) {
  * @param val : number size to set
  */
 function setDrawSize(val) {
-    draw.setRadius(val, game.myID);
-    sockEmit('set size', {r: val, l: game.myID});
+    draw.setRadius(val, d.game.myID);
+    sockEmit('set size', {r: val, l: d.game.myID});
 }
 /**
  * Mouse was scrolled to change size.
@@ -430,6 +215,9 @@ canvas.addEventListener((/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll
     inputSize.value = val;
     setDrawSize(val);
 }, false);
+document.getElementById("sizeIn").onchange = function () {
+    setDrawSize(parseInt(this.value))
+};
 
 /**
  * Undo button clicked.
@@ -450,12 +238,12 @@ document.getElementById('clear').onclick = function () {
 /**
  * Start button clicked.
  */
-document.getElementById('start').onclick = function () {
+document.getElementById('start').onclick = function (e) {
+    e.preventDefault();
     if (this.classList.contains("going"))
         sockEmit('stop game', 0);
     else
         sockEmit('start game', 0);
-    return false;
 };
 
 // ----------------------------
@@ -463,65 +251,28 @@ document.getElementById('start').onclick = function () {
 // ----------------------------
 
 /**
- * Add list user element.
- * @param id
- */
-function addUser(id) {
-    var node = document.createElement("li");
-    node.innerHTML = '<span style="color:' + players[id].color + '">'
-        + players[id].name + '</span>' + '<div>0 PTS</div>';
-    document.getElementById("users").appendChild(node);
-}
-
-/**
- * Update the score of a user.
- * @param num
- * @param amount
- */
-function updateScore(num, amount) {
-    players[num].score += amount;
-    document.getElementById("users").childNodes[num].lastChild.innerHTML = players[num].score + ' PTS';
-}
-
-/**
- * Remove list user element.
- * @param num
- */
-function removeUser(num) {
-    var nodes = document.getElementById("users");
-    nodes.removeChild(nodes.childNodes[num]);
-}
-
-/**
- * Add list message element.
- * @param id
- * @param text
- */
-function addMessage(id, text) {
-    var node = document.createElement("li");
-    node.innerHTML = (id !== null ? ('<span style="color:' + players[id].color + '">'
-        + players[id].name + '</span>') : '') + text;
-    document.getElementById("messages").appendChild(node);
-}
-
-/**
  * Output a chat message.
  * @returns {boolean} Stop form submit.
  */
-document.getElementById("gform").onsubmit = function () {
+document.getElementById("gform").onsubmit = function (e) {
+    e.preventDefault();
     var guessBox = document.getElementById("guessIn");
 
     if (guessBox.value.charAt(0) === '/') {
         runCommand(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
         if (!checkGuess(guessBox.value)) {
-            addMessage(game.myID, ': ' + guessBox.value);
+            addMessage(d.game.myID, ': ' + guessBox.value);
             sockEmit('message', guessBox.value);
         }
     }
 
     guessBox.value = '';
     return false;
+};
+
+document.getElementsByClassName("menu")[0].onclick = function () {
+    tools.openMenu(this)
 };
 
 /**
@@ -540,8 +291,8 @@ window.onresize = resize;
 document.getElementById('worddiag').onsubmit = function () {
     var val = document.activeElement.value.trim();
     if (val.length) {
-        if (game.currentID === game.myID) sockEmit('turn-draw', val);
-            fadeOut('worddiag');
+        if (d.game.currentID === d.game.myID) sockEmit('turn-draw', val);
+        tools.fadeOut('worddiag');
     }
     return false;
 };
@@ -554,16 +305,17 @@ document.getElementById('worddiag').onsubmit = function () {
  * Player's name submitted.
  * @returns {boolean} stop form submit
  */
-document.getElementById('lform').onsubmit = function () {
+document.getElementById('lform').onsubmit = function (e) {
+    e.preventDefault();
     var name = document.getElementById('nameIn').value;
     if (name !== '' && name.toLowerCase() !== 'you') {
-        players.name = name;
-        players.color = randRGB();
+        d.players.name = name;
+        d.players.color = tools.randRGB();
         socketeer();
-        sockEmit('add user', players);
-        fadeOut("logo");
-        fadeOut("login");
-        fadeIn("game");
+        sockEmit('add user', d.players);
+        tools.fadeOut("logo");
+        tools.fadeOut("login");
+        tools.fadeIn("game");
         resize();
     }
     return false;

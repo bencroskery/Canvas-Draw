@@ -1,22 +1,26 @@
-function playSound(name, vol) {
+//import * from '../../node_modules/howler/howler'
+
+import {Howl} from '../../node_modules/howler/howler.core.min.js'
+
+export function playSound(name, vol) {
     vol = vol || 1;
     new Howl({
-        urls: ['sound/' + name + '.mp3'],
+        src: ['sound/' + name + '.mp3'],
         volume: vol
     }).play();
 }
 
-var music;
-function playMusic() {
+let music;
+export function playMusic() {
     if (music == undefined) {
         music = new Howl({
-            urls: ['sound/80s_vibe.mp3'],
+            src: ['sound/80s_vibe.mp3'],
             loop: true,
             volume: 0.15
         });
     }
     music.play();
 }
-function stopMusic() {
+export function stopMusic() {
     music.stop();
 }

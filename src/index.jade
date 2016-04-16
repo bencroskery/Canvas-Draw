@@ -3,7 +3,7 @@ html
   head
     title Canvas Drawing
     meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
-    link(rel='stylesheet', href='css/start.min.css')
+    link(rel='stylesheet', href='css/start.css')
     link(rel='icon', type='image/png', href='favicon-32x32.png', sizes='32x32')
     link(rel='icon', type='image/png', href='android-chrome-192x192.png', sizes='192x192')
     link(rel='icon', type='image/png', href='favicon-96x96.png', sizes='96x96')
@@ -41,7 +41,7 @@ html
             label Drawing Time:
             input#s_drawing(type='number')
             br
-        .menu(onclick='openMenu(this)')
+        .menu
           div
           div
           div
@@ -76,7 +76,7 @@ html
           ul#messages
         form#gform(action='')
           input#guessIn(autocomplete='off', placeholder='Type here...')
-    script(src='js/draw.min.js')
-    script(src='js/start.min.js')
-    link(rel='stylesheet', property='stylesheet', href='css/style.min.css')
-    script(src='js/bundle.min.js')
+    script(src='js/start.js')
+    link(rel='stylesheet', property='stylesheet', href='css/style.css')
+    script(src='/socket.io/socket.io.js')
+    script(src='js/bundle.js')

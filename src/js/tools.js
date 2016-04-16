@@ -1,14 +1,20 @@
-"use strict";
-
 // A set of tools used in the game.
 if (!(document.addEventListener || false))
     document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";
+
+if (!("classList" in document.documentElement)) {
+    let fill = document.createElement("script");
+    fill.setAttribute("type", "text/javascript");
+    fill.setAttribute("src", "polyfill/classList.js");
+    document.body.appendChild(fill);
+    console.log("Loaded classList polyfill.");
+}
 
 /**
  * Fade an element out.
  * @param id
  */
-function fadeOut(id) {
+export function fadeOut(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 1;
     (function f() {
@@ -21,7 +27,7 @@ function fadeOut(id) {
  * Fade an element in.
  * @param id
  */
-function fadeIn(id) {
+export function fadeIn(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 0;
     s.display = "inherit";
@@ -35,7 +41,7 @@ function fadeIn(id) {
  * Open/Close the menu element.
  * @param el
  */
-function openMenu(el) {
+export function openMenu(el) {
     if (el.classList.contains("open")) {
         el.classList.remove("open");
         fadeOut('settings');
@@ -49,7 +55,7 @@ function openMenu(el) {
  * A nice random RGB value.
  * @returns {string} in RGB format.
  */
-function randRGB() {
+export function randRGB() {
     var h, s, v, c, x, m, r, g, b;
     h = ((Math.random() + 0.618033988749895) % 1) * 6;
     s = 0.8;

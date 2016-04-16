@@ -1,23 +1,7 @@
-"use strict";
-
-interface Line {
-    rgb:string;
-    width:number;
-    point:Array<Point>;
-}
-
-interface Point {
-    x:number;
-    y:number;
-}
-
 /**
  * Used to apply a color to the line at an index.
  */
 class ColorIndex {
-    index:number;
-    color:string;
-
     constructor(i, c) {
         this.index = i;
         this.color = c;
@@ -31,16 +15,7 @@ class ColorIndex {
  * @constructor
  */
 class Draw {
-    canvas:any;
-    ctx:any;
-    width:number;
-    height:number;
-    actions:Array<number | ColorIndex>;
-    layer:Array<{color:string, radius:number, line:Line, current:Point}>;
-    line:Array<Line>;
-    fillLength:number;
-
-    constructor(canvas:any) {
+    constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.width = canvas.clientWidth * window.devicePixelRatio;
@@ -51,21 +26,21 @@ class Draw {
         this.fillLength = 0;        // The index of lines after fills.
     }
 
-    setRadius(r:number, l:number) {
+    setRadius(r, l) {
         this.checkLayer(l || 0);
         this.layer[l || 0].radius = r;
     }
 
-    setColor(c:string, l:number) {
+    setColor(c, l) {
         this.checkLayer(l || 0);
         this.layer[l || 0].color = c;
     }
 
-    getWidth():number {
+    getWidth() {
         return this.canvas.clientWidth;
     }
 
-    getHeight():number {
+    getHeight() {
         return this.canvas.clientHeight;
     }
 
@@ -73,7 +48,7 @@ class Draw {
      * Initialize a layer if it does not exist yet.
      * @param l
      */
-    checkLayer(l:number) {
+    checkLayer(l) {
         if (this.layer[l] === undefined) {
             this.layer[l] = {
                 color: 'rgb(0, 0, 0)',
@@ -88,7 +63,7 @@ class Draw {
      * Cut out the layer at the index.
      * @param l
      */
-    spliceLayer(l:number) {
+    spliceLayer(l) {
         this.layer.splice(l, 1);
     }
 
@@ -96,7 +71,7 @@ class Draw {
      * Resize the canvas width and height to the actual width and height.
      * @param reScale Properly size all lines.
      */
-    resize(reScale:boolean) {
+    resize(reScale) {
         let newWidth = this.canvas.clientWidth * window.devicePixelRatio;
         let newHeight = this.canvas.clientHeight * window.devicePixelRatio;
 
@@ -133,7 +108,7 @@ class Draw {
      * @param y
      * @param l
      */
-    down(x:number, y:number, l:number) {
+    down(x, y, l) {
         l = l || 0;
 
         // Get the layer and line ready if needed.
@@ -156,7 +131,7 @@ class Draw {
      * @param y
      * @param l
      */
-    drag(x:number, y:number, l:number) {
+    drag(x, y, l) {
         this.drawPoint(x, y, l || 0);
     }
 
@@ -164,7 +139,7 @@ class Draw {
      * Finished with current line.
      * @param l
      */
-    up(l:number) {
+    up(l) {
         this.pushLine(l || 0);
     }
 
@@ -174,7 +149,7 @@ class Draw {
      * @param y
      * @param l
      */
-    drawPoint(x:number, y:number, l:number) {
+    drawPoint(x, y, l) {
         x *= window.devicePixelRatio;
         y *= window.devicePixelRatio;
 
@@ -199,7 +174,7 @@ class Draw {
      * Push a layer onto the line stack.
      * @param l
      */
-    pushLine(l:number) {
+    pushLine(l) {
         // Make sure the layer line is available to push.
         if (this.layer[l] !== undefined && this.layer[l].line !== null) {
             this.actions[this.actions.length] = 0;
@@ -281,7 +256,7 @@ class Draw {
             } else {
                 ctx.beginPath();
                 ctx.moveTo(line.point[0].x, line.point[0].y);
-                ctx.lineTo(line.point[0].x+0.01, line.point[0].y); // Fix for single points.
+                ctx.lineTo(line.point[0].x + 0.01, line.point[0].y); // Fix for single points.
                 for (n = 1; n < line.point.length; n++) {
                     ctx.lineTo(line.point[n].x, line.point[n].y);
                 }
@@ -298,7 +273,7 @@ class Draw {
     /**
      * Fill the current line.
      */
-    fill(l:number) {
+    fill(l) {
         l = l || 0;
         // Complete the loop of the current line.
         this.ctx.lineJoin = "round";
@@ -330,7 +305,7 @@ class Draw {
      * @param y
      * @param l
      */
-    bucket(x:number, y:number, l:number) {
+    bucket(x, y, l) {
         x *= window.devicePixelRatio;
         y *= window.devicePixelRatio;
 
@@ -405,10 +380,9 @@ class Draw {
      * @param speed Optional parameter to draw the lines out.
      * @returns {String}
      */
-    exportSVG(speed:number) {
-        let output:String = "<svg class='draw' xmlns='http://www.w3.org/2000/svg' " +
+    exportSVG(speed) {
+        let lx, ly, output = "<svg class='draw' xmlns='http://www.w3.org/2000/svg' " +
             "stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 " + this.width + " " + this.height + "'>";
-        let lx:number, ly:number;
 
         // Create path for each line.
         for (let i = 0; i < this.line.length; i++) {
@@ -439,10 +413,13 @@ class Draw {
         output += "</svg>";
 
         if (speed) {
-            output += '<script>!function(){function e(){if(r<s.length){var i=t++/(o[r]||1)*l;i?1>i?s[r].style.strokeDashoffset=o[r]*(1-i):i<1+n/(o[r]+1)?s[r].style.strokeDashoffset=0:(t=0,r++):s[r].style.display="initial",a=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(a)}for(var t,a,s=document.querySelectorAll(".draw path"),o=[],l='
-                + speed + ',n=3e3/l,r=0;r<s.length;){var i=o[r]=s[r].getTotalLength();s[r].style.display="none",s[r].style.strokeDasharray=i+" "+i,s[r++].style.strokeDashoffset=Math.floor(i)}r=0,t=0,e()}()</script>';
+            output += '<script>function e(){if(t<n.length){var f=l++/(o[t]||1)*i;f?1>f?n[t].style.strokeDashoffset=o[t]*(1-f):f<1+r/(o[t]+1)?n[t].style.strokeDashoffset=0:("none"!=a&&(n[t].style.fill=a),l=0,t++):(a=n[t].style.fill,"none"!=a&&(n[t].style.fill="rgba(0,0,0,0)",n[t].style.transition="fill '
+                + (10.0 / speed).toFixed(2) + 's ease-out"),n[t].style.display="initial"),s=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(s)}var t,l,s,a,n=document.querySelectorAll(".draw path"),o=[],i='
+                + speed + ',r=1e3/i;for(t=0;t<n.length;){var f=o[t]=n[t].getTotalLength();n[t].style.display="none",n[t].style.strokeDasharray=f+" "+f,n[t++].style.strokeDashoffset=Math.floor(f)}t=l=0,e()</script>';
         }
 
         return output;
     }
 }
+
+export default Draw;

@@ -1,33 +1,17 @@
 {
   "name": "canvas-draw",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A drawing game to play with friends!",
   "main": "server.js",
   "author": "Ben Croskery",
   "license": "ISC",
-  "engines": {
-    "node": "^5.3.0"
-  },
-  "dependencies": {
-    "express": "^4.13.0",
-    "grunt": "^1.0.0",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-jade": "^0.15.0",
-    "grunt-contrib-less": "^1.1.0",
-    "grunt-contrib-uglify": "^0.11.0",
-    "grunt-typescript": "^0.8.0",
-    "howler": "^1.1.29",
-    "less-plugin-clean-css": "^1.5.1",
-    "lodash": "^4.0.0",
-    "socket.io": "~1.4.5"
-  },
-  "scripts": {
-    "postinstall": "grunt",
-    "start": "node server.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bencroskery/Canvas-Draw.git"
+  },
+  "homepage": "https://github.com/bencroskery/Canvas-Draw#readme",
+  "bugs": {
+    "url": "https://github.com/bencroskery/Canvas-Draw/issues"
   },
   "keywords": [
     "draw",
@@ -36,11 +20,46 @@
     "socket",
     "real-time"
   ],
-  "bugs": {
-    "url": "https://github.com/bencroskery/Canvas-Draw/issues"
+  "scripts": {
+    "postinstall": "npm run build:all",
+    "build:all": "npm run build:socket && npm run build:html && npm run build:js && npm run build:css",
+    "watch:all": "parallelshell \"npm run watch:html\" \"npm run watch:js\" \"npm run watch:start\" \"npm run watch:css\"",
+    "build:socket": "uglifyjs2 node_modules/socket.io-client/socket.io.js -o node_modules/socket.io-client/socket.io.js",
+    "jade": "jade --no-debug -o public/ src/index.jade",
+    "build:html": "npm run jade",
+    "watch:html": "onchange \"src/*.jade\" -v -i -- npm run jade",
+    "rollup": "rollup -c",
+    "rollupstart": "rollup --config rollup.start.js",
+    "rollupprod": "rollup --config rollup.prod.js",
+    "build:js": "npm run rollupprod && npm run rollupstart",
+    "watch:js": "onchange \"src/js/*.js\" -v -i -- npm run rollup",
+    "watch:start": "onchange \"src/js/start/*.js\" -v -i -- npm run rollupstart",
+    "scss": "node-sass -o public/css src/scss",
+    "cleancss": "cleancss -o public/css/style.css public/css/style.css && cleancss -o public/css/start.css public/css/start.css",
+    "build:css": "npm run scss && npm run cleancss",
+    "watch:css": "npm run scss && node-sass -w -o public/css src/scss"
   },
-  "homepage": "https://github.com/bencroskery/Canvas-Draw#readme",
+  "dependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.7.6",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "clean-css": "^3.4.12",
+    "express": "^4.13.0",
+    "howler": "^2.0.0-beta11",
+    "jade": "^1.11.0",
+    "lodash": "^4.0.0",
+    "node-sass": "^3.4.2",
+    "rollup": "^0.25.8",
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-commonjs": "^2.2.1",
+    "rollup-plugin-node-resolve": "^1.5.0",
+    "rollup-plugin-uglify": "^0.3.1",
+    "socket.io": "~1.4.5",
+    "uglify-js2": "^2.1.11"
+  },
   "devDependencies": {
-    "grunt-contrib-watch": "^0.6.1"
+    "onchange": "^2.3.0",
+    "parallelshell": "^2.0.0",
+    "watch": "^0.17.1"
   }
 }

@@ -1,3 +1,5 @@
+import Draw from './draw'
+
 var canvas = document.getElementById('draw'),
     draw = new Draw(canvas);
 
@@ -5,7 +7,7 @@ var canvas = document.getElementById('draw'),
  * Resize the game window, set the fontSize for CSS sizing, and ask the drawing to resize.
  */
 function resize() {
-    var ASPECT = 16 / 8,
+    let ASPECT = 16 / 8,
         PX = "px",
         width = window.innerWidth,
         height = window.innerHeight,
@@ -18,7 +20,7 @@ function resize() {
     // Set the size and resize the game and drawing canvas.
     gameBox.width = width + PX;
     gameBox.height = height + PX;
-    draw.resize(game.myID > -1);
+    draw.resize(true);
 
     // Set the font size based off size and scaling factor (16pt font / 1280px width).
     document.body.style.fontSize = width / 80 + PX;

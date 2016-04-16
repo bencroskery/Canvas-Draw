@@ -80,6 +80,9 @@ bin/
 obj/
 *.sln
 .idea
-*.min.*
+.vscode
+jsconfig.json
+
 *.html
-/build
+public/js/
+public/css/
