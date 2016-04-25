@@ -73,14 +73,14 @@ class Draw {
 
     /**
      * Resize the canvas width and height to the actual width and height.
-     * @param reScale Properly size all lines.
+     * @param noScale Do not rescale all lines relative to canvas.
      */
-    resize(reScale) {
+    resize(noScale) {
         let newWidth = this.canvas.clientWidth * window.devicePixelRatio;
         let newHeight = this.canvas.clientHeight * window.devicePixelRatio;
 
         // Resize all the lines based off the change in scale.
-        if (reScale) {
+        if (!noScale) {
             let i, j, scaling = newWidth / this.width;
             for (i = 0; i < this.line.length; i++) {
                 this.line[i].width *= scaling;
@@ -161,7 +161,7 @@ class Draw {
 
         // Set the current point to the point given.
         this.layer[l].current = {x: x, y: y};
-        this.layer[l].line.point[this.layer[l].line.point.length] = this.layer[l].current;
+        this.layer[l].line.point.push(this.layer[l].current);
 
         // Draw the line between the points.
         this.ctx.lineJoin = "round";
@@ -181,8 +181,8 @@ class Draw {
     pushLine(l) {
         // Make sure the layer line is available to push.
         if (this.layer[l] !== undefined && this.layer[l].line !== null) {
-            this.actions[this.actions.length] = 0;
-            this.line[this.line.length] = this.layer[l].line;
+            this.actions.push(0);
+            this.line.push(this.layer[l].line);
             this.layer[l].line = null;
         }
     }
@@ -218,7 +218,7 @@ class Draw {
     }
 
     /**
-     * Dumps all lines out to be forgotten.
+     * Dump all line data.
      */
     dump() {
         this.line.length = 0;
@@ -276,6 +276,7 @@ class Draw {
 
     /**
      * Fill the current line.
+     * @param l
      */
     fill(l) {
         l = l || 0;
@@ -315,21 +316,22 @@ class Draw {
 
         let imgCol = (this.ctx.getImageData(x, y, 1, 1).data);
         let pixCol = 'rgb(' + imgCol[0] + ', ' + imgCol[1] + ', ' + imgCol[2] + ')';
+
         this.checkLayer(l);
-        if (this.layer[l].color === pixCol && imgCol[3] !== 0) {
-            return;
-        }
+        if (this.layer[l].color === pixCol && imgCol[3] !== 0)
+            return; // No need to change the color.
+
         // If the size is zero then just fill the background.
         if (this.line.length === 0 || imgCol[3] === 0) {
-            this.actions[this.actions.length] = 1;
-            this.line = [{
+            this.actions.push(1);
+            this.line.unshift({
                 point: [{x: -5, y: -5}, // 4 point square background.
                     {x: this.width, y: -5},
                     {x: this.width, y: this.height},
                     {x: 0, y: this.height}],
                 rgb: this.layer[l].color,
-                width: -1
-            }].concat(this.line);
+                width: 0
+            });
             this.fillLength++;
             this.reDraw();
             return;
@@ -337,39 +339,32 @@ class Draw {
 
         // Check elements for color replace.
         let found = [];
-        for (let n = 0; n < this.line.length; n++) {
-            if (this.line[n].rgb === pixCol) {
-                found[found.length] = n;
-            }
-        }
+        this.line.forEach((line, index) => {
+            if (line.rgb === pixCol)
+                found.push(index)
+        });
 
         // Set the element color if there is 1.
         if (found.length === 1) {
-            this.actions[this.actions.length] = new ColorIndex(found[0], this.line[found[0]].rgb);
+            this.actions.push(new ColorIndex(found[0], this.line[found[0]].rgb));
             this.line[found[0]].rgb = this.layer[l].color;
         }
         // Find the best and set it.
         else if (found.length > 1) {
-            let minDist = new Array(found.length);
             // Get the distance from each line (closest point).
-            for (let i = 0; i < found.length; i++) {
-                minDist[i] = 0;
-                for (let j = 0; j < this.line[found[i]].point.length; j++) {
-                    let currPoint = this.line[found[i]].point[j];
-                    let nextDist = Math.pow(currPoint.x - x, 2) + Math.pow(currPoint.y - y, 2);
-                    if (nextDist < minDist[i] || j === 0) {
-                        minDist[i] = nextDist;
-                    }
-                }
-            }
-            // Choose to the closest line to change.
+            let minDist = found.map((i) => {
+                return this.line[i].point.reduce((minDistance, currPoint) => {
+                    let distance = Math.pow(currPoint.x - x, 2) + Math.pow(currPoint.y - y, 2);
+                    return Math.min(minDistance, distance);
+                }, Number.MAX_VALUE);
+            });
+            // Choose the closest line to change.
             let best = 0;
             for (let k = 1; k < minDist.length; k++) {
-                if (minDist[k] < minDist[best]) {
+                if (minDist[k] < minDist[best])
                     best = k;
-                }
             }
-            this.actions[this.actions.length] = new ColorIndex(found[best], this.line[found[best]].rgb);
+            this.actions.push(new ColorIndex(found[best], this.line[found[best]].rgb));
             this.line[found[best]].rgb = this.layer[l].color;
         }
         // Do something else...
@@ -389,37 +384,42 @@ class Draw {
             "stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 " + this.width + " " + this.height + "'>";
 
         // Create path for each line.
-        for (let i = 0; i < this.line.length; i++) {
-            lx = Math.round(this.line[i].point[0].x);
-            ly = Math.round(this.line[i].point[0].y);
+        this.line.forEach((line) => {
+            lx = line.point[0].x.toFixed(2);
+            ly = line.point[0].y.toFixed(2);
 
-            output += "<path stroke='" + this.line[i].rgb
-                + "' stroke-width='" + Math.round(Math.abs(this.line[i].width))
-                + "' fill='" + (this.line[i].width >= 0 ? "none" : this.line[i].rgb)
+            output += "<path stroke='" + line.rgb
+                + "' stroke-width='" + Math.round(Math.abs(line.width))
+                + "' fill='" + (line.width > 0 ? "none" : line.rgb)
                 + "' d='M" + lx + " " + ly + "L";
 
-            let k, rad = Math.abs(this.line[i].width / 2);
-            for (k = 1; k < this.line[i].point.length - 1; k++) {
-                // Draw another point if there is a length of at least the line radius (width/2).
-                if (Math.abs(this.line[i].point[k].x - lx) + Math.abs(this.line[i].point[k].y - ly) > rad) {
-                    lx = Math.round(this.line[i].point[k].x);
-                    ly = Math.round(this.line[i].point[k].y);
-                    output += lx + " " + ly + " ";
+            if (line.point.length === 1) {
+                lx = (line.point[0].x+0.01).toFixed(2);
+                ly = line.point[0].y.toFixed(2);
+            } else {
+                let k, rad = Math.abs(line.width / 2);
+                for (k = 1; k < line.point.length - 1; k++) {
+                    // Draw another point if there is a length of at least the line radius (width/2).
+                    if (Math.abs(line.point[k].x - lx) + Math.abs(line.point[k].y - ly) > rad) {
+                        lx = Math.round(line.point[k].x);
+                        ly = Math.round(line.point[k].y);
+                        output += lx + " " + ly + " ";
+                    }
                 }
+                // Always add last point.
+                lx = line.point[k].x.toFixed(2);
+                ly = line.point[k].y.toFixed(2);
             }
-            // Always add last point.
-            lx = Math.round(this.line[i].point[k].x);
-            ly = Math.round(this.line[i].point[k].y);
             output += lx + " " + ly + " ";
 
-            output += (this.line[i].width >= 0 ? "'>" : "Z'>") + "</path>";
-        }
+            output += (line.width >= 0 ? "'>" : "Z'>") + "</path>";
+        });
         output += "</svg>";
 
         if (speed) {
-            output += '<script>function e(){if(t<n.length){var f=l++/(o[t]||1)*i;f?1>f?n[t].style.strokeDashoffset=o[t]*(1-f):f<1+r/(o[t]+1)?n[t].style.strokeDashoffset=0:("none"!=a&&(n[t].style.fill=a),l=0,t++):(a=n[t].style.fill,"none"!=a&&(n[t].style.fill="rgba(0,0,0,0)",n[t].style.transition="fill '
-                + (10.0 / speed).toFixed(2) + 's ease-out"),n[t].style.display="initial"),s=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(s)}var t,l,s,a,n=document.querySelectorAll(".draw path"),o=[],i='
-                + speed + ',r=1e3/i;for(t=0;t<n.length;){var f=o[t]=n[t].getTotalLength();n[t].style.display="none",n[t].style.strokeDasharray=f+" "+f,n[t++].style.strokeDashoffset=Math.floor(f)}t=l=0,e()</script>';
+            output += '<script>function e(){if(t<o.length){var f=l++/(a[t]||1)*i;f?1>f?o[t].style.strokeDashoffset=a[t]*(1-f):f<1+r/(a[t]+1)?("none"!=n&&(o[t].style.fill=n,n="none"),o[t].style.strokeDashoffset=0):(l=0,t++):(n=o[t].style.fill,"none"!=n&&(o[t].style.fill="rgba(0,0,0,0)",o[t].style.transition="fill '
+                + (10.0 / speed).toFixed(2) + 's ease-out"),o[t].style.display="initial"),s=window.requestAnimationFrame(e)}else window.cancelAnimationFrame(s)}var t,l,s,n,o=document.querySelectorAll(".draw path"),a=[],i='
+                + speed + ',r=1e3/i;for(t=0;t<o.length;){var f=a[t]=0==o[t].getAttribute("stroke-width")?8:o[t].getTotalLength();o[t].style.display="none",o[t].style.strokeDasharray=f+" "+f,o[t++].style.strokeDashoffset=Math.floor(f)}t=l=0,e()</script>'
         }
 
         return output;
