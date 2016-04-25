@@ -8,6 +8,10 @@ class ColorIndex {
     }
 }
 
+// Fallback for missing devicePixelRatio (IE10 or lower).
+if (!window.devicePixelRatio)
+    window.devicePixelRatio = (window.screen.deviceXDPI / window.screen.logicalXDPI) || 1;
+
 /**
  * Initialize the Draw object connected to the canvas parameter.
  *
