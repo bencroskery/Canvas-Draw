@@ -3,12 +3,22 @@ if (!(document.addEventListener || false))
     document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";
 
 if (!("classList" in document.documentElement)) {
+    addPolyfill("classList")
+}
+
+const range = document.getElementById('sizeIn');
+if (!(range.type !== 'text')) {
+    range.disabled = true;
+}
+
+function addPolyfill(name) {
     let fill = document.createElement("script");
     fill.setAttribute("type", "text/javascript");
-    fill.setAttribute("src", "polyfill/classList.js");
+    fill.setAttribute("src", "polyfill/" + name + ".js");
     document.body.appendChild(fill);
-    console.log("Loaded classList polyfill.");
+    console.log("Loaded " + name + " polyfill.");
 }
+
 
 /**
  * Fade an element out.
