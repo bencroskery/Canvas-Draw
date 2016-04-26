@@ -3,6 +3,8 @@ import * as tools from './tools'
 import * as d from './data'
 import * as view from './view'
 import {playSound} from './sound'
+import Players from './components/Players'
+import Chat from './components/Chat'
 
 export function start() {
     document.getElementById('start').classList.add("going");
@@ -26,13 +28,13 @@ export function stop() {
 
 export function turn_wait(next) {
     if (next !== 0) {
-        view.addMessage(null, 'The word was: ' + d.game.word);
+        Chat.addMessage(null, 'The word was: ' + d.game.word);
     }
     draw.dump();
     d.game.iDone = false;
     d.game.allDone = 0;
     d.game.currentID += next;
-    if (d.game.currentID >= d.players.length) {
+    if (d.game.currentID >= Players.length()) {
         d.game.currentID = 0;
     }
     if (d.game.currentID === d.game.myID) {
@@ -41,7 +43,7 @@ export function turn_wait(next) {
         tools.fadeIn('tools');
     } else {
         d.game.draw = false;
-        view.setInfo("It's now " + d.players[d.game.currentID].name + "'s turn!");
+        view.setInfo("It's now " + Players.get(d.game.currentID).name + "'s turn!");
         tools.fadeOut('tools');
     }
     d.game.mode = 0;
@@ -55,7 +57,7 @@ export function turn_choose(words) {
         view.setInfo('Choose a word!');
         view.setChoose(words);
     } else {
-        view.setInfo(d.players[d.game.currentID].name + ' is choosing!');
+        view.setInfo(Players.get(d.game.currentID).name + ' is choosing!');
     }
     d.game.mode = 1;
     d.game.time = d.settings.time_choose;

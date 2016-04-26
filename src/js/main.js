@@ -1,12 +1,17 @@
 import {socketeer, sockEmit} from './sock'
 import * as tools from './tools'
 import * as d from './data'
-import {addMessage, setInfo} from './view'
+import {setInfo} from './view'
 import {playMusic, stopMusic} from './sound'
+
+import Players from './components/players'
+import Chat from './components/chat'
 
 // Startup.
 tools.fadeIn('login');
 document.getElementById('nameIn').focus();
+
+Chat.setup(runCommand, checkGuess);
 
 // ----------------------------
 // Game
@@ -15,7 +20,7 @@ document.getElementById('nameIn').focus();
 function runCommand(arg) {
     switch (arg[0]) {
         case '/help':
-            addMessage(null, 'Possible commands are:\nhelp, start, stop, gamemode, user, listusers');
+            Chat.addMessage('Possible commands are:\nhelp, start, stop, gamemode, user, listusers');
             break;
         case '/start':
             sockEmit('start game', 0);
@@ -32,20 +37,20 @@ function runCommand(arg) {
             if (d.settings.gamemode !== mode && d.game.currentID === -1) {
                 d.settings.gamemode = mode;
                 sockEmit('settings', d.settings);
-                addMessage(null, 'Gamemode: ' + arg[1]);
+                Chat.addMessage('Gamemode: ' + arg[1]);
             }
             break;
         case '/user':
-            addMessage(null, 'I am ' + d.players[d.game.myID].name + ', player number ' + d.game.myID);
+            Chat.addMessage('I am ' + Players.get(d.game.myID).name + ', player number ' + d.game.myID);
             break;
         case '/listusers':
-            addMessage(null, 'The users are: ' + d.players.map(function (p) {
+            Chat.addMessage('The users are: ' + Players.get().map(function (p) {
                     return '<span style="color:' + p.color + '">' + p.name + '</span>';
                 }));
             break;
         case '/listusersserver':
             sockEmit('list users', 0);
-            addMessage(null, 'See server console');
+            Chat.addMessage('See server console');
             break;
         case '/getskip':
             sockEmit('get skip', 0);
@@ -63,12 +68,12 @@ function runCommand(arg) {
             stopMusic();
             break;
         default:
-            addMessage(null, 'Unrecognized command\nTry /help for info');
+            Chat.addMessage('Unrecognized command\nTry /help for info');
     }
 }
 
 /**
- * Check if the word was guessed correcly.
+ * Check if the word was guessed correctly.
  * @param guess
  */
 function checkGuess(guess) {
@@ -79,27 +84,27 @@ function checkGuess(guess) {
             d.game.iDone = true;
             setInfo(d.game.word);
         } else {
-            addMessage(null, "Chill bro, you already got it");
+            Chat.addMessage("Chill bro, you already got it");
         }
-
-        return true;
+    } else {
+        Chat.addMessage(': ' + guess, Players.get(d.game.myID));
+        sockEmit('message', guess);
     }
-    return false;
 }
 
 // ----------------------------
 // Draw Section
 // ----------------------------
 
-var mouseDown = false; // Remember if down and already drawing.
+let mouseDown = false; // Remember if down and already drawing.
 /**
  * Mouse button was pressed.
  * @type event
  */
 canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
     if (d.game.draw) {
-        var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
-        var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
+        const mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+        const mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         if (e.button === 2) {
             if (mouseDown) {
                 draw.fill(d.game.myID);
@@ -114,7 +119,6 @@ canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
             emitPoint(0, mouseX, mouseY);
             draw.down(mouseX, mouseY, d.game.myID);
         }
-
     }
     return false;
 };
@@ -125,8 +129,8 @@ canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
  */
 canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
     if (d.game.draw && mouseDown) {
-        var mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
-        var mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
+        const mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
+        const mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
         emitPoint(1, mouseX, mouseY);
         draw.drag(mouseX, mouseY, d.game.myID);
     } else if (mouseDown) {
@@ -187,12 +191,11 @@ function setDrawColor(val) {
     sockEmit('set color', {c: val, l: d.game.myID});
 }
 // Add event to all swatch buttons.
-var inputColor = document.querySelectorAll("input[name=color]");
-for (var x = 0; x < inputColor.length; x++) {
-    inputColor[x].onchange = function () {
+document.querySelectorAll("input[name=color]").forEach((color) => {
+    color.onchange = function () {
         setDrawColor(document.querySelector("label[for=" + this.id + "]").style.backgroundColor);
     }
-}
+});
 
 /**
  * Size changed.
@@ -250,27 +253,6 @@ document.getElementById('start').onclick = function (e) {
 // Chat Section
 // ----------------------------
 
-/**
- * Output a chat message.
- * @returns {boolean} Stop form submit.
- */
-document.getElementById("gform").onsubmit = function (e) {
-    e.preventDefault();
-    var guessBox = document.getElementById("guessIn");
-
-    if (guessBox.value.charAt(0) === '/') {
-        runCommand(guessBox.value.split(' '));
-    } else if (guessBox.value !== '') {
-        if (!checkGuess(guessBox.value)) {
-            addMessage(d.game.myID, ': ' + guessBox.value);
-            sockEmit('message', guessBox.value);
-        }
-    }
-
-    guessBox.value = '';
-    return false;
-};
-
 document.getElementsByClassName("menu")[0].onclick = function () {
     tools.openMenu(this)
 };
@@ -309,10 +291,10 @@ document.getElementById('lform').onsubmit = function (e) {
     e.preventDefault();
     var name = document.getElementById('nameIn').value;
     if (name !== '' && name.toLowerCase() !== 'you') {
-        d.players.name = name;
-        d.players.color = tools.randRGB();
+        Players.get().name = name;
+        Players.get().color = tools.randRGB();
         socketeer();
-        sockEmit('add user', d.players);
+        sockEmit('add user', Players.get());
         tools.fadeOut("logo");
         tools.fadeOut("login");
         tools.fadeIn("game");

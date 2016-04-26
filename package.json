@@ -32,7 +32,7 @@
     "rollupstart": "rollup --config rollup.start.js",
     "rollupprod": "rollup --config rollup.prod.js",
     "build:js": "npm run rollupprod && npm run rollupstart",
-    "watch:js": "onchange \"src/js/*.js\" -v -i -- npm run rollup",
+    "watch:js": "onchange \"src/js/*.js\" \"src/js/components/*.js\" -v -i -- npm run rollup",
     "watch:start": "onchange \"src/js/start/*.js\" -v -i -- npm run rollupstart",
     "scss": "node-sass -o public/css src/scss",
     "cleancss": "cleancss -o public/css/style.css public/css/style.css && cleancss -o public/css/start.css public/css/start.css",

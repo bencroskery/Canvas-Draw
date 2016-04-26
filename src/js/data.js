@@ -24,14 +24,3 @@ export let settings = {
 export function setSettings(s) {
     settings = s;
 }
-
-// Player info.
-export let players = {
-    name: '??',     // Player name.
-    color: '',      // Player defining color.
-    score: 0        // Player score, totalling points.
-};
-
-export function setPlayers(p) {
-    players = p;
-}

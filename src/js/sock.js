@@ -1,6 +1,7 @@
 import * as game from './game'
 import * as d from './data'
-import {addUser, updateScore, removeUser, addMessage} from './view'
+import Players from './components/players'
+import Chat from './components/chat'
 
 let socket = io(); // Socket for connections.
 
@@ -14,7 +15,7 @@ export function socketeer() {
     });
 
     socket.on('get skip', function (skip) {
-        addMessage(null, 'Skipping ' + skip + ' points at a time.')
+        Chat.addMessage('Skipping ' + skip + ' points at a time.')
     });
 
     socket.on('start game', game.start);
@@ -39,21 +40,17 @@ export function socketeer() {
         }
         // Give points to player drawing on first correct.
         if (d.game.allDone++ === 0) {
-            updateScore(d.game.currentID, 2);
+            Players.updateScore(d.game.currentID, 2);
         }
         // Update score of the player that is correct with relative points.
-        updateScore(id, Math.floor(5 / d.game.allDone));
-        addMessage(id, ' guessed the word!');
+        Players.updateScore(id, Math.floor(5 / d.game.allDone));
+        Chat.addMessage(' guessed the word!', Players.get(id));
     });
 
     socket.on('setup', function (p) {
-        p[p.length] = d.players;  // Add this player to list.
-        d.setPlayers(p)           // Save players.
+        p.push(Players.get());    // Add this player to list.
+        Players.set(p)  ;         // Save players.
         d.game.myID = p.length - 1;
-        document.getElementById("users").innerHTML = '';
-        for (var i = 0; i < d.players.length; i++) {
-            addUser(i);
-        }
     });
 
     /**
@@ -119,7 +116,7 @@ export function socketeer() {
      * Getting a chat message.
      */
     socket.on('message', function (data) {
-        addMessage(data.id, ': ' + data.message);
+        Chat.addMessage(': ' + data.message, Players.get(data.id));
     });
 
 
@@ -127,24 +124,22 @@ export function socketeer() {
      * A user connected.
      */
     socket.on('user joined', function (p) {
-        // Add the player in.
-        d.players[d.players.length] = p;
+        Chat.addMessage(' has joined.', p);
 
-        // List in interface and leave message.
-        addUser(d.players.length - 1);
-        addMessage(d.players.length - 1, ' has joined.');
+        // Add the player in.
+        Players.add(p);
     });
 
     /**
      * A user disconnected.
      */
     socket.on('user left', function (data) {
-        // Remove from interface and leave message.
-        removeUser(data.number);
-        addMessage(data.number, ' has left.');
+        Chat.addMessage(' has left.', Players.get(data.number));
 
-        // Cut the player out.
-        d.players.splice(data.number, 1);
+        // Pull the player out.
+        Players.remove(data.number);
+
+        // Cut the drawing layer out.
         draw.spliceLayer(data.number);
 
         // Fix IDs and change turn if needed,
@@ -152,7 +147,7 @@ export function socketeer() {
             d.game.myID--;
         }
         if (d.game.currentID >= data.number) {
-            if (d.game.currentID >= d.players.length) {
+            if (d.game.currentID >= Players.length()) {
                 d.game.currentID = 0;
             }
             if (d.game.currentID === d.game.myID) {
