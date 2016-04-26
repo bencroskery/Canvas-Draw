@@ -3,8 +3,8 @@ import * as tools from './tools'
 import * as d from './data'
 import * as view from './view'
 import {playSound} from './sound'
-import Players from './components/players'
-import Chat from './components/chat'
+import Players from './components/Players'
+import Chat from './components/Chat'
 
 export function start() {
     document.getElementById('start').classList.add("going");
