@@ -8,6 +8,9 @@ body {
   margin: 0;
   background: #F0F0F0;
 }
+html, body {
+  height: 100%;
+}
 
 #game, #login {
   display: none;

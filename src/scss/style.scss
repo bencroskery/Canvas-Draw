@@ -3,6 +3,7 @@ $swatch-select: #3F3F3F;
 $default-color: #B3B3B3;
 $hover-color: gray;
 $border-width: calc(0.1em + 1px);
+$spacing: .625em;
 
 .noselect {
   -webkit-touch-callout: none;
@@ -13,7 +14,7 @@ $border-width: calc(0.1em + 1px);
 }
 
 .white {
-  border-radius: 0.625em;
+  border-radius: $spacing;
   background: white;
 }
 
@@ -22,7 +23,8 @@ $border-width: calc(0.1em + 1px);
 }
 
 #game {
-  padding: 1%;
+  height: 100%;
+  width: 100%;
   margin: auto;
 }
 
@@ -33,25 +35,49 @@ $border-width: calc(0.1em + 1px);
   width: 100%;
 }
 
-.left, .center, .right {
+
+#left, #center, #right {
   display: inline-block;
-  height: 100%;
 }
 
-.left {
-  width: 6%;
+#left {
   float: left;
 }
 
-.center {
-  width: 70%;
-  margin-left: 1%;
+#right {
+  float: right;
 }
 
-.right {
-  width: 22%;
-  margin-left: 1%;
-  float: right;
+.landscape {
+  #left, #center, #right {
+    height: 100%;
+  }
+
+  #left {
+    padding-right: $spacing;
+  }
+
+  #right {
+    padding-left: $spacing;
+  }
+}
+
+.portrait {
+  #center {
+    width: 100%;
+
+    #tools {
+      font-size: 0.85em;
+    }
+  }
+
+  #left {
+    width: 25%;
+  }
+
+  #right {
+    width: 75%;
+  }
 }
 
 canvas {
@@ -214,8 +240,8 @@ input[type=radio] {
   border: 0;
   width: 100%;
   height: $swatch-size;
-  padding-left: 0.625em;
-  margin-top: 0.625em;
+  padding-left: $spacing;
+  margin-top: $spacing;
 }
 
 #infobox {
@@ -320,7 +346,7 @@ input[type=radio] {
   bottom: 0;
 
   li {
-    padding: 0.313em 0.625em;
+    padding: 0.313em $spacing;
   }
 }
 

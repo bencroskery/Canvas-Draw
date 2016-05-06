@@ -19,7 +19,7 @@ html
       form#lform(action='')
         label.title(for='nameIn') What's your nickname?
         input#nameIn(type='text', maxlength='25')
-    #game
+    #game.landscape
       #overlay
         form#worddiag(action='')
           //- 3 words to select from + custom.
@@ -45,7 +45,7 @@ html
           div
           div
           div
-      .center.noselect
+      #center.noselect
         canvas#draw.white(oncontextmenu='return false')
         #tools
           //- Build selection of color swatches.
@@ -60,9 +60,9 @@ html
             path(d='M2 0 L0 1 2 2z')
           svg#clear(viewBox='0 0 40 40')
             path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
-      .left
+      #left
         ul#users
-      .right
+      #right
         #infobox.white.over
           #timer
           #info Draw freely or start a game
