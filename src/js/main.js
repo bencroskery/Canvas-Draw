@@ -191,7 +191,7 @@ function setDrawColor(val) {
     sockEmit('set color', {c: val, l: d.game.myID});
 }
 // Add event to all swatch buttons.
-document.querySelectorAll("input[name=color]").forEach((color) => {
+Array.from(document.querySelectorAll("input[name=color]")).forEach((color) => {
     color.onchange = function () {
         setDrawColor(document.querySelector("label[for=" + this.id + "]").style.backgroundColor);
     }
