@@ -2,9 +2,11 @@
 if (!(document.addEventListener || false))
     document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";
 
-if (!("classList" in document.documentElement)) {
-    addPolyfill("classList")
-}
+if (!("classList" in document.documentElement))
+    addPolyfill("classList");
+
+if (!Array.from)
+    addPolyfill("Array.from");
 
 const range = document.getElementById('sizeIn');
 if (!(range.type !== 'text')) {
@@ -40,7 +42,7 @@ export function fadeOut(id) {
 export function fadeIn(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 0;
-    s.display = "inherit";
+    s.display = "";
     (function f() {
         s.opacity = (val += .1);
         val < 0.9 ? setTimeout(f, 40) : 0;
