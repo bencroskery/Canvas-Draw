@@ -1,9 +1,8 @@
-﻿$swatch-size: 2.5em;
-$swatch-select: #3F3F3F;
-$default-color: #B3B3B3;
-$hover-color: gray;
-$border-width: calc(0.1em + 1px);
-$spacing: .625em;
+﻿@import "partials/vars";
+@import "partials/chat";
+@import "partials/menu";
+@import "partials/tools";
+@import "partials/worddiag";
 
 .noselect {
   -webkit-touch-callout: none;
@@ -22,47 +21,50 @@ $spacing: .625em;
   overflow: hidden;
 }
 
-#game {
-  height: 100%;
-  width: 100%;
-  margin: auto;
-}
-
 #overlay {
-  position: relative;
+  position: absolute;
   z-index: 1;
   height: 0;
   width: 100%;
 }
 
+#game {
+  width: 100%;
+  display: flex;
+  flex: 1;
+}
 
 #left, #center, #right {
-  display: inline-block;
+  display: flex;
+  flex-flow: column;
 }
 
 #left {
-  float: left;
+  flex: 1;
+  order: 1;
+  padding-right: $spacing;
+}
+
+#center {
+  flex: 0 0;
+  order: 2;
 }
 
 #right {
-  float: right;
-}
-
-.landscape {
-  #left, #center, #right {
-    height: 100%;
-  }
-
-  #left {
-    padding-right: $spacing;
-  }
-
-  #right {
-    padding-left: $spacing;
-  }
+  flex: 4;
+  order: 3;
+  padding-left: $spacing;
 }
 
 .portrait {
+  &#game {
+    flex-direction: column;
+  }
+
+  #left, #center, #right {
+    order: 0;
+  }
+
   #center {
     width: 100%;
 
@@ -82,35 +84,10 @@ $spacing: .625em;
 
 canvas {
   width: 100%;
-  height: 90%;
+  height: 0;
+  flex: 9;
   cursor: crosshair;
   position: relative;
-}
-
-#worddiag {
-  position: absolute;
-  width: 50%;
-  margin-left: 25%;
-  top: 10em;
-  display: none;
-  pointer-events: none;
-
-  * {
-    display: block;
-    margin: 0.5em auto;
-    text-align: center;
-  }
-
-  input {
-    pointer-events: all;
-
-    &[type="text"] {
-      outline: 0;
-      border: solid 0.1em $default-color;
-      border-radius: 4em;
-      padding: 0.75em 1em;
-    }
-  }
 }
 
 button, input[type="submit"] {
@@ -119,7 +96,6 @@ button, input[type="submit"] {
   cursor: pointer;
   outline: 0;
   border: 0;
-  border-radius: 4em;
   padding: 0.75em 1em 0.6em;
 
   &::-moz-focus-inner {
@@ -127,129 +103,12 @@ button, input[type="submit"] {
   }
 }
 
-#tools {
-  margin-top: 0.438em;
-  width: 100%;
-}
-
-.swatch, #undo, #clear {
-  display: inline-block;
-  width: $swatch-size;
-  height: $swatch-size;
-  cursor: pointer;
-  margin-right: 0.2em;
-}
-
-.swatch {
-  border-radius: 100%;
-  background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
-
-  &:hover {
-    border: $border-width solid $swatch-select;
-  }
-
-  &[for="r-"] {
-    margin-right: 4em;
-  }
-}
-
-input[type=radio] {
-  display: none;
-
-  &:checked + .swatch {
-    border: $border-width solid $swatch-select;
-  }
-}
-
-#sizeBar {
-  font-size: $swatch-size/2;
-  border-top: $border-width solid $default-color;
-  overflow: visible;
-
-  #sizeIn {
-    margin: 0;
-    padding: 0;
-    width: 23%;
-    height: 2em;
-    cursor: pointer;
-    outline: 0;
-    background-color: transparent;
-    -webkit-appearance: none;
-    // * * * TRACK * * *
-    &::-moz-range-track {
-      background: transparent;
-    }
-    &::-ms-track {
-      border: 0;
-      background: transparent;
-      color: transparent;
-    }
-    &::-ms-fill-lower {
-      background: transparent;
-    }
-    // * * * THUMB * * *
-    @mixin range-thumb {
-      width: 2em;
-      height: 2em;
-      background-color: $default-color;
-      border-radius: 100%;
-      border: 0;
-      cursor: pointer;
-    }
-
-    &::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      @include range-thumb;
-    }
-
-    &::-moz-range-thumb {
-      @include range-thumb;
-    }
-
-    &::-ms-thumb {
-      @include range-thumb;
-    }
-
-    &:hover {
-      &::-webkit-slider-thumb {
-        background-color: $hover-color;
-      }
-
-      &::-moz-range-thumb {
-        background-color: $hover-color;
-      }
-
-      &::-ms-thumb {
-        background-color: $hover-color;
-      }
-    }
-  }
-}
-
-#undo, #clear {
-  float: right;
-  fill: currentColor;
-  color: $default-color;
-
-  &:hover {
-    color: $hover-color;
-  }
-}
-
-#guessIn {
-  border: 0;
-  width: 100%;
-  height: $swatch-size;
-  padding-left: $spacing;
-  margin-top: $spacing;
-}
-
 #infobox {
   position: relative;
   list-style-type: none;
   margin: 0;
   padding: 0;
-  height: 15%;
+  flex: 2;
   text-align: center;
 }
 
@@ -269,64 +128,11 @@ input[type=radio] {
   }
 }
 
-#start {
-  position: absolute;
-  top: 0.5em;
-  left: 0;
-  width: 50%;
-  height: 2.3em;
-  margin: 0 25%;
-  background: #3F3;
-  transition: all .4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
-  white-space: nowrap;
-
-  & > * {
-    vertical-align: top;
-    display: inline-block;
-  }
-
-  & > svg {
-    height: 1em;
-    max-width: 2.6em;
-    overflow: visible;
-  }
-
-  #icon {
-    margin-right: 0.6em;
-    width: 0.8em;
-    height: 0.8em;
-
-    svg {
-      display: block;
-      transform-origin: .3em .4em;
-      transition: transform .4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
-    }
-  }
-
-  &.going {
-    width: 2em;
-    height: 2em;
-    padding: 0.61em;
-    margin: 0 0.5em;
-    background: #F33;
-
-    #icon svg {
-      transform: scale(2.5) rotate(63deg);
-    }
-  }
-}
-
-#messbox {
-  margin-top: 4%;
-  height: 73%;
-  position: relative;
-}
-
 #users {
   text-align: right;
   overflow-y: auto;
   width: 400%;
-  height: 100%;
+  flex: 1;
   margin: 0 0 0 -300%;
   padding: 0;
   list-style-type: none;
@@ -334,19 +140,6 @@ input[type=radio] {
   li div {
     font-size: 0.8em;
     color: $default-color;
-  }
-}
-
-#messages {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  list-style-type: none;
-  position: absolute;
-  bottom: 0;
-
-  li {
-    padding: 0.313em $spacing;
   }
 }
 
@@ -373,7 +166,6 @@ input[type=radio] {
 }
 
 #settings {
-  display: none;
   position: absolute;
   top: 0;
   right: 0;
@@ -389,48 +181,6 @@ input[type=radio] {
     input {
       margin: 0.5em;
       width: 5em;
-    }
-  }
-}
-
-.menu {
-  height: 1.5em;
-  width: 1.8em;
-  position: absolute;
-  top: 0.5em;
-  right: 0.5em;
-  transition: transform 400ms;
-  cursor: pointer;
-
-  div {
-    background-color: $default-color;
-    height: 20%;
-    width: 100%;
-    position: absolute;
-    transition: transform 400ms;
-    border-radius: 1em;
-
-    &:nth-child(2) {
-      transform: translate(0, 180%);
-    }
-    &:nth-child(3) {
-      transform: translate(0, 360%);
-    }
-  }
-
-  &.open {
-    transform: translate(0.1em, 0);
-
-    div {
-      &:nth-child(1) {
-        transform: translate(0, 180%) rotate(135deg);
-      }
-      &:nth-child(2) {
-        transform: translate(0, 180%) scale(0.2, 1);
-      }
-      &:nth-child(3) {
-        transform: translate(0, 180%) rotate(-135deg);
-      }
     }
   }
 }

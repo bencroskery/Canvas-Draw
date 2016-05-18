@@ -1,0 +1,31 @@
+@import "vars";
+
+#gform {
+  flex: 1;
+}
+
+#guessIn {
+  border: 0;
+  width: 100%;
+  height: $swatch-size;
+  padding-left: $spacing;
+}
+
+#messbox {
+  margin: $spacing 0;
+  flex: 7;
+  position: relative;
+}
+
+#messages {
+   margin: 0;
+   padding: 0;
+   width: 100%;
+   list-style-type: none;
+   position: absolute;
+   bottom: 0;
+
+   li {
+     padding: $spacing/2 $spacing;
+   }
+ }

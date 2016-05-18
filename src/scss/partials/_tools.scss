@@ -1,0 +1,110 @@
+@import "vars";
+
+#tools {
+  padding-top: 0.438em;
+  flex: 1;
+}
+
+.swatch, #undo, #clear {
+  display: inline-block;
+  width: $swatch-size;
+  height: $swatch-size;
+  cursor: pointer;
+  margin-right: 0.2em;
+}
+
+.swatch {
+  border-radius: 100%;
+  background: linear-gradient(150deg, transparent 25%, rgba(100, 50, 80, .25));
+
+  &:hover {
+    border: $border-width solid $swatch-select;
+  }
+
+  &[for="r-"] {
+    margin-right: 4em;
+  }
+}
+
+input[type=radio] {
+  display: none;
+
+  &:checked + .swatch {
+    border: $border-width solid $swatch-select;
+  }
+}
+
+#sizeBar {
+  font-size: $swatch-size/2;
+  border-top: $border-width solid $default-color;
+  overflow: visible;
+
+  #sizeIn {
+    margin: 0;
+    padding: 0;
+    width: 23%;
+    height: 2em;
+    cursor: pointer;
+    outline: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    // * * * TRACK * * *
+    &::-moz-range-track {
+      background: transparent;
+    }
+    &::-ms-track {
+      border: 0;
+      background: transparent;
+      color: transparent;
+    }
+    &::-ms-fill-lower {
+      background: transparent;
+    }
+    // * * * THUMB * * *
+    @mixin range-thumb {
+      width: 2em;
+      height: 2em;
+      background-color: $default-color;
+      border-radius: 100%;
+      border: 0;
+      cursor: pointer;
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      @include range-thumb;
+    }
+
+    &::-moz-range-thumb {
+      @include range-thumb;
+    }
+
+    &::-ms-thumb {
+      @include range-thumb;
+    }
+
+    &:hover {
+      &::-webkit-slider-thumb {
+        background-color: $hover-color;
+      }
+
+      &::-moz-range-thumb {
+        background-color: $hover-color;
+      }
+
+      &::-ms-thumb {
+        background-color: $hover-color;
+      }
+    }
+  }
+}
+
+#undo, #clear {
+  float: right;
+  fill: currentColor;
+  color: $default-color;
+
+  &:hover {
+    color: $hover-color;
+  }
+}

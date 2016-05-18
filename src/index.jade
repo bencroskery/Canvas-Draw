@@ -12,22 +12,33 @@ html
     link(rel='mask-icon', href='logo.svg', color='#ee7b00')
     meta(name='msapplication-TileColor', content='#ee7b00')
     meta(name='msapplication-TileImage', content='mstile-144x144.png')
-    meta(name='theme-color', content='#f0f0f0')
+    meta(name='theme-color', content='#ee7b00')
   body.container-fluid.over
     img#logo(src='logo.svg')
-    #login
+    #login(style="display: none")
       form#lform(action='')
         label.title(for='nameIn') What's your nickname?
         input#nameIn(type='text', maxlength='25')
-    #game.landscape
+    #menu(style="display: none")
+      #ham
+        div
+        div
+        div
+      button#start.over
+        #icon.over
+          svg(viewBox='0 0 2 2')
+            path(fill='white' d='M0 0 L0 2 2 1z')
+        svg(viewBox='0 0 19 7.5')
+          text(style="font-size:8px" x="0" y="6" fill="white") Start!
+    #game.landscape(style="display: none")
       #overlay
-        form#worddiag(action='')
+        form#worddiag(action='' style="display: none")
           //- 3 words to select from + custom.
           div What are you going to draw?
           each i in [1,2,3]
             input(id=('word' + i), type='submit', value=i)
           input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
-        #settings.white
+        #settings.white(style="display: none")
           #s_user
             h1 User Settings
           #s_game
@@ -41,10 +52,6 @@ html
             label Drawing Time:
             input#s_drawing(type='number')
             br
-        .menu
-          div
-          div
-          div
       #center.noselect
         canvas#draw.white(oncontextmenu='return false')
         #tools
@@ -66,12 +73,6 @@ html
         #infobox.white.over
           #timer
           #info Draw freely or start a game
-          button#start.over
-            #icon.over
-              svg(viewBox='0 0 2 2')
-                path(fill='white' d='M0 0 L0 2 2 1z')
-            svg(viewBox='0 0 19 7.5')
-              text(style="font-size:8px" x="0" y="6" fill="white") Start!
         #messbox.white.over
           ul#messages
         form#gform(action='')

@@ -22,8 +22,8 @@ class Draw {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
-        this.width = canvas.clientWidth * window.devicePixelRatio;
-        this.height = canvas.clientHeight * window.devicePixelRatio;
+        this.width = 0;
+        this.height = 0;
         this.actions = [];          // List of actions.
         this.layer = [];            // List of layers.
         this.line = [];             // List of all the lines drawn.

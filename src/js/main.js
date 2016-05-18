@@ -102,6 +102,7 @@ let mouseDown = false; // Remember if down and already drawing.
  * @type event
  */
 canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
+    e.preventDefault();
     if (d.game.draw) {
         const mouseX = (e.pageX || e.targetTouches[0].pageX) - this.offsetLeft;
         const mouseY = (e.pageY || e.targetTouches[0].pageY) - this.offsetTop;
@@ -115,12 +116,11 @@ canvas.onmousedown = canvas.ontouchstart = function onDown(e) {
             }
             mouseDown = false;
         } else {
-            mouseDown = true;
             emitPoint(0, mouseX, mouseY);
             draw.down(mouseX, mouseY, d.game.myID);
+            mouseDown = true;
         }
     }
-    return false;
 };
 
 /**
@@ -144,9 +144,9 @@ canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
  */
 window.onmouseup = canvas.ontouchend = function onUp() {
     if (d.game.draw && mouseDown) {
-        mouseDown = false;
         emitPoint(2, 0, 0);
         draw.up(d.game.myID);
+        mouseDown = false;
     }
 };
 
@@ -190,12 +190,6 @@ function setDrawColor(val) {
     draw.setColor(val, d.game.myID);
     sockEmit('set color', {c: val, l: d.game.myID});
 }
-// Add event to all swatch buttons.
-Array.from(document.querySelectorAll("input[name=color]")).forEach((color) => {
-    color.onchange = function () {
-        setDrawColor(document.querySelector("label[for=" + this.id + "]").style.backgroundColor);
-    }
-});
 
 /**
  * Size changed.
@@ -253,7 +247,7 @@ document.getElementById('start').onclick = function (e) {
 // Chat Section
 // ----------------------------
 
-document.getElementsByClassName("menu")[0].onclick = function () {
+document.getElementById("ham").onclick = function () {
     tools.openMenu(this)
 };
 
@@ -270,13 +264,13 @@ window.onresize = resize;
  * A word was chosen.
  * @returns {boolean} stop form submit
  */
-document.getElementById('worddiag').onsubmit = function () {
+document.getElementById('worddiag').onsubmit = function (e) {
+    e.preventDefault();
     var val = document.activeElement.value.trim();
     if (val.length) {
         if (d.game.currentID === d.game.myID) sockEmit('turn-draw', val);
         tools.fadeOut('worddiag');
     }
-    return false;
 };
 
 // ----------------------------
@@ -289,16 +283,25 @@ document.getElementById('worddiag').onsubmit = function () {
  */
 document.getElementById('lform').onsubmit = function (e) {
     e.preventDefault();
-    var name = document.getElementById('nameIn').value;
+    let name = document.getElementById('nameIn').value;
     if (name !== '' && name.toLowerCase() !== 'you') {
+        // Setup the player and send it.
         Players.get().name = name;
         Players.get().color = tools.randRGB();
         socketeer();
         sockEmit('add user', Players.get());
+
+        // Switch to game view.
         tools.fadeOut("logo");
         tools.fadeOut("login");
         tools.fadeIn("game");
+        tools.fadeIn("menu");
         resize();
+        // Add event to all swatch buttons.
+        Array.from(document.querySelectorAll("input[name=color]")).forEach((color) => {
+            color.onchange = function () {
+                setDrawColor(document.querySelector("label[for=" + this.id + "]").style.backgroundColor);
+            }
+        });
     }
-    return false;
 };

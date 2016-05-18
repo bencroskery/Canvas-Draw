@@ -7,13 +7,12 @@
 body {
   margin: 0;
   background: #F0F0F0;
-}
-html, body {
-  height: 100%;
+  display: flex;
+  flex-flow: column;
 }
 
-#game, #login {
-  display: none;
+html, body {
+  height: 100%;
 }
 
 #logo {

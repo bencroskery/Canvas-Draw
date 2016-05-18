@@ -9,7 +9,7 @@ let landscape = true;
  * Resize the game window, set the fontSize for CSS sizing, and ask the drawing to resize.
  */
 function resize() {
-    const ASPECT = 16 / 9, PX = "px";
+    const PX = "px";
     let width = window.innerWidth,
         height = window.innerHeight,
         gameBox = document.getElementById("game"),
@@ -20,30 +20,31 @@ function resize() {
 
 
     if (width >= height * 1.25 && !landscape) {
-        console.log("switch landscape");
+        console.log("switch to landscape");
+        // Switch classes.
         gameBox.classList.remove("portrait");
         gameBox.classList.add("landscape");
-        left.style.height = center.style.height = right.style.height = "";
         landscape = true;
     } else if (width < height * 1.25 && landscape) {
-        console.log("switch portrait");
+        console.log("switch to portrait");
+        // Switch classes.
         gameBox.classList.remove("landscape");
         gameBox.classList.add("portrait");
-        left.style.width = center.style.width = right.style.width = "";
         landscape = false;
     }
 
     if (landscape) {
         shortest = height;
-        center.style.width = height * 1.25 + PX;
-        let w = width - height * 1.25;
-        left.style.width = w / 4 + PX;
-        right.style.width = w * 3 / 4 + PX;
+        center.style.flexBasis = center.style.msFlexPreferredSize = height * 1.25 + PX;
+        //let w = width - height * 1.25;
+        //left.style.width = w / 4 + PX;
+        //right.style.width = w * 3 / 4 + PX;
     } else {
         shortest = width;
-        center.style.height = width * 0.8 + PX;
-        let h = height - width * 0.8;
-        left.style.height = right.style.height = h + PX;
+        center.style.flexBasis = center.style.msFlexPreferredSize = width * 0.8 + PX;
+        // center.style.height = width * 0.8 + PX;
+        // let h = height - width * 0.8;
+        // left.style.height = right.style.height = h + PX;
     }
 
     draw.resize();
