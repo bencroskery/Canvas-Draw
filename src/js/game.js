@@ -28,7 +28,7 @@ export function stop() {
 
 export function turn_wait(next) {
     if (next !== 0) {
-        Chat.addMessage(null, 'The word was: ' + d.game.word);
+        Chat.addMessage('The word was: ' + d.game.word);
     }
     draw.dump();
     d.game.iDone = false;

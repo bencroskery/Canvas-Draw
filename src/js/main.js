@@ -142,7 +142,7 @@ canvas.onmousemove = canvas.ontouchmove = function onMove(e) {
  * Mouse button was released.
  * @type event
  */
-window.onmouseup = canvas.ontouchend = function onUp() {
+window.onmouseup = window.ontouchend = function onUp() {
     if (d.game.draw && mouseDown) {
         emitPoint(2, 0, 0);
         draw.up(d.game.myID);
