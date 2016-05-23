@@ -24,7 +24,7 @@
     "postinstall": "npm run build:all",
     "build:all": "npm run build:socket && npm run build:html && npm run build:js && npm run build:css",
     "watch:all": "parallelshell \"npm run watch:html\" \"npm run watch:js\" \"npm run watch:start\" \"npm run watch:css\"",
-    "build:socket": "uglifyjs2 node_modules/socket.io-client/socket.io.js -o node_modules/socket.io-client/socket.io.js",
+    "build:socket": "uglifyjs node_modules/socket.io-client/socket.io.js -o node_modules/socket.io-client/socket.io.js",
     "jade": "jade --no-debug -o public/ src/index.jade",
     "build:html": "npm run jade",
     "watch:html": "onchange \"src/*.jade\" -v -i -- npm run jade",
