@@ -56,6 +56,11 @@
   padding-left: $spacing;
 }
 
+#bottom {
+  display: flex;
+  flex: 1;
+}
+
 .portrait {
   &#game {
     flex-direction: column;
