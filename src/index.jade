@@ -19,17 +19,6 @@ html
       form#lform(action='')
         label.title(for='nameIn') What's your nickname?
         input#nameIn(type='text', maxlength='25')
-    #menu(style="display: none")
-      #ham
-        div
-        div
-        div
-      button#start.over
-        #icon.over
-          svg(viewBox='0 0 2 2')
-            path(fill='white' d='M0 0 L0 2 2 1z')
-        svg(viewBox='0 0 19 7.5')
-          text(style="font-size:8px" x="0" y="6" fill="white") Start!
     #game.landscape(style="display: none")
       #overlay
         form#worddiag(action='' style="display: none")
@@ -68,12 +57,22 @@ html
           svg#clear(viewBox='0 0 40 40')
             path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
       #left
+        #ham
+          div
+          div
+          div
+        button#start.over
+          #icon.over
+            svg(viewBox='0 0 2 2')
+              path(fill='white' d='M0 0 L0 2 2 1z')
+          svg(viewBox='0 0 19 7.5')
+            text(style="font-size:8px" x="0" y="6" fill="white") Start!
         ul#users
       #right
         #infobox.white.over
           #timer
           #info Draw freely or start a game
-        #messbox.white.over
+        #messbox.over
           ul#messages
         form#gform(action='')
           input#guessIn(autocomplete='off', placeholder='Type here...')

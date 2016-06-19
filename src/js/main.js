@@ -295,7 +295,6 @@ document.getElementById('lform').onsubmit = function (e) {
         tools.fadeOut("logo");
         tools.fadeOut("login");
         tools.fadeIn("game");
-        tools.fadeIn("menu");
         resize();
         // Add event to all swatch buttons.
         Array.from(document.querySelectorAll("input[name=color]")).forEach((color) => {
