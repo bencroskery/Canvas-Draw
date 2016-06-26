@@ -1,6 +1,6 @@
 //import * from '../../node_modules/howler/howler'
 
-import {Howl} from '../../node_modules/howler/howler.core.min.js'
+import {Howl} from '../../node_modules/howler/dist/howler.core.min.js'
 
 export function playSound(name, vol) {
     vol = vol || 1;

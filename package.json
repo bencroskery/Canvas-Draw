@@ -46,7 +46,7 @@
     "compression": "^1.6.2",
     "cssnano": "^3.5.2",
     "express": "^4.13.0",
-    "howler": "^2.0.0-beta11",
+    "howler": "^2.0.0-rc1",
     "jade": "^1.11.0",
     "lodash": "^4.0.0",
     "node-sass": "^3.4.2",
