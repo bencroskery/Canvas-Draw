@@ -68,14 +68,15 @@ html
           svg(viewBox='0 0 19 7.5')
             text(style="font-size:8px" x="0" y="6" fill="white") Start!
         ul#users
-      #right
-        #infobox.white.over
-          #timer
-          #info Draw freely or start a game
-        #messbox.over
-          ul#messages
-        form#gform(action='')
-          input#guessIn(autocomplete='off', placeholder='Type here...')
+      #bottom
+        #right
+          #infobox.white.over
+            #timer
+            #info Draw freely or start a game
+          #messbox.over
+            ul#messages
+          form#gform(action='')
+            input#guessIn(autocomplete='off', placeholder='Type here...')
     script(src='js/start.js')
     link(rel='stylesheet', property='stylesheet', href='css/style.css')
     script(src='https://cdn.socket.io/socket.io-1.4.5.js')

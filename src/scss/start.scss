@@ -14,12 +14,12 @@ html, body {
 }
 
 #logo {
-  $load-size: 8em;
+  $load-size: 20vmin;
   position: absolute;
   top: 40%;
   left: 50%;
   height: $load-size;
   width: $load-size;
-  margin: (-3em - $load-size / 2) 0 0 (-$load-size / 2);
+  margin: (-8vmin - $load-size / 2) 0 0 (-$load-size / 2);
   transition: height ease 1s, width ease 1s, margin ease 1s;
 }

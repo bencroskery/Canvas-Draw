@@ -3,7 +3,7 @@ import Draw from './draw'
 var canvas = document.getElementById('draw'),
     draw = new Draw(canvas);
 
-let landscape = true;
+let mode = 2;
 
 /**
  * Resize the game window, set the fontSize for CSS sizing, and ask the drawing to resize.
@@ -15,34 +15,44 @@ function resize() {
         gameBox = document.getElementById("game"),
         left = document.getElementById("left"),
         center = document.getElementById("center"),
-        right = document.getElementById("right"),
+        bottom = document.getElementById("bottom"),
         shortest;
-    
-    if (width >= height * 1.30 && !landscape) {
-        console.log("switch to landscape");
-        // Switch classes.
-        gameBox.classList.remove("portrait");
-        gameBox.classList.add("landscape");
-        landscape = true;
 
-        gameBox.insertBefore(left, center);
-        gameBox.appendChild(right);
-        gameBox.removeChild(document.getElementById("bottom"));
-    } else if (width < height * 1.30 && landscape) {
-        console.log("switch to portrait");
+    let asp = width/height;
+    console.log(asp);
+
+    if ((asp < 1.62 && mode === 2) || (asp > 1.30 && mode === 0)) {
+        if (mode === 2) {
+            // move left to bottom.
+            gameBox.removeChild(left);
+            bottom.appendChild(left);
+        } else {
+            // Switch classes.
+            gameBox.classList.remove("portrait");
+            gameBox.classList.add("landscape");
+        }
+
+        mode = 1;
+        console.log("switch to " + mode);
+    }
+    if (asp > 1.62 && mode !== 2) {
+        // move left to gamebox.
+        bottom.removeChild(left);
+        gameBox.appendChild(left);
+
+        mode = 2;
+        console.log("switch to " + mode);
+    }
+    if (asp < 1.30 && mode !== 0) {
         // Switch classes.
         gameBox.classList.remove("landscape");
         gameBox.classList.add("portrait");
-        landscape = false;
 
-        let bottom = document.createElement("div");
-        bottom.id = "bottom";
-        bottom.appendChild(left);
-        bottom.appendChild(right);
-        gameBox.appendChild(bottom);
+        mode = 0;
+        console.log("switch to " + mode);
     }
 
-    if (landscape) {
+    if (mode != 0) {
         shortest = height;
         // Setting flex width in landscape.
         center.style.flexBasis = center.style.msFlexPreferredSize = height * 1.25 + PX;
@@ -55,6 +65,6 @@ function resize() {
     draw.resize();
 
     // Set the font size based off size and scaling factor (16pt font / 1280px width).
-    document.body.style.fontSize = shortest / 45 + PX;
+    center.style.fontSize = shortest / 45 + PX;
 }
 resize();

@@ -2,9 +2,10 @@
 
 #start {
   float: right;
-  height: 36px;
+  height: 2em;
   width: 100%;
   padding: 10px;
+  margin: 6px;
   background: #3F3;
   transition: all .4s cubic-bezier(0.65, 0.05, 0.36, 1);
   white-space: nowrap;
@@ -33,7 +34,7 @@
   }
 
   &.going {
-    width: 36px;
+    width: 2em;
     background: #F33;
 
     #icon svg {

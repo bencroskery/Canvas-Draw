@@ -25,13 +25,14 @@ function addPolyfill(name) {
 /**
  * Fade an element out.
  * @param id
+ * @param hide
  */
-export function fadeOut(id) {
+export function fadeOut(id, keep) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 1;
     (function f() {
         s.opacity = (val -= .1).toFixed(1);
-        val <= 0.1 ? s.display = "none" : setTimeout(f, 40);
+        val <= 0.1 ? s.display = keep ? "" : "none" : setTimeout(f, 40);
     })();
 }
 

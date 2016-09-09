@@ -34,7 +34,7 @@
   height: 100%;
 }
 
-#left, #center, #right {
+#left, #center, #right, #bottom {
   display: flex;
   flex-flow: column;
 }
@@ -51,22 +51,19 @@
 }
 
 #right {
-  flex: 4;
-  order: 3;
+  flex: 1;
+  order: 5;
 }
 
 #bottom {
+  flex: 4;
+  order: 3;
   display: flex;
-  flex: 1;
 }
 
 .portrait {
   &#game {
     flex-direction: column;
-  }
-
-  #left, #center, #right {
-    order: 0;
   }
 
   #center {
@@ -78,12 +75,16 @@
   }
 
   #left {
-    width: 25%;
+    flex: 1;
     padding: 0;
   }
 
   #right {
-    width: 75%;
+    flex: 3;
+  }
+
+  #bottom {
+    flex-flow: row;
   }
 }
 
@@ -156,8 +157,7 @@ button, input[type="submit"] {
   top: 40%;
   width: 90%;
   margin-left: 5%;
-  font-size: 200%;
-  font-weight: 100;
+  font-size: calc(0.5em + 1.5vw);
 
   #nameIn {
     border: 0;

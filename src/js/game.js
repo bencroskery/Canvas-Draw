@@ -44,7 +44,7 @@ export function turn_wait(next) {
     } else {
         d.game.draw = false;
         view.setInfo("It's now " + Players.get(d.game.currentID).name + "'s turn!");
-        tools.fadeOut('tools');
+        tools.fadeOut('tools', true);
     }
     d.game.mode = 0;
     d.game.time = d.settings.time_wait;
