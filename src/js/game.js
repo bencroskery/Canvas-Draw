@@ -2,9 +2,13 @@ import {sockEmit} from './sock'
 import * as tools from './tools'
 import * as d from './data'
 import * as view from './view'
+
 import {playSound} from './sound'
 import Players from './components/players'
 import Chat from './components/chat'
+import WordDiag from './components/worddiag'
+
+WordDiag.init();
 
 export function start() {
     document.getElementById('start').classList.add("going");
@@ -26,6 +30,10 @@ export function stop() {
     clearInterval(d.game.timer);
 }
 
+/**
+ * Turn: waiting (recovery time).
+ * @param {Number} next
+ */
 export function turn_wait(next) {
     if (next !== 0) {
         Chat.addMessage('The word was: ' + d.game.word);
@@ -51,11 +59,15 @@ export function turn_wait(next) {
     view.setTimer(d.game.time--);
 }
 
+/**
+ * Turn: player choosing.
+ * @param {String[]} words
+ */
 export function turn_choose(words) {
     draw.reDraw();
     if (d.game.draw) {
         view.setInfo('Choose a word!');
-        view.setChoose(words);
+        WordDiag.set(words);
     } else {
         view.setInfo(Players.get(d.game.currentID).name + ' is choosing!');
     }
@@ -64,6 +76,10 @@ export function turn_choose(words) {
     view.setTimer(d.game.time--);
 }
 
+/**
+ * Turn: player drawing the chosen word.
+ * @param {String} word
+ */
 export function turn_draw(word) {
     d.game.word = word;
     buildWord();
