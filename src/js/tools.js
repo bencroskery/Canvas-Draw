@@ -24,8 +24,8 @@ function addPolyfill(name) {
 
 /**
  * Fade an element out.
- * @param id
- * @param hide
+ * @param {String} id
+ * @param {Boolean} [keep]
  */
 export function fadeOut(id, keep) {
     var s = document.getElementById(id).style;
@@ -38,7 +38,7 @@ export function fadeOut(id, keep) {
 
 /**
  * Fade an element in.
- * @param id
+ * @param {String} id
  */
 export function fadeIn(id) {
     var s = document.getElementById(id).style;
@@ -52,7 +52,7 @@ export function fadeIn(id) {
 
 /**
  * Open/Close the menu element.
- * @param el
+ * @param {Element} el
  */
 export function openMenu(el) {
     if (el.classList.contains("open")) {
