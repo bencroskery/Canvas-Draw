@@ -1,12 +1,12 @@
 import {socketeer, sockEmit} from './sock'
 import * as tools from './tools'
 import * as d from './data'
-import {setInfo} from './view'
 import {playMusic, stopMusic} from './sound'
 
 import Players from './components/players'
 import Chat from './components/chat'
 import Canvas from './components/canvas'
+import Info from './components/info'
 
 // Startup.
 tools.fadeIn('login');
@@ -81,7 +81,7 @@ function checkGuess(guess) {
         if (!d.game.iDone) {
             sockEmit('correct guess');
             d.game.iDone = true;
-            setInfo(d.game.word);
+            Info.set(d.game.word);
         } else {
             Chat.addMessage("Chill bro, you already got it");
         }

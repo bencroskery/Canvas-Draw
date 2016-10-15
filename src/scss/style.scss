@@ -3,6 +3,7 @@
 @import "partials/right";
 @import "partials/tools";
 @import "partials/worddiag";
+@import "partials/info";
 
 .noselect {
   -webkit-touch-callout: none;
@@ -34,7 +35,7 @@
   height: 100%;
 }
 
-#left, #center, #right, #bottom {
+#center, #right, #bottom {
   display: flex;
   flex-flow: column;
 }
@@ -58,7 +59,6 @@
 #bottom {
   flex: 4;
   order: 3;
-  display: flex;
 }
 
 .portrait {
@@ -107,32 +107,6 @@ button, input[type="submit"] {
 
   &::-moz-focus-inner {
     border: 0;
-  }
-}
-
-#infobox {
-  position: relative;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  flex: 2;
-  text-align: center;
-  display: none;
-}
-
-#timer, #info {
-  height: 1em;
-  margin-top: 1.2em;
-  white-space: pre;
-}
-
-#info .char {
-  margin: 0 0.2em;
-
-  &.b {
-    border-bottom: 0.2em solid red;
-    width: 0.6em;
-    display: inline-block;
   }
 }
 

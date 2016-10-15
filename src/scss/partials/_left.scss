@@ -1,9 +1,9 @@
 @import "vars";
 
 #start {
-  float: right;
   height: 2em;
   width: 100%;
+  max-width: 10em;
   padding: 10px;
   margin: 6px;
   background: #3F3;
@@ -44,7 +44,6 @@
 }
 
 #ham {
-  float: right;
   height: 36px;
   width: 42px;
   padding: 6px;

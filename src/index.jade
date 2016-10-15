@@ -42,6 +42,8 @@ html
             input#s_drawing(type='number')
             br
       #center.noselect
+        #infobox
+          #info Draw freely or start a game
         canvas#draw.white(oncontextmenu='return false')
         #tools
           //- Build selection of color swatches.
@@ -70,9 +72,6 @@ html
         ul#users
       #bottom
         #right
-          #infobox.white.over
-            #timer
-            #info Draw freely or start a game
           #messbox.over
             ul#messages
           form#gform(action='')

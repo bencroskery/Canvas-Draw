@@ -7,6 +7,7 @@ import {playSound} from './sound'
 import Players from './components/players'
 import Chat from './components/chat'
 import WordDiag from './components/worddiag'
+import Info from './components/info'
 
 WordDiag.init();
 
@@ -19,7 +20,7 @@ export function start() {
 
 export function stop() {
     document.getElementById('start').classList.remove("going");
-    view.setInfo('Draw freely or start a game');
+    Info.set('Draw freely or start a game');
     if (d.game.mode === 1 && d.game.currentID === d.game.myID) tools.fadeOut('worddiag');
     d.game.draw = true;
     d.game.currentID = -1;
@@ -47,11 +48,11 @@ export function turn_wait(next) {
     }
     if (d.game.currentID === d.game.myID) {
         d.game.draw = true;
-        view.setInfo("It's now your turn!");
+        Info.set("It's now your turn!");
         tools.fadeIn('tools');
     } else {
         d.game.draw = false;
-        view.setInfo("It's now " + Players.get(d.game.currentID).name + "'s turn!");
+        Info.set("It's now " + Players.get(d.game.currentID).name + "'s turn!");
         tools.fadeOut('tools', true);
     }
     d.game.mode = 0;
@@ -66,10 +67,10 @@ export function turn_wait(next) {
 export function turn_choose(words) {
     draw.reDraw();
     if (d.game.draw) {
-        view.setInfo('Choose a word!');
+        Info.set('Choose a word!');
         WordDiag.set(words);
     } else {
-        view.setInfo(Players.get(d.game.currentID).name + ' is choosing!');
+        Info.set(Players.get(d.game.currentID).name + ' is choosing!');
     }
     d.game.mode = 1;
     d.game.time = d.settings.time_choose;
@@ -105,7 +106,7 @@ function buildWord() {
             o.length++;
             return o;
         }, {char: [], length: 0});
-        view.setInfo('DRAW!!! Word: ' + d.game.word);
+        Info.set('DRAW!!! Word: ' + d.game.word);
     } else {
         d.game.hideList = true;
         // Add all the visible and hidden elements to the output.
@@ -116,7 +117,7 @@ function buildWord() {
                 return o + "<span class='char'>" + c + "</span>";
             }
         }, '');
-        view.setInfo(out);
+        Info.set(out);
     }
 }
 
