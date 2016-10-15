@@ -21,5 +21,9 @@ html, body {
   height: $load-size;
   width: $load-size;
   margin: (-8vmin - $load-size / 2) 0 0 (-$load-size / 2);
-  transition: height ease 1s, width ease 1s, margin ease 1s;
+  transition: all 1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+#logo.spin {
+  transform: rotate(-360deg);
 }

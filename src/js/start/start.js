@@ -68,3 +68,6 @@ function resize() {
     center.style.fontSize = shortest / 45 + PX;
 }
 resize();
+
+// Loaded up, do a spin!
+document.getElementById("logo").classList.add("spin");
