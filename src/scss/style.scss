@@ -23,7 +23,7 @@
 }
 
 #overlay {
-  position: absolute;
+  position: relative;
   z-index: 1;
   height: 0;
   width: 100%;
@@ -149,12 +149,12 @@ button, input[type="submit"] {
 #settings {
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
-  width: 93%;
-  height: 38em;
-  padding: 2em;
+  padding: 4em 2em;
 
-  #s_user, #s_game {
+  > * {
+    font-size: 1rem;
     float: left;
     height: 100%;
     width: 50%;

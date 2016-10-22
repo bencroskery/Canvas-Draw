@@ -20,30 +20,30 @@ html
         label.title(for='nameIn') What's your nickname?
         input#nameIn(type='text', maxlength='25')
     #game.landscape(style="display: none")
-      #overlay
-        form#worddiag(action='' style="display: none")
-          //- 3 words to select from + custom.
-          div What are you going to draw?
-          each i in [1,2,3]
-            input(id=('word' + i), type='submit', value=i)
-          input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
-        #settings.white(style="display: none")
-          #s_user
-            h1 User Settings
-          #s_game
-            h1 Game Settings
-            label Waiting Time:
-            input#s_waiting(type='number')
-            br
-            label Picking Time:
-            input#s_picking(type='number')
-            br
-            label Drawing Time:
-            input#s_drawing(type='number')
-            br
       #center.noselect
-        #infobox
-          #info Draw freely or start a game
+        #overlay
+          #infobox
+            #info Draw freely or start a game
+          form#worddiag(action='' style="display: none")
+            //- 3 words to select from + custom.
+            div What are you going to draw?
+            each i in [1,2,3]
+              input(id=('word' + i), type='submit', value=i)
+            input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
+          #settings.white(style="display: none")
+            #s_user
+              h1 User Settings
+            #s_game
+              h1 Game Settings
+              label Waiting Time:
+              input#s_waiting(type='number')
+              br
+              label Picking Time:
+              input#s_picking(type='number')
+              br
+              label Drawing Time:
+              input#s_drawing(type='number')
+              br
         canvas#draw.white(oncontextmenu='return false')
         #tools
           //- Build selection of color swatches.
