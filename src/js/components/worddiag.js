@@ -12,7 +12,7 @@ export function init() {
  */
 function chosen(e) {
     e.preventDefault();
-    var val = document.activeElement.value.trim();
+    const val = document.activeElement.value.trim();
     if (val.length) {
         if (d.game.currentID === d.game.myID) sockEmit('turn-draw', val);
         tools.fadeOut('worddiag');

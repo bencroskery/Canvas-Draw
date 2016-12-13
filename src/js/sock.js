@@ -2,6 +2,7 @@ import * as game from './game'
 import * as d from './data'
 import Players from './components/players'
 import Chat from './components/chat'
+import Time from './components/time'
 
 let socket = io(); // Socket for connections.
 
@@ -34,10 +35,8 @@ export function socketeer() {
 
     socket.on('correct guess', function (id) {
         // Pull down time to the reaction time for guessing.
-        if (d.game.time > d.settings.time_react) {
-            d.game.hideList = null;
-            d.game.time = d.settings.time_react;
-        }
+        Time.dropTo(d.settings.time_react);
+        d.game.hideList = null;
         // Give points to player drawing on first correct.
         if (d.game.allDone++ === 0) {
             Players.updateScore(d.game.currentID, 2);

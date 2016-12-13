@@ -24,6 +24,10 @@ html
         #overlay
           #infobox
             #info Draw freely or start a game
+            svg#timer(viewBox='0 0 100 100')
+              path(d='M2,50 A 48,48 0 0 1 98 50 A 48,48 0 0 1 2,50')
+              path(d='M2,50 A 48,48 0 0 1 98 50 A 48,48 0 0 1 2,50')
+              text(x='50',y='62',text-anchor='middle') 50
           form#worddiag(action='' style="display: none")
             //- 3 words to select from + custom.
             div What are you going to draw?

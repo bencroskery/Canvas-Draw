@@ -1,6 +1,6 @@
 import Draw from './draw'
 
-var canvas = document.getElementById('draw'),
+let canvas = document.getElementById('draw'),
     draw = new Draw(canvas);
 
 let mode = 2;

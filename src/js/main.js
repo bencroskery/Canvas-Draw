@@ -28,7 +28,7 @@ function runCommand(arg) {
             sockEmit('stop game', 0);
             break;
         case '/gamemode':
-            var mode = d.settings.gamemode;
+            let mode = d.settings.gamemode;
             if (arg[1] === 'default')   mode = 0;
             else if (arg[1] === 'team') mode = 1;
             else if (arg[1] === 'vs')   mode = 2;

@@ -23,7 +23,6 @@ function submit(e) {
     if (guessBox.value.charAt(0) === '/') {
         props.command(guessBox.value.split(' '));
     } else if (guessBox.value !== '') {
-        console.log(props);
         props.check(guessBox.value);
     }
 

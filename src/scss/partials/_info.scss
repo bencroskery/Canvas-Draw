@@ -1,20 +1,21 @@
 #infobox {
-  position: relative;
-  margin: 0 auto;
   font-size: 1rem;
-  width: 15em;
-  pointer-events: none;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  //pointer-events: none;
+  float: right;
 }
 
 #info {
+  $push : 4;
+
   position: absolute;
-  left: 0;
   right: 0;
   top: 0;
   height: 2em;
-  padding: .5em;
+  padding: .5em ($push + .5em) .5em .5em;
   background: rgba(255, 165, 0, 0.5);
-  z-index: 1;
   border-radius: 0 0 5px 5px;
   text-align: center;
 
@@ -26,5 +27,34 @@
       width: 0.6em;
       display: inline-block;
     }
+  }
+}
+
+#timer {
+  position: absolute;
+  top: -1em;
+  right: -2em;
+  width: 6em;
+
+  .portrait & {
+    right: -1.5em;
+  }
+
+  path:nth-of-type(1) {
+    fill: white;
+    stroke: grey;
+    stroke-width: 1;
+  }
+
+  path:nth-of-type(2) {
+    fill: none;
+    stroke: aqua;
+    stroke-width: 4;
+    stroke-dasharray: 301.635, 301.635;
+    stroke-dashoffset: 0;
+  }
+
+  text {
+    font-size: 2em;
   }
 }

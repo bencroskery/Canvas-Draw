@@ -1,5 +1,11 @@
 @import "vars";
 
+.landscape #bottom {
+  #start, #ham {
+    margin-left: 2em;
+  }
+}
+
 #start {
   height: 2em;
   width: 100%;

@@ -1,13 +1,13 @@
 import {sockEmit} from './sock'
 import * as tools from './tools'
 import * as d from './data'
-import * as view from './view'
 
 import {playSound} from './sound'
 import Players from './components/players'
 import Chat from './components/chat'
 import WordDiag from './components/worddiag'
 import Info from './components/info'
+import Time from './components/time'
 
 WordDiag.init();
 
@@ -15,7 +15,7 @@ export function start() {
     document.getElementById('start').classList.add("going");
     d.game.draw = false;
     d.game.currentID = 0;
-    d.game.timer = setInterval(timerStep, 1000);
+    Time.set(d.settings.time_wait, timerStep)
 }
 
 export function stop() {
@@ -25,10 +25,9 @@ export function stop() {
     d.game.draw = true;
     d.game.currentID = -1;
     d.game.mode = 0;
-    d.game.time = 0;
     draw.clear();
     tools.fadeIn('tools');
-    clearInterval(d.game.timer);
+    Time.clear();
 }
 
 /**
@@ -56,8 +55,7 @@ export function turn_wait(next) {
         tools.fadeOut('tools', true);
     }
     d.game.mode = 0;
-    d.game.time = d.settings.time_wait;
-    view.setTimer(d.game.time--);
+    Time.set(d.settings.time_wait, timerStep);
 }
 
 /**
@@ -73,8 +71,7 @@ export function turn_choose(words) {
         Info.set(Players.get(d.game.currentID).name + ' is choosing!');
     }
     d.game.mode = 1;
-    d.game.time = d.settings.time_choose;
-    view.setTimer(d.game.time--);
+    Time.set(d.settings.time_choose, timerStep);
 }
 
 /**
@@ -85,8 +82,7 @@ export function turn_draw(word) {
     d.game.word = word;
     buildWord();
     d.game.mode = 2;
-    d.game.time = d.settings.time_draw;
-    view.setTimer(d.game.time--);
+    Time.set(d.settings.time_draw, timerStep);
 }
 
 /**
@@ -124,26 +120,19 @@ function buildWord() {
 /**
  * Main game timer loop.
  */
-function timerStep() {
-    if (d.game.currentID === -1) {
-        // Should not be running a timer step if the game is stopped.
-        console.log('Halt timer.');
-        clearInterval(d.game.timer);
-    }
-
-    if (d.game.time >= 0) {
+function timerStep(time) {
+    if (time >= 0) {
         // Play countdown sounds if needed.
         if ((d.game.mode === 1 && d.game.draw) || d.game.mode === 2) {
-            if (d.game.time === 0)
+            if (time === 0)
                 playSound('blip2');
-            else if (d.game.time <= 5)
-                playSound('blip1', 0.6 - (d.game.time / 10));
+            else if (time <= 5)
+                playSound('blip1', 0.6 - (time / 10));
         }
         // Decrement the time if not passed zero.
-        view.setTimer(d.game.time--);
         if (d.game.draw && d.game.hideList !== null) {
             // Potentially show another letter.
-            if (d.game.time + 1 < d.settings.time_draw * d.game.hideList.char.length / d.game.hideList.length) {
+            if (time + 1 < d.settings.time_draw * d.game.hideList.char.length / d.game.hideList.length) {
                 sockEmit('reveal char', d.game.hideList.char.splice(Math.random() * d.game.hideList.char.length, 1));
             }
         }
