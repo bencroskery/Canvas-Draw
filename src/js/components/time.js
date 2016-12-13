@@ -2,8 +2,11 @@ const interval = 1000;
 const circumference = 301.635;
 let count = 0;
 let timer = null;
-let time = document.querySelector('#timer text');
-let circle = document.querySelector('#timer path:nth-of-type(2)');
+let dom = {
+    box: document.getElementById('infobox'),
+    text: document.querySelector('#timer text'),
+    circle: document.querySelector('#timer path:nth-of-type(2)')
+};
 
 /**
  * Get the current timer value.
@@ -43,8 +46,7 @@ export function set(countDown, callback) {
             return;
         }
         if (count >= 0) {
-            updateView(count, total);
-            count--;
+            updateView(count--, total);
         }
 
         // Set a new expected value and set a new timeout.
@@ -52,6 +54,7 @@ export function set(countDown, callback) {
         timer = setTimeout(step, Math.max(0, interval - drift));
     };
     step();
+    dom.box.classList.add('showTime');
 }
 
 /**
@@ -69,6 +72,7 @@ export function clear() {
     if (timer !== null) {
         clearTimeout(timer);
         timer = null;
+        dom.box.classList.remove('showTime');
     }
 }
 
@@ -78,8 +82,8 @@ export function clear() {
  * @param {number} total
  */
 function updateView(count, total) {
-    time.textContent = count;
-    circle.style.strokeDashoffset = circumference * (count / total);
+    dom.text.textContent = count;
+    dom.circle.style.strokeDashoffset = circumference * (count / total);
 }
 
 export default {set, dropTo, clear}

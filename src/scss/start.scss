@@ -1,4 +1,6 @@
-﻿* {
+﻿@import "partials/vars";
+
+* {
   box-sizing: border-box;
   font-size: inherit;
   font-family: Arial, Helvetica, sans-serif;
@@ -21,7 +23,7 @@ html, body {
   height: $load-size;
   width: $load-size;
   margin: (-8vmin - $load-size / 2) 0 0 (-$load-size / 2);
-  transition: all 1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  transition: all $bezier-spin;
 }
 
 #logo.spin {
