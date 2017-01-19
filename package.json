@@ -42,24 +42,24 @@
     "autoprefixer": "^6.3.6",
     "babel": "^6.5.2",
     "babel-core": "^6.7.6",
-    "babel-preset-es2015-rollup": "^1.1.1",
+    "babel-preset-es2015-rollup": "^3.0.0",
     "compression": "^1.6.2",
     "cssnano": "^3.5.2",
-    "express": "^4.13.0",
-    "howler": "^2.0.0-rc1",
+    "express": "^4.14.0",
+    "howler": "^2.0.0",
     "jade": "^1.11.0",
     "lodash": "^4.0.0",
-    "node-sass": "^3.4.2",
+    "node-sass": "^4.3.0",
     "postcss-cli": "^2.5.2",
-    "rollup": "^0.26.3",
+    "rollup": "^0.41.0",
     "rollup-plugin-babel": "^2.4.0",
-    "rollup-plugin-commonjs": "^2.2.1",
-    "rollup-plugin-node-resolve": "^1.5.0",
-    "rollup-plugin-uglify": "^0.3.1",
+    "rollup-plugin-commonjs": "^7.0.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-uglify": "^1.0.0",
     "socket.io": "~1.4.5"
   },
   "devDependencies": {
-    "onchange": "^2.4.0",
+    "onchange": "^3.2.0",
     "parallelshell": "^2.0.0"
   }
 }
