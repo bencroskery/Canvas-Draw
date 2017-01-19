@@ -13,7 +13,7 @@ let canvas = document.getElementById('draw'),
     resize = function () {
         const PX = "px";
         let width = window.innerWidth,
-            height = window.innerHeight - 36,
+            height = window.innerHeight,
             gameBox = document.getElementById("game"),
             left = document.getElementById("left"),
             center = document.getElementById("center"),
@@ -80,7 +80,7 @@ let canvas = document.getElementById('draw'),
 
         // Fixes for scaled sizes.
         if (mode === 2) {
-            height = width * 0.675;
+            height = width / 1.48;
         }
         if (mode === 3) {
             width = height;
