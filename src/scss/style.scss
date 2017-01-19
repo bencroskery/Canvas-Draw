@@ -61,7 +61,7 @@
   order: 3;
 }
 
-.portrait {
+.mobile {
   &#game {
     flex-direction: column;
   }
@@ -85,6 +85,18 @@
 
   #bottom {
     flex-flow: row;
+  }
+}
+
+.scaled.desktop {
+  &#game {
+    height: 67.5vw;
+  }
+}
+
+.scaled.mobile {
+  &#game {
+    width: 100vh;
   }
 }
 
