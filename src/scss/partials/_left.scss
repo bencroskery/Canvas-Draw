@@ -1,0 +1,111 @@
+@import "vars";
+
+#buttons {
+  display: flex;
+  margin: 6px;
+  width: 100%;
+  transition: margin $bezier-sweet;
+
+  .desktop #bottom &.going {
+    margin-left: 2.3em;
+  }
+}
+
+#start, #ham {
+  height: 2em;
+  line-height: 1px;
+  transition: all $bezier-sweet;
+  padding: 0;
+}
+
+#start {
+  flex: 1;
+  padding-left: 0.6em;
+  box-sizing: content-box;
+
+  background: #3F3;
+  white-space: nowrap;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  & > * {
+    vertical-align: middle;
+    display: inline-block;
+  }
+
+  & > svg {
+    height: 1em;
+    max-width: 2.6em;
+    overflow: visible;
+  }
+
+  #icon {
+    margin-right: 0.6em;
+    width: 0.9em;
+    height: 0.9em;
+
+    svg {
+      display: block;
+      transform-origin: .3em .4em;
+      transition: transform $bezier-sweet;
+    }
+  }
+
+  .going & {
+    flex: 0 0 1.4em;
+    background: #F33;
+
+    #icon svg {
+      transform: scale(2.5) rotate(63deg);
+    }
+  }
+}
+
+#ham {
+  flex: 0 0 2em;
+
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+
+  svg {
+    vertical-align: middle;
+    width: 1.25em;
+    height: 1.25em;
+  }
+}
+
+.ham {
+  transition: transform .4s;
+  cursor: pointer;
+  position: relative;
+
+  div {
+    height: 4px;
+    width: 30px;
+    position: absolute;
+    background-color: $default-color;
+    border-radius: 2px;
+    transition: transform .4s;
+
+    &:nth-child(2) {
+      transform: translate(0, 10px);
+    }
+    &:nth-child(3) {
+      transform: translate(0, 20px);
+    }
+  }
+
+  &.open {
+    div {
+      &:nth-child(1) {
+        transform: translate(0, 10px) rotate(135deg);
+      }
+      &:nth-child(2) {
+        transform: translate(0, 10px) scale(0.2, 1);
+      }
+      &:nth-child(3) {
+        transform: translate(0, 10px) rotate(-135deg);
+      }
+    }
+  }
+}

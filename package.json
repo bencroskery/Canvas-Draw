@@ -22,9 +22,8 @@
   ],
   "scripts": {
     "postinstall": "npm run build:all",
-    "build:all": "npm run build:socket && npm run build:html && npm run build:js && npm run build:css",
+    "build:all": "npm run build:html && npm run build:js && npm run build:css",
     "watch:all": "parallelshell \"npm run watch:html\" \"npm run watch:js\" \"npm run watch:start\" \"npm run watch:css\"",
-    "build:socket": "uglifyjs2 node_modules/socket.io-client/socket.io.js -o node_modules/socket.io-client/socket.io.js",
     "jade": "jade --no-debug -o public/ src/index.jade",
     "build:html": "npm run jade",
     "watch:html": "onchange \"src/*.jade\" -v -i -- npm run jade",
@@ -34,32 +33,33 @@
     "build:js": "npm run rollupprod && npm run rollupstart",
     "watch:js": "onchange \"src/js/*.js\" \"src/js/components/*.js\" -v -i -- npm run rollup",
     "watch:start": "onchange \"src/js/start/*.js\" -v -i -- npm run rollupstart",
-    "scss": "node-sass -o public/css src/scss",
-    "cleancss": "cleancss -o public/css/style.css public/css/style.css && cleancss -o public/css/start.css public/css/start.css",
-    "build:css": "npm run scss && npm run cleancss",
-    "watch:css": "npm run scss && node-sass -w -o public/css src/scss"
+    "scss": "node-sass --source-map true -o public/css src/scss",
+    "postcss": "postcss -u autoprefixer -u cssnano -r public/css/*.css",
+    "build:css": "npm run scss && npm run postcss",
+    "watch:css": "npm run scss && node-sass --source-map true -w -o public/css src/scss"
   },
   "dependencies": {
+    "autoprefixer": "^6.3.6",
     "babel": "^6.5.2",
     "babel-core": "^6.7.6",
-    "babel-preset-es2015-rollup": "^1.1.1",
-    "clean-css": "^3.4.12",
-    "express": "^4.13.0",
-    "howler": "^2.0.0-beta11",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "compression": "^1.6.2",
+    "cssnano": "^3.5.2",
+    "express": "^4.14.0",
+    "howler": "^2.0.0",
     "jade": "^1.11.0",
     "lodash": "^4.0.0",
-    "node-sass": "^3.4.2",
-    "rollup": "^0.25.8",
+    "node-sass": "^4.3.0",
+    "postcss-cli": "^2.5.2",
+    "rollup": "^0.41.0",
     "rollup-plugin-babel": "^2.4.0",
-    "rollup-plugin-commonjs": "^2.2.1",
-    "rollup-plugin-node-resolve": "^1.5.0",
-    "rollup-plugin-uglify": "^0.3.1",
-    "socket.io": "~1.4.5",
-    "uglify-js2": "^2.1.11"
+    "rollup-plugin-commonjs": "^7.0.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-uglify": "^1.0.0",
+    "socket.io": "~1.4.5"
   },
   "devDependencies": {
-    "onchange": "^2.3.0",
-    "parallelshell": "^2.0.0",
-    "watch": "^0.17.1"
+    "onchange": "^3.2.0",
+    "parallelshell": "^2.0.0"
   }
 }

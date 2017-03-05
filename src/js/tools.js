@@ -2,9 +2,11 @@
 if (!(document.addEventListener || false))
     document.body.innerHTML = "<a href='https://browser-update.org/update.html'>Unfortunately your browser is not supported.</a>";
 
-if (!("classList" in document.documentElement)) {
-    addPolyfill("classList")
-}
+if (!("classList" in document.documentElement))
+    addPolyfill("classList");
+
+if (!Array.from)
+    addPolyfill("Array.from");
 
 const range = document.getElementById('sizeIn');
 if (!(range.type !== 'text')) {
@@ -22,25 +24,26 @@ function addPolyfill(name) {
 
 /**
  * Fade an element out.
- * @param id
+ * @param {String} id
+ * @param {Boolean} [keep]
  */
-export function fadeOut(id) {
+export function fadeOut(id, keep) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 1;
     (function f() {
         s.opacity = (val -= .1).toFixed(1);
-        val <= 0.1 ? s.display = "none" : setTimeout(f, 40);
+        val <= 0.1 ? s.display = keep ? "" : "none" : setTimeout(f, 40);
     })();
 }
 
 /**
  * Fade an element in.
- * @param id
+ * @param {String} id
  */
 export function fadeIn(id) {
     var s = document.getElementById(id).style;
     var val = s.opacity = 0;
-    s.display = "inherit";
+    s.display = "";
     (function f() {
         s.opacity = (val += .1);
         val < 0.9 ? setTimeout(f, 40) : 0;
@@ -49,7 +52,7 @@ export function fadeIn(id) {
 
 /**
  * Open/Close the menu element.
- * @param el
+ * @param {Element} el
  */
 export function openMenu(el) {
     if (el.classList.contains("open")) {

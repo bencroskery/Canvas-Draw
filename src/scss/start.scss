@@ -1,4 +1,6 @@
-﻿* {
+﻿@import "partials/vars";
+
+* {
   box-sizing: border-box;
   font-size: inherit;
   font-family: Arial, Helvetica, sans-serif;
@@ -6,20 +8,25 @@
 
 body {
   margin: 0;
-  background: #F0F0F0;
+  background: linear-gradient(to bottom left, #C8C8C8, #F8F8F8);
 }
 
-#game, #login {
-  display: none;
+html, body {
+  height: 100%;
+  font-size: calc(12px + 0.5vw);
 }
 
 #logo {
-  $load-size: 8em;
+  $load-size: 20vmin;
   position: absolute;
   top: 40%;
   left: 50%;
   height: $load-size;
   width: $load-size;
-  margin: (-3em - $load-size / 2) 0 0 (-$load-size / 2);
-  transition: height ease 1s, width ease 1s, margin ease 1s;
+  margin: (-8vmin - $load-size / 2) 0 0 (-$load-size / 2);
+  transition: all $bezier-spin;
+}
+
+#logo.spin {
+  transform: rotate(-360deg);
 }

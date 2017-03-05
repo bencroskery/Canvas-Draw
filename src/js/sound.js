@@ -1,7 +1,10 @@
-//import * from '../../node_modules/howler/howler'
+import {Howl} from '../../node_modules/howler/dist/howler.core.min.js'
 
-import {Howl} from '../../node_modules/howler/howler.core.min.js'
-
+/**
+ *
+ * @param {String} name
+ * @param {Number} [vol]
+ */
 export function playSound(name, vol) {
     vol = vol || 1;
     new Howl({
@@ -10,7 +13,15 @@ export function playSound(name, vol) {
     }).play();
 }
 
+/**
+ * The music loaded in.
+ * @type Howl
+ */
 let music;
+
+/**
+ * Play some music!
+ */
 export function playMusic() {
     if (music == undefined) {
         music = new Howl({
@@ -21,6 +32,10 @@ export function playMusic() {
     }
     music.play();
 }
+
+/**
+ * Stop the music!
+ */
 export function stopMusic() {
     music.stop();
 }

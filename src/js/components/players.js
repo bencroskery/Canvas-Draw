@@ -1,15 +1,33 @@
 let element = document.getElementById("users");
 
+/**
+ * The player type.
+ * @typedef {{name: string, color: string, score: number}} Player
+ */
+
+/**
+ * The full list of players
+ * @type {Player|Player[]}
+ */
 let players = {
     name: '??',     // Player name.
     color: '',      // Player defining color.
     score: 0        // Player score, totalling points.
 };
 
+/**
+ * Get the number of players.
+ * @returns {number}
+ */
 export function length() {
     return players.length;
 }
 
+/**
+ * Get a player by their ID, or all players.
+ * @param {Number} [id]
+ * @returns {Player|Player[]}
+ */
 export function get(id) {
     if (id === undefined)
         return players;
@@ -17,6 +35,10 @@ export function get(id) {
     return players[id]
 }
 
+/**
+ * Set the list of players.
+ * @param {Player|Player[]} p
+ */
 export function set(p) {
     players = p;
     element.innerHTML = ''; // Clear the players to refresh.
@@ -29,6 +51,10 @@ export function set(p) {
     })
 }
 
+/**
+ * Add a new player to the list.
+ * @param {Player} player
+ */
 export function add(player) {
     players.push(player);
 
@@ -38,6 +64,10 @@ export function add(player) {
     element.appendChild(node);
 }
 
+/**
+ * Remove a player by ID.
+ * @param {Number} id
+ */
 export function remove(id) {
     players.splice(id, 1);
 
@@ -45,6 +75,11 @@ export function remove(id) {
     element.removeChild(element.childNodes[id]);
 }
 
+/**
+ * Update a player's score.
+ * @param {Number} id
+ * @param {Number} amount
+ */
 export function updateScore(id, amount) {
     players[id].score += amount;
     element.childNodes[id].lastChild.innerHTML = players[id].score + ' PTS';

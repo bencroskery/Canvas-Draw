@@ -12,40 +12,42 @@ html
     link(rel='mask-icon', href='logo.svg', color='#ee7b00')
     meta(name='msapplication-TileColor', content='#ee7b00')
     meta(name='msapplication-TileImage', content='mstile-144x144.png')
-    meta(name='theme-color', content='#f0f0f0')
+    meta(name='theme-color', content='#ee7b00')
   body.container-fluid.over
     img#logo(src='logo.svg')
-    #login
+    #login(style="display: none")
       form#lform(action='')
         label.title(for='nameIn') What's your nickname?
         input#nameIn(type='text', maxlength='25')
-    #game
-      #overlay
-        form#worddiag(action='')
-          //- 3 words to select from + custom.
-          div What are you going to draw?
-          each i in [1,2,3]
-            input(id=('word' + i), type='submit', value=i)
-          input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
-        #settings.white
-          #s_user
-            h1 User Settings
-          #s_game
-            h1 Game Settings
-            label Waiting Time:
-            input#s_waiting(type='number')
-            br
-            label Picking Time:
-            input#s_picking(type='number')
-            br
-            label Drawing Time:
-            input#s_drawing(type='number')
-            br
-        .menu
-          div
-          div
-          div
-      .center.noselect
+    #game.desktop(style="display: none")
+      #center.noselect
+        #overlay
+          #infobox
+            #info Draw freely or start a game
+            svg#timer(viewBox='0 0 100 100')
+              each i in [1,2]
+                path(d='M3,50 A 47,47 0 0 1 97 50 A 47,47 0 0 1 3,50')
+              text(x='50',y='62',text-anchor='middle') 50
+          form#worddiag(action='' style="display: none")
+            //- 3 words to select from + custom.
+            div What are you going to draw?
+            each i in [1,2,3]
+              input(id=('word' + i), type='submit', value=i)
+            input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
+          #settings.white(style="display: none")
+            #s_user
+              h1 User Settings
+            #s_game
+              h1 Game Settings
+              label Waiting Time:
+              input#s_waiting(type='number')
+              br
+              label Picking Time:
+              input#s_picking(type='number')
+              br
+              label Drawing Time:
+              input#s_drawing(type='number')
+              br
         canvas#draw.white(oncontextmenu='return false')
         #tools
           //- Build selection of color swatches.
@@ -60,23 +62,24 @@ html
             path(d='M2 0 L0 1 2 2z')
           svg#clear(viewBox='0 0 40 40')
             path(d='M34 0 L40 6 6 40 0 34 z M6 0 L40 34 34 40 0 6z')
-      .left
-        ul#users
-      .right
-        #infobox.white.over
-          #timer
-          #info Draw freely or start a game
+      #left
+        #buttons
           button#start.over
             #icon.over
               svg(viewBox='0 0 2 2')
-                path(fill='white' d='M0 0 L0 2 2 1z')
+                path(fill='#fff' d='M0 0 L0 2 2 1z')
             svg(viewBox='0 0 19 7.5')
-              text(style="font-size:8px" x="0" y="6" fill="white") Start!
-        #messbox.white.over
-          ul#messages
-        form#gform(action='')
-          input#guessIn(autocomplete='off', placeholder='Type here...')
+              text(style="font-size:8px" x="0" y="6.5" fill="#fff") Start!
+          button#ham
+            include settings.jade
+        ul#users
+      #bottom
+        #right
+          #messbox.over
+            ul#messages
+          form#gform(action='')
+            input#guessIn(autocomplete='off', placeholder='Type here...')
     script(src='js/start.js')
     link(rel='stylesheet', property='stylesheet', href='css/style.css')
-    script(src='/socket.io/socket.io.js')
+    script(src='https://cdn.socket.io/socket.io-1.4.5.js')
     script(src='js/bundle.js')
