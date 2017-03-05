@@ -11,18 +11,25 @@
   }
 }
 
-#start {
+#start, #ham {
   height: 2em;
-  flex: 1;
-  padding: 10px;
-  background: #3F3;
+  line-height: 1px;
   transition: all $bezier-sweet;
+  padding: 0;
+}
+
+#start {
+  flex: 1;
+  padding-left: 0.6em;
+  box-sizing: content-box;
+
+  background: #3F3;
   white-space: nowrap;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 
   & > * {
-    vertical-align: top;
+    vertical-align: middle;
     display: inline-block;
   }
 
@@ -34,8 +41,8 @@
 
   #icon {
     margin-right: 0.6em;
-    width: 0.8em;
-    height: 0.8em;
+    width: 0.9em;
+    height: 0.9em;
 
     svg {
       display: block;
@@ -45,7 +52,7 @@
   }
 
   .going & {
-    flex: 0 0 2em;
+    flex: 0 0 1.4em;
     background: #F33;
 
     #icon svg {
@@ -55,15 +62,13 @@
 }
 
 #ham {
-  height: 2em;
   flex: 0 0 2em;
-  transition: all $bezier-sweet;
 
-  padding: 6px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 
   svg {
+    vertical-align: middle;
     width: 1.25em;
     height: 1.25em;
   }
