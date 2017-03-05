@@ -31,9 +31,13 @@ let canvas = document.getElementById('draw'),
          4  -     Mobile
 
          */
+        const DESKTOP = 1.7;
+        const MID     = 1.5;
+        const MOBILE  = 1.0;
+        console.log(aspect);
 
         // Desktop -> Squished
-        if (aspect < 1.62 && mode === 0) {
+        if (aspect < DESKTOP && mode === 0) {
             // move left to bottom.
             gameBox.removeChild(left);
             bottom.appendChild(left);
@@ -41,13 +45,13 @@ let canvas = document.getElementById('draw'),
             mode = 1;
         }
         // Squished -> Scale desktop
-        if (aspect < 1.48 && mode === 1) {
+        if (aspect < MID && mode === 1) {
             gameBox.classList.add("scaled");
 
             mode = 2;
         }
         // Scale desktop -> Mobile
-        if (aspect < 1.00 && (mode === 2 || mode === 3)) {
+        if (aspect < MOBILE && (mode === 2 || mode === 3)) {
             // Switch classes.
             gameBox.classList.add("mobile");
             gameBox.classList.remove("scaled", "desktop");
@@ -56,13 +60,13 @@ let canvas = document.getElementById('draw'),
         }
 
         // Mobile -> Scale mobile
-        if (aspect > 1.00 && mode === 4) {
+        if (aspect > MOBILE && mode === 4) {
             gameBox.classList.add("scaled");
 
             mode = 3;
         }
         // Scale mobile -> Squished
-        if (aspect > 1.48 && (mode === 3 || mode === 2)) {
+        if (aspect > MID && (mode === 3 || mode === 2)) {
             // Switch classes.
             gameBox.classList.add("desktop");
             gameBox.classList.remove("scaled", "mobile");
@@ -70,7 +74,7 @@ let canvas = document.getElementById('draw'),
             mode = 1;
         }
         // Squished -> Desktop
-        if (aspect > 1.62 && mode === 1) {
+        if (aspect > DESKTOP && mode === 1) {
             // move left to gamebox.
             bottom.removeChild(left);
             gameBox.appendChild(left);
