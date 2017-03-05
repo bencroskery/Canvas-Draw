@@ -12,14 +12,14 @@ import Time from './components/time'
 WordDiag.init();
 
 export function start() {
-    document.getElementById('start').classList.add("going");
+    document.getElementById('buttons').classList.add("going");
     d.game.draw = false;
     d.game.currentID = 0;
     Time.set(d.settings.time_wait, timerStep)
 }
 
 export function stop() {
-    document.getElementById('start').classList.remove("going");
+    document.getElementById('buttons').classList.remove("going");
     Info.set('Draw freely or start a game');
     if (d.game.mode === 1 && d.game.currentID === d.game.myID) tools.fadeOut('worddiag');
     d.game.draw = true;
@@ -35,6 +35,7 @@ export function stop() {
  * @param {Number} next
  */
 export function turn_wait(next) {
+console.log('wait: ' + next);
     if (next !== 0) {
         Chat.addMessage('The word was: ' + d.game.word);
     }
@@ -129,8 +130,8 @@ function timerStep(time) {
             else if (time <= 5)
                 playSound('blip1', 0.6 - (time / 10));
         }
-        // Decrement the time if not passed zero.
-        if (d.game.draw && d.game.hideList !== null) {
+
+        if (d.game.hideList !== null && d.game.hideList.char) {
             // Potentially show another letter.
             if (time + 1 < d.settings.time_draw * d.game.hideList.char.length / d.game.hideList.length) {
                 sockEmit('reveal char', d.game.hideList.char.splice(Math.random() * d.game.hideList.char.length, 1));

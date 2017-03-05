@@ -96,7 +96,7 @@ function checkGuess(guess) {
  */
 document.getElementById('start').onclick = function (e) {
     e.preventDefault();
-    if (this.classList.contains("going"))
+    if (this.parentElement.classList.contains("going"))
         sockEmit('stop game', 0);
     else
         sockEmit('start game', 0);
