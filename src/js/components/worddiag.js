@@ -12,8 +12,9 @@ export function init() {
  */
 function chosen(e) {
     e.preventDefault();
-    const val = document.activeElement.value.trim();
+    const val = this.value.trim();
     if (val.length) {
+        console.log("Picked word" + val);
         if (d.game.currentID === d.game.myID) sockEmit('turn-draw', val);
         tools.fadeOut('worddiag');
     }

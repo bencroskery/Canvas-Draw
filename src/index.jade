@@ -32,7 +32,7 @@ html
             //- 3 words to select from + custom.
             div What are you going to draw?
             each i in [1,2,3]
-              input(id=('word' + i), type='submit', value=i)
+              input(id=('word' + i), onclick='this.form.value = this.value', type='submit', value=i)
             input#custom(type='text', autocomplete='off', placeholder='Custom', maxlength='25')
           #settings.white(style="display: none")
             #s_user

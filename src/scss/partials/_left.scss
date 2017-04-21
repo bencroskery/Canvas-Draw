@@ -2,7 +2,7 @@
 
 #buttons {
   display: flex;
-  margin: 6px;
+  margin: 0.3em;
   width: 100%;
   transition: margin $bezier-sweet;
 
@@ -16,6 +16,7 @@
   line-height: 1px;
   transition: all $bezier-sweet;
   padding: 0;
+  margin: 0;
 }
 
 #start {
