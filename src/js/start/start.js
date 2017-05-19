@@ -107,6 +107,8 @@ let canvas = document.getElementById('draw'),
     };
     resize();
 
+    setTimeout(resize, 50);
+
     // Loaded up, do a spin!
     document.getElementById("logo").classList.add("spin");
 })();

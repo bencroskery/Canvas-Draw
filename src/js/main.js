@@ -7,6 +7,7 @@ import Players from './components/players'
 import Chat from './components/chat'
 import Canvas from './components/canvas'
 import Info from './components/info'
+import WordDiag from './components/worddiag'
 
 // Startup.
 tools.fadeIn('login');
@@ -141,5 +142,6 @@ document.getElementById('lform').onsubmit = function (e) {
         // Initialize stuff.
         Canvas.init();
         Chat.init(runCommand, checkGuess);
+        WordDiag.init();
     }
 };

@@ -9,8 +9,6 @@ import WordDiag from './components/worddiag'
 import Info from './components/info'
 import Time from './components/time'
 
-WordDiag.init();
-
 export function start() {
     document.getElementById('buttons').classList.add("going");
     d.game.draw = false;
