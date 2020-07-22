@@ -1,16 +1,21 @@
-import babel from 'rollup-plugin-babel';
-import uglify from 'rollup-plugin-uglify';
+import babel from '@rollup/plugin-babel';
+import uglify from '@lopatnov/rollup-plugin-uglify';
 
 export default {
-    entry: 'src/js/start/start.js',
-    format: 'cjs',
-    sourceMap: true,
-    plugins: [ babel({
-        presets: [ 'es2015-rollup' ]
-    }), uglify({
-        mangle: {
-            except: ['canvas', 'draw']
-        }
-    }) ],
-    dest: 'public/js/start.js'
+    input: 'src/js/start/start.js',
+    output: {
+        file: 'public/js/start.js',
+        format: 'cjs',
+        sourceMap: true
+    },
+    plugins: [
+        babel({
+            babelHelpers: 'bundled'
+        }),
+        uglify({
+            mangle: {
+                reserved: ['canvas', 'draw']
+            }
+        })
+    ]
 };
